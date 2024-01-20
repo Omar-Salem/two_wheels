@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="two_wheels">
 
-  <!-- Use this if parameters are set from the launch file, otherwise delete -->
-
   <xacro:arg name="use_mock_hardware" default="false" />
   <xacro:arg name="mock_sensor_commands" default="false" />
   <xacro:arg name="sim_gazebo_classic" default="false" />
