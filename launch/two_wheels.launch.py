@@ -26,97 +26,28 @@ from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # Declare arguments
-    declared_arguments = []
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "runtime_config_package",
-            default_value="two_wheels",
-            description='Package with the controller\'s configuration in "config" folder. \
-        Usually the argument is not set, it enables use of a custom setup.',
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "controllers_file",
-            default_value="two_wheels_controllers.yaml",
-            description="YAML file with the controllers configuration.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_package",
-            default_value="two_wheels",
-            description="Description package with robot URDF/xacro files. Usually the argument \
-        is not set, it enables use of a custom description.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_file",
-            default_value="two_wheels.urdf.xacro",
-            description="URDF/XACRO description file with the robot.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "prefix",
-            default_value='""',
-            description="Prefix of the joint names, useful for \
-        multi-robot setup. If changed than also joint names in the controllers' configuration \
-        have to be updated.",
-        )
-    )
-    declared_arguments.append(
+    declared_arguments = [
         DeclareLaunchArgument(
             "use_mock_hardware",
             default_value="true",
             description="Start robot with mock hardware mirroring command to its states.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "mock_sensor_commands",
-            default_value="false",
-            description="Enable mock command interfaces for sensors used for simple simulations. \
-            Used only if 'use_mock_hardware' parameter is true.",
-        )
-    )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "robot_controller",
-            default_value="forward_position_controller",
-            choices=["forward_position_controller", "joint_trajectory_controller"],
-            description="Robot controller to start.",
-        )
-    )
+        )]
 
     # Initialize Arguments
-    runtime_config_package = LaunchConfiguration("runtime_config_package")
-    controllers_file = LaunchConfiguration("controllers_file")
-    description_package = LaunchConfiguration("description_package")
-    description_file = LaunchConfiguration("description_file")
-    prefix = LaunchConfiguration("prefix")
     use_mock_hardware = LaunchConfiguration("use_mock_hardware")
-    mock_sensor_commands = LaunchConfiguration("mock_sensor_commands")
-    robot_controller = LaunchConfiguration("robot_controller")
 
     # Get URDF via xacro
+    package_share = FindPackageShare('two_wheels')
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
             PathJoinSubstitution(
-                [FindPackageShare(description_package), "urdf", description_file]
+                [package_share, "urdf", 'two_wheels.urdf.xacro']
             ),
-            " ",
-            "prefix:=",
-            prefix,
             " ",
             "use_mock_hardware:=",
             use_mock_hardware,
-            " ",
-            "mock_sensor_commands:=",
-            mock_sensor_commands,
             " ",
         ]
     )
@@ -124,10 +55,10 @@ def generate_launch_description():
     robot_description = {"robot_description": robot_description_content}
 
     robot_controllers = PathJoinSubstitution(
-        [FindPackageShare(runtime_config_package), "config", controllers_file]
+        [package_share, "config", 'two_wheels_controllers.yaml']
     )
     rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "two_wheels.rviz"]
+        [package_share, "rviz", "two_wheels.rviz"]
     )
 
     control_node = Node(
@@ -173,7 +104,6 @@ def generate_launch_description():
             )
         ]
 
-
     # Delay loading and activation of `joint_state_broadcaster` after start of ros2_control_node
     delay_joint_state_broadcaster_spawner_after_ros2_control_node = RegisterEventHandler(
         event_handler=OnProcessStart(
@@ -200,7 +130,6 @@ def generate_launch_description():
                 )
             )
         ]
-
 
     return LaunchDescription(
         declared_arguments
