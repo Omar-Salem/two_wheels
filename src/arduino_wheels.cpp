@@ -22,10 +22,8 @@ namespace two_wheels {
         if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
             return CallbackReturn::ERROR;
         }
-        hw_positions_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-        hw_velocities_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-        hw_commands_.resize(info_.joints.size(), std::numeric_limits<double>::quiet_NaN());
-
+        leftWheel = new Wheel("left_wheel_joint");
+        rightWheel = new Wheel("right_wheel_joint");
         return CallbackReturn::SUCCESS;
     }
 
@@ -35,26 +33,37 @@ namespace two_wheels {
         return CallbackReturn::SUCCESS;
     }
 
-    std::vector <hardware_interface::StateInterface> ArduinoWheels::export_state_interfaces() {
+    std::vector<hardware_interface::StateInterface> ArduinoWheels::export_state_interfaces() {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "export_state_interfaces ...please wait...");
-        std::vector <hardware_interface::StateInterface> state_interfaces;
-        for (auto i = 0u; i < info_.joints.size(); i++) {
-            state_interfaces.emplace_back(hardware_interface::StateInterface(
-                    info_.joints[i].name, hardware_interface::HW_IF_POSITION, &hw_positions_[i]));
-            state_interfaces.emplace_back(hardware_interface::StateInterface(
-                    info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_velocities_[i]));
-        }
+        std::vector<hardware_interface::StateInterface> state_interfaces;
+//        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "info_.joints[0].name: %s'",info_.joints[0].name.c_str());
+//        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "info_.joints[1].name: %s'",info_.joints[1].name.c_str());
+
+
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+                leftWheel->name, hardware_interface::HW_IF_POSITION, &leftWheel->position_state));
+
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_state));
+
+
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+                rightWheel->name, hardware_interface::HW_IF_POSITION, &rightWheel->position_state));
+
+        state_interfaces.emplace_back(hardware_interface::StateInterface(
+                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_state));
 
         return state_interfaces;
     }
 
-    std::vector <hardware_interface::CommandInterface> ArduinoWheels::export_command_interfaces() {
+    std::vector<hardware_interface::CommandInterface> ArduinoWheels::export_command_interfaces() {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "export_command_interfaces ...please wait...");
-        std::vector <hardware_interface::CommandInterface> command_interfaces;
-        for (auto i = 0u; i < info_.joints.size(); i++) {
-            command_interfaces.emplace_back(hardware_interface::CommandInterface(
-                    info_.joints[i].name, hardware_interface::HW_IF_VELOCITY, &hw_commands_[i]));
-        }
+        std::vector<hardware_interface::CommandInterface> command_interfaces;
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(
+                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_command));
+        command_interfaces.emplace_back(hardware_interface::CommandInterface(
+                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_command));
+
 
         return command_interfaces;
     }
@@ -74,12 +83,17 @@ namespace two_wheels {
     hardware_interface::return_type ArduinoWheels::read(
             const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "read ...please wait...");
+        //TODO:update leftWheel->position_state and rightWheel->position_state from arduino
+        //TODO:update leftWheel->velocity_state and rightWheel->velocity_state from arduino
         return hardware_interface::return_type::OK;
     }
 
     hardware_interface::return_type ArduinoWheels::write(
             const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "write ...please wait...");
+        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "leftWheel->velocity_command: %f'", leftWheel->velocity_command);
+        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "rightWheel->velocity_command: %f'", rightWheel->velocity_command);
+        //TODO:send leftWheel->velocity_command and rightWheel->velocity_command to firmware
         return hardware_interface::return_type::OK;
     }
 

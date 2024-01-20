@@ -21,6 +21,8 @@ add_library(
   two_wheels
   SHARED
   src/arduino_wheels.cpp
+        src/Wheel.cpp
+        include/two_wheels/Wheel.h
 )
 target_include_directories(
   two_wheels
