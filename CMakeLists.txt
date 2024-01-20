@@ -7,13 +7,49 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(hardware_interface REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 install(
   DIRECTORY config launch meshes rviz urdf
   DESTINATION share/${PROJECT_NAME}
+)
+
+add_library(
+  two_wheels
+  SHARED
+  src/arduino_wheels.cpp
+)
+target_include_directories(
+  two_wheels
+  PUBLIC
+  include
+)
+ament_target_dependencies(
+  two_wheels
+  hardware_interface
+  rclcpp
+  rclcpp_lifecycle
+)
+# prevent pluginlib from using boost
+target_compile_definitions(two_wheels PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
+
+pluginlib_export_plugin_description_file(
+  hardware_interface two_wheels.xml)
+
+install(
+  TARGETS
+  two_wheels
+  RUNTIME DESTINATION bin
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
 )
 
 if(BUILD_TESTING)
@@ -26,6 +62,30 @@ if(BUILD_TESTING)
   # a copyright and license is added to all source files
   set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_gmock REQUIRED)
+  find_package(ros2_control_test_assets REQUIRED)
+
+  ament_add_gmock(test_arduino_wheels test/test_arduino_wheels.cpp)
+  target_include_directories(test_arduino_wheels PRIVATE include)
+  ament_target_dependencies(
+    test_arduino_wheels
+    hardware_interface
+    pluginlib
+    ros2_control_test_assets
+  )
 endif()
+
+ament_export_include_directories(
+  include
+)
+ament_export_libraries(
+  two_wheels
+)
+ament_export_dependencies(
+  hardware_interface
+  pluginlib
+  rclcpp
+  rclcpp_lifecycle
+)
 
 ament_package()
