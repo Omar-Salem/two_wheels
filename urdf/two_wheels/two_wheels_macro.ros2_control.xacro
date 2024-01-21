@@ -1,54 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
 
-  <xacro:macro name="two_wheels_ros2_control" params="
+    <xacro:macro name="two_wheels_ros2_control" params="
                name
-               use_mock_hardware:=^|false">
+               use_mock_hardware">
+        <ros2_control name="${name}" type="system">
+            <hardware>
+                <xacro:if value="${use_mock_hardware}">
+                    <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+                </xacro:if>
+                <xacro:unless value="${use_mock_hardware}">
+                    <plugin>two_wheels/ArduinoWheels</plugin>
+                </xacro:unless>
+            </hardware>
 
-    <ros2_control name="${name}" type="system">
-      <hardware>
-        <xacro:if value="${use_mock_hardware}">
-          <plugin>mock_components/GenericSystem</plugin>
+            <joint name="left_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+            <joint name="right_wheel_joint">
+                <command_interface name="velocity">
+                    <param name="min">-10</param>
+                    <param name="max">10</param>
+                </command_interface>
+                <state_interface name="position"/>
+                <state_interface name="velocity"/>
+            </joint>
+        </ros2_control>
+
+
+        <xacro:if value="$(arg use_mock_hardware)">
+            <!-- Gazebo plugins -->
+            <!--      <gazebo reference="world">-->
+            <!--      </gazebo>-->
+            <gazebo>
+                <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+                    <robot_param>robot_description</robot_param>
+                    <robot_param_node>robot_state_publisher</robot_param_node>
+                    <parameters>$(find two_wheels)/config/gaz_ros2_ctl_use_sim.yaml</parameters>
+                    <parameters>$(find two_wheels)/config/two_wheels_controllers.yaml</parameters>
+                </plugin>
+                <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+                    <!-- Wheel Information -->
+                    <left_joint>left_wheel_joint</left_joint>
+                    <right_joint>right_wheel_joint</right_joint>
+
+                    <wheel_separation>0.09</wheel_separation>
+                    <wheel_diameter>0.033</wheel_diameter>
+
+
+                    <!-- Limits -->
+                    <max_wheel_torque>200</max_wheel_torque>
+                    <max_wheel_acceleration>10.0</max_wheel_acceleration>
+
+
+                    <!-- Output -->
+                    <odometry_frame>odom</odometry_frame>
+                    <robot_base_frame>base_link</robot_base_frame>
+
+                    <publish_odom>true</publish_odom>
+                    <publish_odom_tf>true</publish_odom_tf>
+                    <publish_wheel_tf>true</publish_wheel_tf>
+
+                </plugin>
+            </gazebo>
         </xacro:if>
-<!--        <xacro:if value="${sim_gazebo_classic}">-->
-<!--          <plugin>gazebo_ros2_control/GazeboSystem</plugin>-->
-<!--        </xacro:if>-->
-<!--        <xacro:if value="${sim_gazebo}">-->
-<!--          <plugin>ign_ros2_control/IgnitionSystem</plugin>-->
-<!--        </xacro:if>-->
-        <xacro:unless value="${use_mock_hardware}">
-          <plugin>two_wheels/ArduinoWheels</plugin>
-        </xacro:unless>
-      </hardware>
 
-      <joint name="left_wheel_joint">
-        <command_interface name="velocity">
-          <param name="min">-10</param>
-          <param name="max">10</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-      <joint name="right_wheel_joint">
-        <command_interface name="velocity">
-          <param name="min">-10</param>
-          <param name="max">10</param>
-        </command_interface>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
-    </ros2_control>
-
-<!--    <xacro:if value="$(arg sim_gazebo_classic)">-->
-<!--      &lt;!&ndash; Gazebo plugins &ndash;&gt;-->
-<!--      <gazebo reference="world">-->
-<!--      </gazebo>-->
-<!--      <gazebo>-->
-<!--        <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">-->
-<!--          <parameters>${simulation_controllers}</parameters>-->
-<!--        </plugin>-->
-<!--      </gazebo>-->
-<!--    </xacro:if>-->
-
-  </xacro:macro>
+    </xacro:macro>
 </robot>

@@ -17,7 +17,7 @@
 #
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler, TimerAction, ExecuteProcess
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, TimerAction
 from launch.event_handlers import OnProcessExit, OnProcessStart
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -131,7 +131,6 @@ def generate_launch_description():
             )
         ]
 
-    gazebo_nodes = create_gazebo_nodes(package_share)
     return LaunchDescription(
         declared_arguments
         + [
@@ -142,27 +141,6 @@ def generate_launch_description():
             delay_joint_state_broadcaster_spawner_after_ros2_control_node,
         ]
         + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
-        + gazebo_nodes
     )
 
 
-def create_gazebo_nodes(package_dir: object) -> list:
-    """
-
-    :rtype: list
-    """
-    world_files = PathJoinSubstitution(
-        [package_dir, 'worlds', 'my_world.world']
-    )
-    gazeboworld = ExecuteProcess(
-        cmd=['gazebo', '--verbose', world_files, '-s', 'libgazebo_ros_factory.so']
-    )
-    return [
-        gazeboworld,
-        Node(
-            package='gazebo_ros',
-            executable='spawn_entity.py',
-            name='urdf_spawner',
-            output='screen',
-            arguments=["-topic", "/robot_description", "-entity", "robot_name"])
-    ]
