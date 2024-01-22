@@ -1,132 +1,66 @@
-# Copyright (c) 2022, Stogl Robotics Consulting UG (haftungsbeschränkt) (template)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-#
-#
-# Author: Dr. Denis
-#
+import os
 
+from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, ExecuteProcess
-from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import Command
 from launch_ros.actions import Node
-from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    # Declare arguments
-    declared_arguments = [
-        DeclareLaunchArgument(
-            "use_mock_hardware",
-            default_value="true",
-            description="Start robot with mock hardware mirroring command to its states.",
-        )]
+    # Include the robot_state_publisher launch file, provided by our own package. Force sim time to be enabled
+    # !!! MAKE SURE YOU SET THE PACKAGE NAME CORRECTLY !!!
 
-    # Initialize Arguments
-    use_mock_hardware = LaunchConfiguration("use_mock_hardware")
+    package_name = 'two_wheels'  # <--- CHANGE ME
 
-    # Get URDF via xacro
-    package_share = FindPackageShare('two_wheels')
-    robot_description_content = Command(
-        [
-            PathJoinSubstitution([FindExecutable(name="xacro")]),
-            " ",
-            PathJoinSubstitution(
-                [package_share, "urdf", 'two_wheels.urdf.xacro']
-            ),
-            " ",
-            "use_mock_hardware:=",
-            use_mock_hardware,
-            " ",
-        ]
-    )
+    pkg_path = os.path.join(get_package_share_directory(package_name))
+    xacro_file = os.path.join(pkg_path, 'urdf', 'robot.urdf.xacro')
+    # robot_description_config = xacro.process_file(xacro_file).toxml()
+    robot_description_config = Command(['xacro ', xacro_file])
 
-    robot_description = {"robot_description": robot_description_content}
-
-    robot_controllers = PathJoinSubstitution(
-        [package_share, "config", 'two_wheels_controllers.yaml']
-    )
-    rviz_config_file = PathJoinSubstitution(
-        [package_share, "rviz", "two_wheels.rviz"]
-    )
-
-    control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        output="both",
-        parameters=[robot_description, robot_controllers],
-    )
-    joint_state_publisher_node = Node(
-        package='joint_state_publisher',
-        executable='joint_state_publisher',
-        name='joint_state_publisher',
-        parameters=[robot_description],
-    )
+    # Create a robot_state_publisher node
+    params = {'robot_description': robot_description_config,
+              'use_sim_time': True}
     robot_state_pub_node = Node(
-        package="robot_state_publisher",
-        executable="robot_state_publisher",
-        output="both",
-        parameters=[robot_description],
-    )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        output='screen',
+        parameters=[params]
     )
 
-    robot_controller_names = ['joint_state_broadcaster', 'diff_drive_controller']
-    robot_controller_spawners = []
-    for controller in robot_controller_names:
-        robot_controller_spawners += [
-            Node(
-                package="controller_manager",
-                executable="spawner",
-                arguments=[controller, "--controller-manager", "/controller_manager"],
-            )
-        ]
+    gazebo_params_file = os.path.join(get_package_share_directory(package_name), 'config', 'gazebo_params.yaml')
 
-    return LaunchDescription(
-        declared_arguments
-        + [
-            control_node,
-            robot_state_pub_node,
-            joint_state_publisher_node,
-            rviz_node,
-        ]
-        + robot_controller_spawners
-        + create_gazebo_nodes(package_share)
+    # Include the Gazebo launch file, provided by the gazebo_ros package
+    gazebo = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
+        launch_arguments={'extra_gazebo_args': '--ros-args --params-file ' + gazebo_params_file}.items()
     )
 
+    # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
+    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
+                        arguments=['-topic', 'robot_description',
+                                   '-entity', 'my_bot'],
+                        output='screen')
 
-def create_gazebo_nodes(package_dir: object) -> list:
-    """
+    diff_drive_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["diff_drive_controller"],
+    )
 
-    :rtype: list
-    """
-    world_files = PathJoinSubstitution(
-        [package_dir, 'worlds', 'my_world.world']
+    joint_broad_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster"],
     )
-    gazeboworld = ExecuteProcess(
-        cmd=['gazebo', '--verbose', world_files, '-s', 'libgazebo_ros_factory.so']
-    )
-    return [
-        gazeboworld,
-        Node(
-            package='gazebo_ros',
-            executable='spawn_entity.py',
-            name='urdf_spawner',
-            output='screen',
-            arguments=["-topic", "/robot_description", "-entity", "robot_name"])
-    ]
+
+    # Launch them all!
+    return LaunchDescription([
+        robot_state_pub_node,
+        gazebo,
+        spawn_entity,
+        diff_drive_spawner,
+        joint_broad_spawner
+    ])
