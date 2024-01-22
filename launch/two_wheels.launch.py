@@ -17,7 +17,7 @@
 #
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, ExecuteProcess
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
@@ -86,12 +86,6 @@ def generate_launch_description():
         arguments=["-d", rviz_config_file],
     )
 
-    # joint_state_broadcaster_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
-    # )
-
     robot_controller_names = ['joint_state_broadcaster', 'diff_drive_controller']
     robot_controller_spawners = []
     for controller in robot_controller_names:
@@ -103,33 +97,6 @@ def generate_launch_description():
             )
         ]
 
-    # Delay loading and activation of `joint_state_broadcaster` after start of ros2_control_node
-    # delay_joint_state_broadcaster_spawner_after_ros2_control_node = RegisterEventHandler(
-    #     event_handler=OnProcessStart(
-    #         target_action=control_node,
-    #         on_start=[
-    #             TimerAction(
-    #                 period=3.0,
-    #                 actions=[joint_state_broadcaster_spawner],
-    #             ),
-    #         ],
-    #     )
-    # )
-
-    # Delay loading and activation of robot_controller_names after `joint_state_broadcaster`
-    # delay_robot_controller_spawners_after_joint_state_broadcaster_spawner = []
-    # for i, controller in enumerate(robot_controller_spawners):
-    #     delay_robot_controller_spawners_after_joint_state_broadcaster_spawner += [
-    #         RegisterEventHandler(
-    #             event_handler=OnProcessExit(
-    #                 target_action=robot_controller_spawners[i - 1]
-    #                 if i > 0
-    #                 else joint_state_broadcaster_spawner,
-    #                 on_exit=[controller],
-    #             )
-    #         )
-    #     ]
-
     return LaunchDescription(
         declared_arguments
         + [
@@ -137,10 +104,29 @@ def generate_launch_description():
             robot_state_pub_node,
             joint_state_publisher_node,
             rviz_node,
-            # delay_joint_state_broadcaster_spawner_after_ros2_control_node,
         ]
         + robot_controller_spawners
-        # + delay_robot_controller_spawners_after_joint_state_broadcaster_spawner
+        + create_gazebo_nodes(package_share)
     )
 
 
+def create_gazebo_nodes(package_dir: object) -> list:
+    """
+
+    :rtype: list
+    """
+    world_files = PathJoinSubstitution(
+        [package_dir, 'worlds', 'my_world.world']
+    )
+    gazeboworld = ExecuteProcess(
+        cmd=['gazebo', '--verbose', world_files, '-s', 'libgazebo_ros_factory.so']
+    )
+    return [
+        gazeboworld,
+        Node(
+            package='gazebo_ros',
+            executable='spawn_entity.py',
+            name='urdf_spawner',
+            output='screen',
+            arguments=["-topic", "/robot_description", "-entity", "robot_name"])
+    ]
