@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-
-    <!--    <xacro:include filename="$(find two_wheels)/urdf/common.xacro"/>-->
-    <!--    <xacro:include filename="$(find two_wheels)/urdf/two_wheels/gazebo.xacro"/>-->
+    <xacro:arg name="is_sim" default="true"/>
 
     <xacro:include filename="common.xacro"/>
     <xacro:include filename="gazebo.xacro"/>

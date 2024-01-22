@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <robot>
-
-    <ros2_control name="RealRobot" type="system">
+    <ros2_control name="GazeboSystem" type="system">
         <hardware>
-            <plugin>two_wheels/ArduinoWheels</plugin>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
         </hardware>
         <joint name="left_wheel_joint">
             <command_interface name="velocity">
@@ -22,5 +21,13 @@
             <state_interface name="position"/>
         </joint>
     </ros2_control>
+
+
+    <gazebo>
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+            <parameters>$(find two_wheels)/config/two_wheels_controllers.yaml</parameters>
+            <parameters>$(find two_wheels)/config/gaz_ros2_ctl_use_sim.yaml</parameters>
+        </plugin>
+    </gazebo>
 
 </robot>
