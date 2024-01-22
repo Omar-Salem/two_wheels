@@ -4,8 +4,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command
+from launch.substitutions import Command, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
@@ -27,24 +28,36 @@ def generate_launch_description():
     gazebo_nodes = create_gazebo_nodes(package_name)
 
     controller_nodes = create_controller_nodes()
+    package_share = FindPackageShare(package_name)
+    rviz_config_file = PathJoinSubstitution(
+        [package_share, "rviz", "two_wheels.rviz"]
+    )
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file],
+    )
     return LaunchDescription([
+                                 rviz_node,
                                  robot_state_pub_node,
                              ] + gazebo_nodes
                              + controller_nodes)
 
 
 def create_controller_nodes():
-    diff_drive_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["diff_drive_controller"],
-    )
-    joint_broad_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster"],
-    )
-    return [joint_broad_spawner, diff_drive_spawner]
+    robot_controller_names = ['joint_state_broadcaster', 'diff_drive_controller']
+    robot_controller_spawners = []
+    for controller in robot_controller_names:
+        robot_controller_spawners += [
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=[controller],
+            )
+        ]
+    return robot_controller_spawners
 
 
 def create_gazebo_nodes(package_name):
