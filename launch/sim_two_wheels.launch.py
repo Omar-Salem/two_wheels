@@ -35,7 +35,7 @@ def generate_launch_description():
 
     gazebo_nodes = create_gazebo_nodes(package_name)
 
-    controller_nodes = create_controller_nodes(is_sim, package_name, robot_description_config)
+    controller_nodes = create_controller_nodes(package_name, robot_description_config)
     rviz_node = create_rviz_node(package_name)
 
     return LaunchDescription(declared_arguments +
@@ -63,7 +63,11 @@ def create_rviz_node(package_name):
     return rviz_node
 
 
-def create_controller_nodes(sim, package_name, robot_description_config):
+def create_controller_nodes(package_name: object, robot_description_config: object) -> list:
+    """
+
+    :rtype: list
+    """
     robot_controller_names = ['joint_state_broadcaster', 'diff_drive_controller']
     robot_controller_spawners = []
     for controller in robot_controller_names:
@@ -74,23 +78,14 @@ def create_controller_nodes(sim, package_name, robot_description_config):
                 arguments=[controller],
             )
         ]
-    if not sim:
-        package_dir = FindPackageShare(package_name)
-        robot_controllers = PathJoinSubstitution(
-            [package_dir, "config", 'two_wheels_controllers.yaml']
-        )
-
-        control_node = Node(
-            package="controller_manager",
-            executable="ros2_control_node",
-            output="both",
-            parameters=[{'robot_description': robot_description_config}, robot_controllers],
-        )
-        robot_controller_spawners.append(control_node)
     return robot_controller_spawners
 
 
-def create_gazebo_nodes(package_name):
+def create_gazebo_nodes(package_name) -> list:
+    """
+
+    :rtype: list
+    """
     package_dir = FindPackageShare(package_name)
     world_files = PathJoinSubstitution(
         [package_dir, 'worlds', 'my_world.world']
