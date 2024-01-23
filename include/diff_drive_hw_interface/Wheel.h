@@ -17,4 +17,4 @@ class Wheel {
 };
 
 
-#endif //TWO_WHEELS_WHEEL_H
+#endif

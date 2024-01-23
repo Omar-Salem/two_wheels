@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 project(two_wheels)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif ()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -13,86 +13,81 @@ find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
 install(
-  DIRECTORY config launch meshes rviz urdf worlds
-  DESTINATION share/${PROJECT_NAME}
+        DIRECTORY config launch meshes rviz urdf worlds
+        DESTINATION share/${PROJECT_NAME}
 )
 
+include_directories(include)
+
+set(HW_INTERFACE_LIB "diff_drive_hw_interface")
 add_library(
-  two_wheels
-  SHARED
-  src/arduino_wheels.cpp
-        src/Wheel.cpp
-        include/two_wheels/Wheel.h
+        ${HW_INTERFACE_LIB}
+        SHARED
+        src/arduino_wheels.cpp
 )
-target_include_directories(
-  two_wheels
-  PUBLIC
-  include
-)
+# target_include_directories(
+#   two_wheels
+#   PUBLIC
+#   include
+# )
 ament_target_dependencies(
-  two_wheels
-  hardware_interface
-  rclcpp
-  rclcpp_lifecycle
+        ${HW_INTERFACE_LIB}
+        hardware_interface
+        rclcpp
+        rclcpp_lifecycle
 )
 # prevent pluginlib from using boost
-target_compile_definitions(two_wheels PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
+target_compile_definitions(${HW_INTERFACE_LIB} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
-pluginlib_export_plugin_description_file(
-  hardware_interface two_wheels.xml)
-
-install(
-  TARGETS
-  two_wheels
-  RUNTIME DESTINATION bin
-  ARCHIVE DESTINATION lib
-  LIBRARY DESTINATION lib
-)
+pluginlib_export_plugin_description_file(hardware_interface ${HW_INTERFACE_LIB}.xml)
 
 install(
-  DIRECTORY include/
-  DESTINATION include
+        TARGETS
+        ${HW_INTERFACE_LIB}
+        RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
 )
 
 install(
-  DIRECTORY config launch
-  DESTINATION share/${PROJECT_NAME}
+        DIRECTORY include/
+        DESTINATION include
 )
 
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-  find_package(ament_cmake_gmock REQUIRED)
-  find_package(ros2_control_test_assets REQUIRED)
+if (BUILD_TESTING)
+    find_package(ament_lint_auto REQUIRED)
+    # the following line skips the linter which checks for copyrights
+    # comment the line when a copyright and license is added to all source files
+    set(ament_cmake_copyright_FOUND TRUE)
+    # the following line skips cpplint (only works in a git repo)
+    # comment the line when this package is in a git repo and when
+    # a copyright and license is added to all source files
+    set(ament_cmake_cpplint_FOUND TRUE)
+    ament_lint_auto_find_test_dependencies()
+    find_package(ament_cmake_gmock REQUIRED)
+    find_package(ros2_control_test_assets REQUIRED)
 
-  ament_add_gmock(test_arduino_wheels test/test_arduino_wheels.cpp)
-  target_include_directories(test_arduino_wheels PRIVATE include)
-  ament_target_dependencies(
-    test_arduino_wheels
-    hardware_interface
-    pluginlib
-    ros2_control_test_assets
-  )
-endif()
+    ament_add_gmock(test_arduino_wheels test/test_arduino_wheels.cpp)
+    target_include_directories(test_arduino_wheels PRIVATE include)
+    ament_target_dependencies(
+            test_arduino_wheels
+            hardware_interface
+            pluginlib
+            ros2_control_test_assets
+    )
+endif ()
 
-ament_export_include_directories(
-  include
-)
-ament_export_libraries(
-  two_wheels
-)
-ament_export_dependencies(
-  hardware_interface
-  pluginlib
-  rclcpp
-  rclcpp_lifecycle
-)
+# ament_export_include_directories(
+#   include
+# )
+# ament_export_libraries(
+#   two_wheels
+# )
+# ament_export_dependencies(
+#   hardware_interface
+#   pluginlib
+#   rclcpp
+#   rclcpp_lifecycle
+# )
 
 ament_package()

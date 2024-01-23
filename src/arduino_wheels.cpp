@@ -9,12 +9,12 @@
 #include <limits>
 #include <vector>
 
-#include "two_wheels/arduino_wheels.hpp"
+#include "diff_drive_hw_interface/arduino_wheels.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "pluginlib/class_list_macros.hpp"
 
-namespace two_wheels {
+namespace diff_drive_hw_interface {
     hardware_interface::CallbackReturn ArduinoWheels::on_init(
             const hardware_interface::HardwareInfo &info) {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "on_init ...please wait...");
@@ -91,8 +91,10 @@ namespace two_wheels {
     hardware_interface::return_type ArduinoWheels::write(
             const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) {
         RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "write ...please wait...");
-        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "leftWheel->velocity_command: %f'", leftWheel->velocity_command);
-        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "rightWheel->velocity_command: %f'", rightWheel->velocity_command);
+        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "leftWheel->velocity_command: %f'",
+                    leftWheel->velocity_command);
+        RCLCPP_INFO(rclcpp::get_logger("ArduinoWheels"), "rightWheel->velocity_command: %f'",
+                    rightWheel->velocity_command);
         //TODO:send leftWheel->velocity_command and rightWheel->velocity_command to firmware
         return hardware_interface::return_type::OK;
     }
@@ -100,6 +102,4 @@ namespace two_wheels {
 }
 
 
-PLUGINLIB_EXPORT_CLASS(
-        two_wheels::ArduinoWheels, hardware_interface::SystemInterface
-)
+PLUGINLIB_EXPORT_CLASS(diff_drive_hw_interface::ArduinoWheels, hardware_interface::SystemInterface)

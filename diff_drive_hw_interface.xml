@@ -1,6 +1,6 @@
-<library path="two_wheels">
-  <class name="two_wheels/ArduinoWheels"
-         type="two_wheels::ArduinoWheels"
+<library path="diff_drive_hw_interface">
+  <class name="diff_drive_hw_interface/ArduinoWheels"
+         type="diff_drive_hw_interface::ArduinoWheels"
          base_class_type="hardware_interface::SystemInterface">
     <description>
       ros2_control hardware interface.
