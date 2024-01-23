@@ -135,6 +135,6 @@
     <joint name="sonar_link_joint" type="fixed">
         <parent link="base_link"/>
         <child link="sonar_link"/>
-        <origin xyz="${caster_wheel_offset_x}  0 0"/>
+        <origin xyz="${disc_radius} 0 0.01"/>
     </joint>
 </robot>
