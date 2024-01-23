@@ -22,7 +22,7 @@ set(HW_INTERFACE_LIB "diff_drive_hw_interface")
 add_library(
         ${HW_INTERFACE_LIB}
         SHARED
-        firmware/arduino_wheels.cpp
+        firmware/arduino_tb6612fng.cpp
 )
 ament_target_dependencies(
         ${HW_INTERFACE_LIB}
