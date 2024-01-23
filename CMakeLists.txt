@@ -5,17 +5,14 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     add_compile_options(-Wall -Wextra -Wpedantic)
 endif ()
 
-# find dependencies
+
+set(CMAKE_CXX_STANDARD 17)
+
 find_package(ament_cmake REQUIRED)
-find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(hardware_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-
-install(
-        DIRECTORY config launch rviz urdf worlds
-        DESTINATION share/${PROJECT_NAME}
-)
 
 
 set(HW_INTERFACE_LIB "diff_drive_hw_interface")
@@ -35,12 +32,18 @@ target_compile_definitions(${HW_INTERFACE_LIB} PUBLIC "PLUGINLIB__DISABLE_BOOST_
 
 pluginlib_export_plugin_description_file(hardware_interface ${HW_INTERFACE_LIB}.xml)
 
+# install(
+#         TARGETS
+#         ${HW_INTERFACE_LIB}
+#         RUNTIME DESTINATION bin
+#         ARCHIVE DESTINATION lib
+#         LIBRARY DESTINATION lib
+# )
+
+
 install(
-        TARGETS
-        ${HW_INTERFACE_LIB}
-        RUNTIME DESTINATION bin
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib
+        DIRECTORY config launch rviz urdf worlds
+        DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
