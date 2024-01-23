@@ -3,7 +3,6 @@
     <xacro:arg name="is_sim" default="true"/>
 
     <xacro:include filename="common.xacro"/>
-    <xacro:include filename="gazebo.xacro"/>
 
     <xacro:property name="disc_height" value="0.005"/>
     <xacro:property name="disc_radius" value="0.07"/>
