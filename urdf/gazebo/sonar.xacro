@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot>
     <gazebo reference="sonar_link">
+        <material>Gazebo/Blue</material>
         <sensor type="ray" name="range_sensor">
+            <visualize>true</visualize>
             <ray>
                 <scan>
                     <horizontal>

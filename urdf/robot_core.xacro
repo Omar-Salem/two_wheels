@@ -33,7 +33,7 @@
         <color rgba="0 0 0 1"/>
     </material>
 
-    <material name="cyan">
+    <material name="blue">
         <color rgba="0 1 1 1"/>
     </material>
 
@@ -121,14 +121,13 @@
             <geometry>
                 <box size="${sonar_size} ${sonar_size} ${sonar_size}"/>
             </geometry>
-            <material name="cyan"/>
+            <material name="blue"/>
         </visual>
         <collision>
             <!--            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>-->
             <geometry>
                 <box size="${sonar_size} ${sonar_size} ${sonar_size}"/>
             </geometry>
-            <material name="cyan"/>
         </collision>
         <xacro:box_inertial x="${sonar_size}" y="${sonar_size}" z="${sonar_size}" mass="${sonar_mass}"/>
     </link>
