@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot>
     <gazebo reference="sonar_link">
-        <sensor type="gpu_ray" name="range_sensor">
+        <sensor type="ray" name="range_sensor">
             <ray>
                 <scan>
                     <horizontal>
