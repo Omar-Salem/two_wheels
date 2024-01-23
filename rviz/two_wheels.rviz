@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /Range1
+        - /Range1/Topic1
       Splitter Ratio: 0.5
     Tree Height: 396
   - Class: rviz_common/Selection
@@ -115,7 +115,7 @@ Visualization Manager:
     - Alpha: 0.5
       Buffer Length: 1
       Class: rviz_default_plugins/Range
-      Color: 255; 255; 255
+      Color: 0; 255; 0
       Enabled: true
       Name: Range
       Topic:
@@ -123,7 +123,7 @@ Visualization Manager:
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
-        Reliability Policy: Reliable
+        Reliability Policy: Best Effort
         Value: /two_wheels/range
       Value: true
   Enabled: true
@@ -172,7 +172,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.4302387833595276
+      Distance: 0.4149894118309021
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
