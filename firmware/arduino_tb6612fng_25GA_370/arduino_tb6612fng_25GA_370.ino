@@ -57,12 +57,6 @@ void loop() {
         deserializeJson(doc, json);
         String command = doc["command"];
         int velocity = doc["params"]["velocity"];
-        Serial.print("command: ");
-        Serial.println(command);
-
-
-        Serial.print("velocity: ");
-        Serial.println(velocity);
 
         if (command == "move_motor_1") {
             m1.move(velocity);
