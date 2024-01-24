@@ -1,6 +1,6 @@
 #include <ArduinoJson.h>    //https://arduinojson.org/
 #include <ArduinoJson.hpp>
-//TB6612FNG
+
 
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 /**https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with-Encoder
@@ -25,8 +25,8 @@ Green Wire - signal feedback (motor one turn has 11 signals)
 #define BAUDRATE 9600
 //Motor A
 int PWMA = 3;  //Speed control
-int AIN1 = 9;  //Direction
-int AIN2 = 8;  //Direction
+int AIN1 = 8;  //Direction
+int AIN2 = 9;  //Direction
 
 //Motor B
 int PWMB = 5;   //Speed control
