@@ -5,6 +5,8 @@
 #define MOTOR_h
 
 #include <Arduino.h>
+#include <PIDController.h>  //https://github.com/DonnyCraft1/PIDArduino
+
 
 class Motor {
 public:
@@ -39,6 +41,7 @@ private:
 
     long previousMillis = 0;
     long currentMillis = 0;
+    PIDController pid;
 };
 
 #endif

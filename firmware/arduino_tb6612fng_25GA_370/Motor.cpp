@@ -22,6 +22,9 @@ void Motor::initialize() {
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoderPin, INPUT_PULLUP);
+    pid.begin();
+    pid.tune(4096, 0, 0);    // Tune the PID, arguments: kP, kI, kD
+    pid.limit(0, 255);
 }
 
 void Motor::odom() {
@@ -47,7 +50,9 @@ double Motor::getLinearVelocity() {
 void Motor::move(double velocity) {
     digitalWrite(firstBridgePin, LOW);
     digitalWrite(secondBridgePin, HIGH);
-    analogWrite(pwmPin, velocity);
+    pid.setpoint(velocity);
+    auto output = pid.compute(this->getLinearVelocity());
+    analogWrite(pwmPin, output);
 }
 
 void Motor::interruptCallback() {
