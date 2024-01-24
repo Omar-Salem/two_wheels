@@ -1,7 +1,7 @@
 #include <ArduinoJson.h>    //https://arduinojson.org/
 #include <ArduinoJson.hpp>
 
-
+#include "Motor.h"
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 /**https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with-Encoder
 Red Wire - positive power supply of motor(+)(change positive and negative of motor the rotation will change)
@@ -19,60 +19,18 @@ Green Wire - signal feedback (motor one turn has 11 signals)
 **/
 //https://automaticaddison.com/how-to-calculate-the-velocity-of-a-dc-motor-with-encoder/
 
-//motor A connected between A01 and A02
-//motor B connected between B01 and B02
-
-
 #define BAUDRATE 9600
-// Motor encoder output pulses per 360 degree revolution (measured manually)
-#define ENC_COUNT_REV 105
+
+#define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 #define WHEEL_RADIUS_METERS 0.0349
 
-#define rpm_to_radians 0.10471975512
-
-
-//Motor A
-#define PWMA 3  //Speed control
-#define AIN1 8  //Direction
-#define AIN2 9  //Direction
-#define ENC_IN_RIGHT_A 2
-volatile long motor_A_pulse_count = 0;
-
-//Motor B
-#define PWMB 5   //Speed control
-#define BIN1 11  //Direction
-#define BIN2 12  //Direction
-
-
-// One-second interval for measurements
-int interval = 1000;
-
-// Counters for milliseconds during interval
-long previousMillis = 0;
-long currentMillis = 0;
-
-// Variable for RPM measuerment
-float rpm_motor_A = 0;
-
-// Variable for angular velocity measurement
-float ang_velocity_motor_A = 0;
-float ang_velocity_motor_A_deg = 0;
+Motor m1(ENC_COUNT_REV, WHEEL_RADIUS_METERS, 3, 8, 9, 2);
 
 void setup() {
     Serial.begin(BAUDRATE);
-
-    pinMode(PWMA, OUTPUT);
-    pinMode(AIN1, OUTPUT);
-    pinMode(AIN2, OUTPUT);
-    // Set pin states of the encoder
-    pinMode(ENC_IN_RIGHT_A, INPUT_PULLUP);
-
+    m1.initialize();
     // Every time the pin goes high, this is a pulse
-    attachInterrupt(digitalPinToInterrupt(ENC_IN_RIGHT_A), motor_A_pulse, RISING);
-
-    pinMode(PWMB, OUTPUT);
-    pinMode(BIN1, OUTPUT);
-    pinMode(BIN2, OUTPUT);
+    attachInterrupt(digitalPinToInterrupt(m1.getEncoderPin()), firstMotorInterruptCallback, RISING);
 }
 
 void loop() {
@@ -102,51 +60,32 @@ void loop() {
         Serial.println(velocity);
 
         if (command == "move_motor_1") {
-            digitalWrite(AIN1, LOW);
-            digitalWrite(AIN2, HIGH);
-
-            analogWrite(PWMA, velocity);
+            m1.move(velocity);
         } else if (command == "move_motor_2") {
-            digitalWrite(BIN1, HIGH);
-            digitalWrite(BIN2, LOW);
-
-            analogWrite(PWMB, velocity);
+//            digitalWrite(BIN1, HIGH);
+//            digitalWrite(BIN2, LOW);
+//
+//            analogWrite(PWMB, velocity);
         }
 
         Serial.println("OK");
     }
+    m1.odom();
 
-    // Record the time
-    currentMillis = millis();
 
-    // If one second has passed, print the number of pulses
-    if (currentMillis - previousMillis > interval) {
+//    Serial.print(" Pulses: ");
+//    Serial.println(pulseCount);
+//
+//    Serial.print(" RPM: ");
+//    Serial.print(rpm);
+//
+//    Serial.print(" Angular Velocity: ");
+//    Serial.print(angVelocity);
+//    Serial.print(" rad per second");
 
-        previousMillis = currentMillis;
-
-        // Calculate revolutions per minute
-        rpm_motor_A = (float) (motor_A_pulse_count * 60 / ENC_COUNT_REV);
-        ang_velocity_motor_A = rpm_motor_A * rpm_to_radians;
-
-        Serial.print(" Pulses: ");
-        Serial.println(motor_A_pulse_count);
-
-        Serial.print(" RPM: ");
-        Serial.print(rpm_motor_A);
-
-        Serial.print(" Angular Velocity: ");
-        Serial.print(ang_velocity_motor_A);
-        Serial.print(" rad per second");
-
-        Serial.print(" Linear Velocity: ");
-        Serial.print(WHEEL_RADIUS_METERS * ang_velocity_motor_A);
-        Serial.print(" meters per second");
-
-        motor_A_pulse_count = 0;
-
-    }
+    Serial.print(" Linear Velocity: ");
+    Serial.print(m1.getLinearVelocity());
+    Serial.println(" meters per second");
 }
 
-void motor_A_pulse() {
-    motor_A_pulse_count++;
-}
+void firstMotorInterruptCallback() { m1.interruptCallback(); }
