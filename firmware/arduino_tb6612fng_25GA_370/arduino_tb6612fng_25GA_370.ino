@@ -39,17 +39,6 @@ void setup() {
 }
 
 void loop() {
-
-    // JsonDocument doc;
-
-    // doc["sensor"] = "gps";
-    // doc["time"] = 1351824120;
-    // doc["data"][0] = 48.756080;
-    // doc["data"][1] = 2.302038;
-
-    // serializeJson(doc, Serial);
-
-
     if (Serial.available() > 0) {
         // read the incoming byte:
         String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":255}}
@@ -74,3 +63,14 @@ void loop() {
 }
 
 void firstMotorInterruptCallback() { m1.interruptCallback(); }
+
+void writeCommand() {
+    // JsonDocument doc;
+
+    // doc["sensor"] = "gps";
+    // doc["time"] = 1351824120;
+    // doc["data"][0] = 48.756080;
+    // doc["data"][1] = 2.302038;
+
+    // serializeJson(doc, Serial);
+}
