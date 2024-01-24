@@ -24,7 +24,12 @@ Green Wire - signal feedback (motor one turn has 11 signals)
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 #define WHEEL_RADIUS_METERS 0.0349
 
-Motor m1(ENC_COUNT_REV, WHEEL_RADIUS_METERS, 3, 8, 9, 2);
+Motor m1(ENC_COUNT_REV,
+         WHEEL_RADIUS_METERS,
+         3,
+         8,
+         9,
+         2);
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -62,26 +67,12 @@ void loop() {
         if (command == "move_motor_1") {
             m1.move(velocity);
         } else if (command == "move_motor_2") {
-//            digitalWrite(BIN1, HIGH);
-//            digitalWrite(BIN2, LOW);
-//
-//            analogWrite(PWMB, velocity);
+//            m1.move(velocity);
         }
 
         Serial.println("OK");
     }
     m1.odom();
-
-
-//    Serial.print(" Pulses: ");
-//    Serial.println(pulseCount);
-//
-//    Serial.print(" RPM: ");
-//    Serial.print(rpm);
-//
-//    Serial.print(" Angular Velocity: ");
-//    Serial.print(angVelocity);
-//    Serial.print(" rad per second");
 
     Serial.print(" Linear Velocity: ");
     Serial.print(m1.getLinearVelocity());
