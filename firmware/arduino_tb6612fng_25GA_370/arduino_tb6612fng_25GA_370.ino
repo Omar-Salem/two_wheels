@@ -39,6 +39,7 @@ void setup() {
 }
 
 void loop() {
+    m1.move(0.5);
     if (Serial.available() > 0) {
         // read the incoming byte:
         String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.4}}
@@ -55,10 +56,9 @@ void loop() {
 
 //        Serial.println("OK");
     }
-    m1.odom();
 
 //    Serial.print(" Linear Velocity: ");
-    Serial.print(m1.getLinearVelocity() * 100);
+    Serial.println(m1.getLinearVelocity() * 100);
 //    Serial.println(" meters per second");
 }
 
