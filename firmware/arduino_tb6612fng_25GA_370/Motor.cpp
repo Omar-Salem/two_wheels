@@ -47,12 +47,17 @@ double Motor::getLinearVelocity() {
     return wheelRadiusMeters * angVelocity;
 }
 
+void Motor::tune(double p, double i, double d) {
+    pid.tune(p, i, d);
+}
+
 void Motor::move(double velocity) {
     digitalWrite(firstBridgePin, LOW);
     digitalWrite(secondBridgePin, HIGH);
     pid.setpoint(velocity);
     auto output = pid.compute(this->getLinearVelocity());
     analogWrite(pwmPin, output);
+    odom();
 }
 
 void Motor::interruptCallback() {

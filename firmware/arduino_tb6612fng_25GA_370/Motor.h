@@ -15,8 +15,6 @@ public:
 
     void initialize();
 
-    void odom();
-
     double getLinearVelocity();
 
     int getEncoderPin();
@@ -24,6 +22,8 @@ public:
     void move(double velocity);
 
     void interruptCallback();
+
+    void tune(double p, double i, double d);
 
 private:
     int encCountRev;
@@ -42,6 +42,8 @@ private:
     long previousMillis = 0;
     long currentMillis = 0;
     PIDController pid;
+
+    void odom();
 };
 
 #endif
