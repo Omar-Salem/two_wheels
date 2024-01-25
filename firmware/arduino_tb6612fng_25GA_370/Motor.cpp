@@ -23,7 +23,7 @@ void Motor::initialize() {
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoderPin, INPUT_PULLUP);
     pid.begin();
-    pid.tune(4096, 0, 0);    // Tune the PID, arguments: kP, kI, kD
+    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
     pid.limit(0, 255);
     setDirectionForward();
 }

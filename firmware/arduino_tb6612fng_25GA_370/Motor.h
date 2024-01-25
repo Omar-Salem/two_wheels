@@ -41,6 +41,10 @@ private:
     const int INTERVAL_MILLI_SEC = 1000;
     const double RPM_TO_RADIANS = 0.10471975512;
 
+    const double Kp = 4500;
+    const double Ki = 0;
+    const double Kd = 0;
+
     long previousMillis = 0;
     long currentMillis = 0;
     PIDController pid;
