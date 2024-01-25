@@ -21,6 +21,8 @@ public:
 
     void move(double velocity);
 
+    void movePWM(int pwm);
+
     void interruptCallback();
 
     void tune(double p, double i, double d);
@@ -44,6 +46,8 @@ private:
     PIDController pid;
 
     void odom();
+
+    void setDirectionForward();
 };
 
 #endif

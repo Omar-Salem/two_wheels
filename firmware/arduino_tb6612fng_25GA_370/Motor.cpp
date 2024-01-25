@@ -25,6 +25,7 @@ void Motor::initialize() {
     pid.begin();
     pid.tune(4096, 0, 0);    // Tune the PID, arguments: kP, kI, kD
     pid.limit(0, 255);
+    setDirectionForward();
 }
 
 void Motor::odom() {
@@ -52,16 +53,24 @@ void Motor::tune(double p, double i, double d) {
 }
 
 void Motor::move(double velocity) {
-    digitalWrite(firstBridgePin, LOW);
-    digitalWrite(secondBridgePin, HIGH);
     pid.setpoint(velocity);
-    auto output = pid.compute(this->getLinearVelocity());
-    analogWrite(pwmPin, output);
+    auto pwm = pid.compute(this->getLinearVelocity());
+    analogWrite(pwmPin, pwm);
+    odom();
+}
+
+void Motor::movePWM(int pwm) {
+    analogWrite(pwmPin, pwm);
     odom();
 }
 
 void Motor::interruptCallback() {
     pulseCount++;
+}
+
+void Motor::setDirectionForward() {
+    digitalWrite(firstBridgePin, LOW);
+    digitalWrite(secondBridgePin, HIGH);
 }
 
 int Motor::getEncoderPin() {

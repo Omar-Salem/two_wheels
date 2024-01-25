@@ -39,7 +39,8 @@ void setup() {
 }
 
 void loop() {
-    m1.move(0.5);
+//    m1.move(0.5);
+    m1.movePWM(255);
     if (Serial.available() > 0) {
         // read the incoming byte:
         String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.4}}
