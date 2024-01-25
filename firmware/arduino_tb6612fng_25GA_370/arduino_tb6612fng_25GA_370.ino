@@ -39,7 +39,7 @@ void setup() {
 }
 
 void loop() {
-    m1.move(0.5);
+//    m1.move(0.5);
 //    m1.movePWM(255);
     if (Serial.available() > 0) {
         // read the incoming byte:
@@ -58,7 +58,7 @@ void loop() {
 //        Serial.println("OK");
     }
 
-//    Serial.print(" Linear Velocity: ");
+    Serial.print(" Velocity: ");
     Serial.println(m1.getLinearVelocity() * 100);
 //    Serial.println(" meters per second");
 }
