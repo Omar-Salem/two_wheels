@@ -39,10 +39,31 @@ void setup() {
 }
 
 void loop() {
-    m1.move(0.5);
-//    m1.movePWM(255);
+//    m1.move(0.5);
+    m1.movePWM(255);
 
     m1.odom();
+//    readCommand();
+
+    Serial.print(" rpm:");
+    Serial.println(m1.getRPM());
+//    Serial.println(" meters per second");
+}
+
+void firstEncoderCallback() { m1.interruptCallback(); }
+
+void writeCommand() {
+    // JsonDocument doc;
+
+    // doc["sensor"] = "gps";
+    // doc["time"] = 1351824120;
+    // doc["data"][0] = 48.756080;
+    // doc["data"][1] = 2.302038;
+
+    // serializeJson(doc, Serial);
+}
+
+void readCommand() {
     if (Serial.available() > 0) {
         // read the incoming byte:
         String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.4}}
@@ -59,21 +80,4 @@ void loop() {
 
 //        Serial.println("OK");
     }
-
-    Serial.print(" Velocity: ");
-    Serial.println(m1.getLinearVelocity() * 100);
-//    Serial.println(" meters per second");
-}
-
-void firstEncoderCallback() { m1.interruptCallback(); }
-
-void writeCommand() {
-    // JsonDocument doc;
-
-    // doc["sensor"] = "gps";
-    // doc["time"] = 1351824120;
-    // doc["data"][0] = 48.756080;
-    // doc["data"][1] = 2.302038;
-
-    // serializeJson(doc, Serial);
 }

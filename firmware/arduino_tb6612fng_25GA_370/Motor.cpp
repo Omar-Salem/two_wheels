@@ -17,8 +17,6 @@ void Motor::initialize() {
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoderPin, INPUT_PULLUP);
-
-    setDirectionForward();
 }
 
 void Motor::odom() {
@@ -27,7 +25,7 @@ void Motor::odom() {
     {
         velocity2 = velocity_i;
     }
-    double rpm = velocity2 * 60 / encCountRev;
+    rpm = velocity2 * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
 }
 
@@ -53,6 +51,7 @@ void Motor::move(double targetVelocity) {
 
 void Motor::movePWM(int pwm) {
     analogWrite(pwmPin, pwm);
+    setDirectionForward();
 }
 
 void Motor::interruptCallback() {
@@ -70,4 +69,8 @@ void Motor::setDirectionForward() {
 
 int Motor::getEncoderPin() {
     return encoderPin;
+}
+
+int Motor::getRPM() {
+    return rpm;
 }

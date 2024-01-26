@@ -19,6 +19,8 @@ public:
 
     int getEncoderPin();
 
+    int getRPM();
+
     void move(double velocity);
 
     void movePWM(int pwm);
@@ -36,6 +38,7 @@ private:
     int secondBridgePin;
     int encoderPin;
 
+    double rpm;
     volatile float velocity_i = 0;
     volatile long prevT_i = 0;
 
