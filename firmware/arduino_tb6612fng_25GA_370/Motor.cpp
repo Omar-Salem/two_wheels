@@ -10,12 +10,7 @@ Motor::Motor(int encCountRev, double wheelRadiusMeters, int pwmPin, int firstBri
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
-          encoderPin(encoderPin),
-          pulseCount(0),
-          rpm(0),
-          angVelocity(0),
-          previousMillis(0),
-          currentMillis(0) {}
+          encoderPin(encoderPin) {}
 
 void Motor::initialize() {
     pinMode(pwmPin, OUTPUT);
@@ -29,10 +24,13 @@ void Motor::initialize() {
 }
 
 void Motor::odom() {
-    rpm = pulseCount * 60 / encCountRev;
+    float velocity2 = 0;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        velocity2 = velocity_i;
+    }
+    double rpm = velocity2 * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
-    pulseCount = 0;  //  reset counter to zero
-    // Enable the timer
 }
 
 double Motor::getLinearVelocity() {
@@ -54,7 +52,11 @@ void Motor::movePWM(int pwm) {
 }
 
 void Motor::interruptCallback() {
-    pulseCount++;
+    // Compute velocity with method 2
+    long currT = micros();
+    float deltaT = ((float) (currT - prevT_i)) / 1.0e6;
+    velocity_i = 1 / deltaT;
+    prevT_i = currT;
 }
 
 void Motor::setDirectionForward() {

@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 #include <PIDController.h>  //https://github.com/DonnyCraft1/PIDArduino
-
+#include <util/atomic.h>
 
 
 class Motor {
@@ -38,18 +38,18 @@ private:
     int firstBridgePin;
     int secondBridgePin;
     int encoderPin;
-    volatile long pulseCount;
-    double rpm;
-    float angVelocity;
-    const int INTERVAL_MILLI_SEC = 1000;
+
+    volatile float velocity_i = 0;
+    volatile long prevT_i = 0;
+
+    double angVelocity;
+
     const double RPM_TO_RADIANS = 0.10471975512;
 
     const double Kp = 4500;
     const double Ki = 0;
     const double Kd = 0;
 
-    long previousMillis = 0;
-    long currentMillis = 0;
     PIDController pid;
 
     void setDirectionForward();

@@ -2,7 +2,6 @@
 #include <ArduinoJson.hpp>
 
 #include "Motor.h"
-#include "TimerOne.h"       //    TimerOne Library from Paul Stoffregen
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 /**https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with-Encoder
 Red Wire - positive power supply of motor(+)(change positive and negative of motor the rotation will change)
@@ -37,14 +36,13 @@ void setup() {
     m1.initialize();
     // Every time the pin goes high, this is a pulse
     attachInterrupt(digitalPinToInterrupt(m1.getEncoderPin()), firstEncoderCallback, RISING);
-
-    Timer1.initialize(1000000); // set timer for 1sec
-    Timer1.attachInterrupt(firstOdomCallback); // Enable the timer
 }
 
 void loop() {
 //    m1.move(0.5);
     m1.movePWM(255);
+
+    m1.odom();
     if (Serial.available() > 0) {
         // read the incoming byte:
         String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.4}}
@@ -68,12 +66,6 @@ void loop() {
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
-
-void firstOdomCallback() {
-    Timer1.detachInterrupt();
-    m1.odom();
-    Timer1.attachInterrupt(firstOdomCallback);
-}
 
 void writeCommand() {
     // JsonDocument doc;
