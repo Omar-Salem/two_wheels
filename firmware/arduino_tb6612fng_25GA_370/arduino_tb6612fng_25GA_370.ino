@@ -26,9 +26,9 @@ Green Wire - signal feedback (motor one turn has 11 signals)
 
 Motor m1(ENC_COUNT_REV,
          WHEEL_RADIUS_METERS,
-         3,
-         8,
-         9,
+         5,
+         6,
+         7,
          2);
 
 void setup() {
@@ -40,9 +40,9 @@ void setup() {
 
 void loop() {
 //    m1.move(0.5);
-    m1.movePWM(255);
 
     m1.odom();
+    m1.movePWM(255);
 //    readCommand();
 
     Serial.print(" rpm:");
