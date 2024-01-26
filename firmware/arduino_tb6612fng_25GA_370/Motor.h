@@ -5,7 +5,6 @@
 #define MOTOR_h
 
 #include <Arduino.h>
-#include <PIDController.h>  //https://github.com/DonnyCraft1/PIDArduino
 #include <util/atomic.h>
 
 
@@ -26,8 +25,6 @@ public:
 
     void interruptCallback();
 
-    void tune(double p, double i, double d);
-
     void odom();
 
 private:
@@ -43,14 +40,13 @@ private:
     volatile long prevT_i = 0;
 
     double angVelocity;
+    double eintegral = 0;
+    long prevT = 0;
 
     const double RPM_TO_RADIANS = 0.10471975512;
 
-    const double Kp = 4500;
+    const double Kp = 512;
     const double Ki = 0;
-    const double Kd = 0;
-
-    PIDController pid;
 
     void setDirectionForward();
 };

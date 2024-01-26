@@ -17,9 +17,7 @@ void Motor::initialize() {
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoderPin, INPUT_PULLUP);
-    pid.begin();
-    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
-    pid.limit(0, 255);
+
     setDirectionForward();
 }
 
@@ -37,14 +35,20 @@ double Motor::getLinearVelocity() {
     return wheelRadiusMeters * angVelocity;
 }
 
-void Motor::tune(double p, double i, double d) {
-    pid.tune(p, i, d);
-}
+void Motor::move(double targetVelocity) {
+    float e = targetVelocity - getLinearVelocity();
 
-void Motor::move(double velocity) {
-    pid.setpoint(velocity);
-    auto pwm = pid.compute(this->getLinearVelocity());
-    analogWrite(pwmPin, pwm);
+    long currT = micros();
+    float deltaT = ((float) (currT - prevT)) / 1.0e6;
+    prevT = currT;
+    eintegral += e * deltaT;
+
+    double u = (Kp * e) + (Ki * eintegral);
+
+    auto pwm = constrain((int) fabs(u), 0, 255);
+//    Serial.print(" pwm: ");
+//    Serial.println(pwm);
+    movePWM(pwm);
 }
 
 void Motor::movePWM(int pwm) {

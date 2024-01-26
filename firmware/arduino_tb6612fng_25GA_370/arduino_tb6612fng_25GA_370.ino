@@ -39,8 +39,8 @@ void setup() {
 }
 
 void loop() {
-//    m1.move(0.5);
-    m1.movePWM(255);
+    m1.move(0.5);
+//    m1.movePWM(255);
 
     m1.odom();
     if (Serial.available() > 0) {
