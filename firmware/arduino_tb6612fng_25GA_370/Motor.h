@@ -8,6 +8,7 @@
 #include <PIDController.h>  //https://github.com/DonnyCraft1/PIDArduino
 
 
+
 class Motor {
 public:
     Motor(int encCountRev, double wheelRadiusMeters, int pwmPin, int firstBridgePin, int secondBridgePin,
@@ -26,6 +27,8 @@ public:
     void interruptCallback();
 
     void tune(double p, double i, double d);
+
+    void odom();
 
 private:
     int encCountRev;
@@ -48,8 +51,6 @@ private:
     long previousMillis = 0;
     long currentMillis = 0;
     PIDController pid;
-
-    void odom();
 
     void setDirectionForward();
 };

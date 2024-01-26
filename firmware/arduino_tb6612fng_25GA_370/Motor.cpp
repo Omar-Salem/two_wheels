@@ -29,19 +29,10 @@ void Motor::initialize() {
 }
 
 void Motor::odom() {
-    // Record the time
-    currentMillis = millis();
-
-    // If one second has passed, print the number of pulses
-    if (currentMillis - previousMillis > INTERVAL_MILLI_SEC) {
-
-        previousMillis = currentMillis;
-
-        // Calculate revolutions per minute
-        rpm = (float) (pulseCount * 60 / encCountRev);
-        angVelocity = rpm * RPM_TO_RADIANS;
-        pulseCount = 0;
-    }
+    rpm = pulseCount * 60 / encCountRev;
+    angVelocity = rpm * RPM_TO_RADIANS;
+    pulseCount = 0;  //  reset counter to zero
+    // Enable the timer
 }
 
 double Motor::getLinearVelocity() {
@@ -56,12 +47,10 @@ void Motor::move(double velocity) {
     pid.setpoint(velocity);
     auto pwm = pid.compute(this->getLinearVelocity());
     analogWrite(pwmPin, pwm);
-    odom();
 }
 
 void Motor::movePWM(int pwm) {
     analogWrite(pwmPin, pwm);
-    odom();
 }
 
 void Motor::interruptCallback() {
