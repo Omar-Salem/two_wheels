@@ -52,8 +52,8 @@ private:
 
     const double RPM_TO_RADIANS = 0.10471975512;
 
-    const double Kp = 512;
-    const double Ki = 0;
+    const double Kp = 2000;
+    const double Ki = 500;
 
     void setDirectionForward();
 };

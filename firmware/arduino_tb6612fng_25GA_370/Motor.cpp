@@ -29,10 +29,10 @@ void Motor::odom() {
     v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
     v2Prev = velocity2;
 
-    Serial.print(velocity2);
-    Serial.print(" ");
-    Serial.print(v2Filt);
-    Serial.println();
+//    Serial.print(velocity2);
+//    Serial.print(" ");
+//    Serial.print(v2Filt);
+//    Serial.println();
 
     rpm = v2Filt * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
