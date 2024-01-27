@@ -11,7 +11,9 @@ Motor::Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePi
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
           encoder1Pin(encoder1Pin),
-          encoder2Pin(encoder2Pin) {}
+          encoder2Pin(encoder2Pin) {
+    precision = (2 * PI) / encCountRev;
+}
 
 void Motor::initialize() {
     pinMode(pwmPin, OUTPUT);
@@ -27,22 +29,29 @@ void Motor::initialize() {
 
 void Motor::odom() {
     float velocity2 = 0;
-    int pos = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         velocity2 = velocity_i;
-        pos = posi;
     }
     //    // Low-pass filter (25 Hz cutoff)
     v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
     v2Prev = velocity2;
 
-    rpm = v2Filt * 60 / encCountRev;
+    double rpm = v2Filt * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
 }
 
 double Motor::getAngularVelocity() {
     return angVelocity;
+}
+
+int Motor::getAngle() {
+    int pos = 0;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+    {
+        pos = posi;
+    }
+    return pos * precision; //https://qr.ae/pKE7DV
 }
 
 void Motor::move(double targetVelocity) {
@@ -75,8 +84,4 @@ void Motor::setDirectionForward() {
 
 int Motor::getEncoderPin() {
     return encoder1Pin;
-}
-
-int Motor::getRPM() {
-    return rpm;
 }

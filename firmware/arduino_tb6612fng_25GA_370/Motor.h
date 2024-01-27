@@ -19,9 +19,9 @@ public:
 
     double getAngularVelocity();
 
-    int getEncoderPin();
+    int getAngle();
 
-    int getRPM();
+    int getEncoderPin();
 
     void move(double velocity);
 
@@ -38,7 +38,7 @@ private:
     int encoder1Pin;
     int encoder2Pin;
 
-    double rpm;
+    double precision;
     volatile float velocity_i = 0;
     volatile long prevT_i = 0;
     volatile int posi = 0;
