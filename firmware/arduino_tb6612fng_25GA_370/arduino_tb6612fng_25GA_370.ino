@@ -3,21 +3,6 @@
 
 #include "Motor.h"
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
-/**https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with-Encoder
-Red Wire - positive power supply of motor(+)(change positive and negative of motor the rotation will change)
-
-White Wire - negative power supply of motor(-)(change positive and negative of motor the rotation will change))
-
-Blue Wire - positive of encoder power supply(+)(3.3-5V),cannot be wrong
-
-Black Wire - negative of encoder power supply(-)(3.3-5V),cannot be wrong
-
-Yellow Wire - signal feedback (motor one turn has 11 signals)
-
-Green Wire - signal feedback (motor one turn has 11 signals)
-
-**/
-//https://automaticaddison.com/how-to-calculate-the-velocity-of-a-dc-motor-with-encoder/
 
 #define BAUDRATE 9600
 
@@ -39,14 +24,19 @@ void setup() {
 }
 
 void loop() {
-//    m1.move(0.5);
+    auto target = 0.4;
+    m1.move(target);
 
     m1.odom();
-    m1.movePWM(255);
+//    m1.movePWM(255);
 //    readCommand();
 
-    Serial.print(" rpm:");
-    Serial.println(m1.getRPM());
+    auto actual = m1.getLinearVelocity();
+//    Serial.println();
+    Serial.print(target);
+    Serial.print(" ");
+    Serial.print(actual);
+    Serial.println();
 //    Serial.println(" meters per second");
 }
 
