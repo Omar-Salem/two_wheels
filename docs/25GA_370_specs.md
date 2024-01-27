@@ -8,9 +8,9 @@ Blue Wire - positive of encoder power supply(+)(3.3-5V),cannot be wrong
 
 Black Wire - negative of encoder power supply(-)(3.3-5V),cannot be wrong
 
-Yellow Wire - signal feedback (motor one turn has 11 signals)
+Yellow Wire - signal direction
 
-Green Wire - signal feedback (motor one turn has 11 signals)
+Green Wire - signal count
 
 https://www.openimpulse.com/blog/products-page/25d-gearmotors/jga25-370-dc-gearmotor-77-rpm-6-v/
 
