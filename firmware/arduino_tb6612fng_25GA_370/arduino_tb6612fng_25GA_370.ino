@@ -10,7 +10,6 @@
 #define WHEEL_RADIUS_METERS 0.0349
 
 Motor m1(ENC_COUNT_REV,
-         WHEEL_RADIUS_METERS,
          5,
          6,
          7,
@@ -67,4 +66,8 @@ void readCommand() {
 
 //        Serial.println("OK");
     }
+}
+
+double getLinearVelocity() {
+    return WHEEL_RADIUS_METERS * m1.getAngularVelocity();
 }

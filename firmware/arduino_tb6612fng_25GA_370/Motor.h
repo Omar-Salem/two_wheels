@@ -11,12 +11,10 @@
 
 class Motor {
 public:
-    Motor(int encCountRev, double wheelRadiusMeters, int pwmPin, int firstBridgePin, int secondBridgePin,
+    Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePin,
           int encoderPin);
 
     void initialize();
-
-    double getLinearVelocity();
 
     double getAngularVelocity();
 
@@ -34,7 +32,6 @@ public:
 
 private:
     int encCountRev;
-    double wheelRadiusMeters;
 
     int pwmPin;
     int firstBridgePin;
@@ -46,8 +43,6 @@ private:
     volatile long prevT_i = 0;
 
     double angVelocity;
-    double eintegral = 0;
-    long prevT = 0;
     float v2Filt = 0;
     float v2Prev = 0;
 
