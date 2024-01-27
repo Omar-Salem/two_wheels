@@ -1,16 +1,17 @@
 https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with-Encoder
 
-Red Wire - positive power supply of motor(+)(change positive and negative of motor the rotation will change)
-
-White Wire - negative power supply of motor(-)(change positive and negative of motor the rotation will change))
-
-Blue Wire - positive of encoder power supply(+)(3.3-5V),cannot be wrong
-
-Black Wire - negative of encoder power supply(-)(3.3-5V),cannot be wrong
-
-Yellow Wire - signal direction
-
-Green Wire - signal count
+| Power Source | Board | Arduino | Motor A                                                  | TB6612FNG |
+|--------------|-------|---------|----------------------------------------------------------|-----------|
+| +            |       |         |                                                          | VM        |
+| GND          | GND   | GND     | Black Wire - negative of encoder power supply(-)(3.3-5V) | GND       |
+|              | +     | 5V      | BLue  Wire - positive of encoder power supply(+)(3.3-5V) | STBY,VCC  |
+|              |       |         | Red Wire - positive power supply of motor(+)             | A0        |
+|              |       |         | White Wire - negative power supply of motor(-)           | A1        |
+|              |       | 2       | Yellow Wire - C1                                         |           |
+|              |       | 3       | Green Wire - C2                                          |           |
+|              |       | 5       |                                                          | PWMA      |
+|              |       | 6       |                                                          | AI1       |
+|              |       | 7       |                                                          | AI2       |
 
 https://www.openimpulse.com/blog/products-page/25d-gearmotors/jga25-370-dc-gearmotor-77-rpm-6-v/
 
