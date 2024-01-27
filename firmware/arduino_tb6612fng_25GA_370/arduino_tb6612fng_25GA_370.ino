@@ -7,15 +7,17 @@
 #define BAUDRATE 9600
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
-#define WHEEL_RADIUS_METERS 0.0349
+
 
 Motor m1(ENC_COUNT_REV,
          5,
          6,
          7,
-         2);
+         2,
+         3);
 
 bool stop = false;
+
 void setup() {
     Serial.begin(BAUDRATE);
     m1.initialize();
@@ -24,9 +26,9 @@ void setup() {
 }
 
 void loop() {
-    auto target = 10;
-    m1.move(target);
-//    m1.movePWM(200);
+//    auto target = 6.28;
+//    m1.move(target);
+    m1.movePWM(255);
 
 /**    Tuning code
 //    if (Serial.available() > 0) {
@@ -73,10 +75,6 @@ void readCommand() {
 //            m1.move(velocity);
         }
     }
-}
-
-double getLinearVelocity() {
-    return WHEEL_RADIUS_METERS * m1.getAngularVelocity();
 }
 
 void writeCommand() {

@@ -4,37 +4,38 @@
 #include "Motor.h"
 
 Motor::Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePin,
-             int encoderPin)
+             int encoder1Pin,
+             int encoder2Pin)
         : encCountRev(encCountRev),
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
-          encoderPin(encoderPin) {}
+          encoder1Pin(encoder1Pin),
+          encoder2Pin(encoder2Pin) {}
 
 void Motor::initialize() {
     pinMode(pwmPin, OUTPUT);
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
-    pinMode(encoderPin, INPUT_PULLUP);
+    pinMode(encoder1Pin, INPUT_PULLUP);
+    pinMode(encoder2Pin, INPUT);
 
-    pid.begin();          // initialize the PID instance
+    pid.begin();
     pid.limit(0, 255);
+    pid.tune(Kp, Ki, Kd);
 }
 
 void Motor::odom() {
     float velocity2 = 0;
+    int pos = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         velocity2 = velocity_i;
+        pos = posi;
     }
     //    // Low-pass filter (25 Hz cutoff)
     v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
     v2Prev = velocity2;
-
-//    Serial.print(velocity2);
-//    Serial.print(" ");
-//    Serial.print(v2Filt);
-//    Serial.println();
 
     rpm = v2Filt * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
@@ -45,8 +46,7 @@ double Motor::getAngularVelocity() {
 }
 
 void Motor::move(double targetVelocity) {
-    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
-    pid.setpoint(targetVelocity);    // The "goal" the PID controller tries to "reach"
+    pid.setpoint(targetVelocity);
     int pwm = pid.compute(getAngularVelocity());
     movePWM(pwm);
 }
@@ -59,11 +59,13 @@ void Motor::movePWM(int pwm) {
 }
 
 void Motor::interruptCallback() {
-    // Compute velocity with method 2
     long currT = micros();
     float deltaT = ((float) (currT - prevT_i)) / 1.0e6;
     velocity_i = 1 / deltaT;
     prevT_i = currT;
+
+    int direction = digitalRead(encoder2Pin);
+    direction > 0 ? posi++ : posi--;
 }
 
 void Motor::setDirectionForward() {
@@ -72,7 +74,7 @@ void Motor::setDirectionForward() {
 }
 
 int Motor::getEncoderPin() {
-    return encoderPin;
+    return encoder1Pin;
 }
 
 int Motor::getRPM() {

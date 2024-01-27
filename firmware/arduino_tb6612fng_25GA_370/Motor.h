@@ -12,7 +12,8 @@
 class Motor {
 public:
     Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePin,
-          int encoderPin);
+          int encoder1Pin,
+          int encoder2Pin);
 
     void initialize();
 
@@ -34,11 +35,13 @@ private:
     int pwmPin;
     int firstBridgePin;
     int secondBridgePin;
-    int encoderPin;
+    int encoder1Pin;
+    int encoder2Pin;
 
     double rpm;
     volatile float velocity_i = 0;
     volatile long prevT_i = 0;
+    volatile int posi = 0;
 
     double angVelocity;
     float v2Filt = 0;
