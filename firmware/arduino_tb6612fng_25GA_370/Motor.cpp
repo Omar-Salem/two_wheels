@@ -18,7 +18,7 @@ void Motor::initialize() {
     pinMode(encoderPin, INPUT_PULLUP);
 
     pid.begin();          // initialize the PID instance
-    pid.tune(Kp, Ki, 0);    // Tune the PID, arguments: kP, kI, kD
+    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
     pid.limit(0, 255);
 }
 

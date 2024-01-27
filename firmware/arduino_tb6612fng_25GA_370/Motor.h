@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 #include <util/atomic.h>
-#include <PIDController.h>
+#include <PIDController.h> //https://github.com/DonnyCraft1/PIDArduino
 
 
 class Motor {
