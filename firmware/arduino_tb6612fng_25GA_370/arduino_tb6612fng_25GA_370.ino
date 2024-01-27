@@ -24,16 +24,16 @@ void setup() {
 }
 
 void loop() {
-    auto target = 0.4;
+    auto target = 10;
     m1.move(target);
     m1.odom();
 //    m1.movePWM(255);
 //    readCommand();
 
-    auto actual = m1.getLinearVelocity();
-    Serial.print(actual * 100);
+    auto actual = m1.getAngularVelocity();
+    Serial.print(actual);
     Serial.print(" ");
-    Serial.print(target * 100);
+    Serial.print(target);
     Serial.println();
 }
 

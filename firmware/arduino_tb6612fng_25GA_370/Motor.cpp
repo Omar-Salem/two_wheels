@@ -17,6 +17,10 @@ void Motor::initialize() {
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoderPin, INPUT_PULLUP);
+
+    pid.begin();          // initialize the PID instance
+    pid.tune(Kp, Ki, 0);    // Tune the PID, arguments: kP, kI, kD
+    pid.limit(0, 255);
 }
 
 void Motor::odom() {
@@ -47,16 +51,19 @@ double Motor::getAngularVelocity() {
 }
 
 void Motor::move(double targetVelocity) {
-    float e = targetVelocity - getLinearVelocity();
+    pid.setpoint(targetVelocity);    // The "goal" the PID controller tries to "reach"
 
-    long currT = micros();
-    float deltaT = ((float) (currT - prevT)) / 1.0e6;
-    prevT = currT;
-    eintegral += e * deltaT;
-
-    double u = (Kp * e) + (Ki * eintegral);
-
-    auto pwm = constrain((int) fabs(u), 0, 255);
+    int pwm = pid.compute(getAngularVelocity());
+//    float e = targetVelocity - getLinearVelocity();
+//
+//    long currT = micros();
+//    float deltaT = ((float) (currT - prevT)) / 1.0e6;
+//    prevT = currT;
+//    eintegral += e * deltaT;
+//
+//    double u = (Kp * e) + (Ki * eintegral);
+//
+//    auto pwm = constrain((int) fabs(u), 0, 255);
 //    Serial.print(" pwm: ");
 //    Serial.println(pwm);
     movePWM(pwm);
