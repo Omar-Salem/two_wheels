@@ -25,18 +25,18 @@ void setup() {
 
 void loop() {
     auto target = 0.4;
-    m1.move(target);
+//    m1.move(target);
 
     m1.odom();
-//    m1.movePWM(255);
+    m1.movePWM(255);
 //    readCommand();
 
     auto actual = m1.getLinearVelocity();
 //    Serial.println();
-    Serial.print(target);
-    Serial.print(" ");
-    Serial.print(actual);
-    Serial.println();
+//    Serial.print(target);
+//    Serial.print(" ");
+//    Serial.print(actual);
+//    Serial.println();
 //    Serial.println(" meters per second");
 }
 

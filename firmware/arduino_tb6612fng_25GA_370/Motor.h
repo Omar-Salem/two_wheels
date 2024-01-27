@@ -45,6 +45,8 @@ private:
     double angVelocity;
     double eintegral = 0;
     long prevT = 0;
+    float v2Filt = 0;
+    float v2Prev = 0;
 
     const double RPM_TO_RADIANS = 0.10471975512;
 

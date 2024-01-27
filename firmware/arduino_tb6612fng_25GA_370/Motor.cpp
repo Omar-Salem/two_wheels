@@ -25,6 +25,13 @@ void Motor::odom() {
     {
         velocity2 = velocity_i;
     }
+    //    // Low-pass filter (25 Hz cutoff)
+    v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
+    v2Prev = velocity2;
+
+    Serial.print(v2Filt);
+    Serial.println();
+
     rpm = velocity2 * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
 }
@@ -63,8 +70,8 @@ void Motor::interruptCallback() {
 }
 
 void Motor::setDirectionForward() {
-    digitalWrite(firstBridgePin, LOW);
-    digitalWrite(secondBridgePin, HIGH);
+    digitalWrite(firstBridgePin, HIGH);
+    digitalWrite(secondBridgePin, LOW);
 }
 
 int Motor::getEncoderPin() {
