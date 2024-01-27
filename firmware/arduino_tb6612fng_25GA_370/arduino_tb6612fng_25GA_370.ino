@@ -27,45 +27,36 @@ void loop() {
     auto target = 10;
     m1.move(target);
 //    m1.movePWM(200);
-    if (Serial.available() > 0) {
-        // read the incoming byte:
-        String json = Serial.readStringUntil('\n');
-        if (json == "p") { m1.Kp += 10; }
-        else if (json == "i") { m1.Ki += .1; }
-        else if (json == "d") { m1.Kd += .1; }
-        else if (json == "s") {
-            stop = true;
-        }
-    }
-    if (!stop) {
-        auto actual = m1.getAngularVelocity();
-        Serial.print(actual);
-        Serial.print(" ");
-        Serial.print(target);
-        Serial.println();
-    } else {
-        Serial.print(" Kp:");
-        Serial.print(m1.Kp);
-        Serial.print(" Ki:");
-        Serial.print(m1.Ki);
-        Serial.print(" Kd:");
-        Serial.print(m1.Kd);
-        Serial.println();
-    }
+
+/**    Tuning code
+//    if (Serial.available() > 0) {
+//        // read the incoming byte:
+//        String json = Serial.readStringUntil('\n');
+//        if (json == "p") { m1.Kp += 10; }
+//        else if (json == "i") { m1.Ki += .1; }
+//        else if (json == "d") { m1.Kd += .1; }
+//        else if (json == "s") {
+//            stop = true;
+//        }
+//    }
+//    if (!stop) {
+//        auto actual = m1.getAngularVelocity();
+//        Serial.print(actual);
+//        Serial.print(" ");
+//        Serial.print(target);
+//        Serial.println();
+//    } else {
+//        Serial.print(" Kp:");
+//        Serial.print(m1.Kp);
+//        Serial.print(" Ki:");
+//        Serial.print(m1.Ki);
+//        Serial.print(" Kd:");
+//        Serial.print(m1.Kd);
+//        Serial.println();
+//    }**/
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
-
-void writeCommand() {
-    // JsonDocument doc;
-
-    // doc["sensor"] = "gps";
-    // doc["time"] = 1351824120;
-    // doc["data"][0] = 48.756080;
-    // doc["data"][1] = 2.302038;
-
-    // serializeJson(doc, Serial);
-}
 
 void readCommand() {
     if (Serial.available() > 0) {
@@ -81,11 +72,20 @@ void readCommand() {
         } else if (command == "move_motor_2") {
 //            m1.move(velocity);
         }
-
-//        Serial.println("OK");
     }
 }
 
 double getLinearVelocity() {
     return WHEEL_RADIUS_METERS * m1.getAngularVelocity();
+}
+
+void writeCommand() {
+    // JsonDocument doc;
+
+    // doc["sensor"] = "gps";
+    // doc["time"] = 1351824120;
+    // doc["data"][0] = 48.756080;
+    // doc["data"][1] = 2.302038;
+
+    // serializeJson(doc, Serial);
 }

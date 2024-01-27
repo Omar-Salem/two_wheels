@@ -28,10 +28,6 @@ public:
 
     void interruptCallback();
 
-    double Kp = 600;
-    double Ki = 6.5;
-    double Kd = 0.4;
-
 private:
     int encCountRev;
 
@@ -49,6 +45,10 @@ private:
     float v2Prev = 0;
 
     const double RPM_TO_RADIANS = 0.10471975512;
+
+    const double Kp = 600;
+    const double Ki = 6.5;
+    const double Kd = 0.4;
 
     PIDController pid;
 
