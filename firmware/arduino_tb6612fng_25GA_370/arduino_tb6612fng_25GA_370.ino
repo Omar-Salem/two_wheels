@@ -15,6 +15,7 @@ Motor m1(ENC_COUNT_REV,
          7,
          2);
 
+bool stop = false;
 void setup() {
     Serial.begin(BAUDRATE);
     m1.initialize();
@@ -25,15 +26,32 @@ void setup() {
 void loop() {
     auto target = 10;
     m1.move(target);
-    m1.odom();
-//    m1.movePWM(255);
-//    readCommand();
-
-    auto actual = m1.getAngularVelocity();
-    Serial.print(actual);
-    Serial.print(" ");
-    Serial.print(target);
-    Serial.println();
+//    m1.movePWM(200);
+    if (Serial.available() > 0) {
+        // read the incoming byte:
+        String json = Serial.readStringUntil('\n');
+        if (json == "p") { m1.Kp += 10; }
+        else if (json == "i") { m1.Ki += .1; }
+        else if (json == "d") { m1.Kd += .1; }
+        else if (json == "s") {
+            stop = true;
+        }
+    }
+    if (!stop) {
+        auto actual = m1.getAngularVelocity();
+        Serial.print(actual);
+        Serial.print(" ");
+        Serial.print(target);
+        Serial.println();
+    } else {
+        Serial.print(" Kp:");
+        Serial.print(m1.Kp);
+        Serial.print(" Ki:");
+        Serial.print(m1.Ki);
+        Serial.print(" Kd:");
+        Serial.print(m1.Kd);
+        Serial.println();
+    }
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }

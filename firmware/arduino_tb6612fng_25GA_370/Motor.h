@@ -28,7 +28,9 @@ public:
 
     void interruptCallback();
 
-    void odom();
+    double Kp = 600;
+    double Ki = 6.5;
+    double Kd = 0.4;
 
 private:
     int encCountRev;
@@ -48,13 +50,11 @@ private:
 
     const double RPM_TO_RADIANS = 0.10471975512;
 
-    const double Kp = 800;
-    const double Ki = 0;
-    const double Kd = 0;
-
     PIDController pid;
 
     void setDirectionForward();
+
+    void odom();
 };
 
 #endif

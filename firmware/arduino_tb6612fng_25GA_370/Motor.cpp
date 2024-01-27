@@ -18,7 +18,6 @@ void Motor::initialize() {
     pinMode(encoderPin, INPUT_PULLUP);
 
     pid.begin();          // initialize the PID instance
-    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
     pid.limit(0, 255);
 }
 
@@ -46,6 +45,7 @@ double Motor::getAngularVelocity() {
 }
 
 void Motor::move(double targetVelocity) {
+    pid.tune(Kp, Ki, Kd);    // Tune the PID, arguments: kP, kI, kD
     pid.setpoint(targetVelocity);    // The "goal" the PID controller tries to "reach"
     int pwm = pid.compute(getAngularVelocity());
     movePWM(pwm);
@@ -54,6 +54,8 @@ void Motor::move(double targetVelocity) {
 void Motor::movePWM(int pwm) {
     analogWrite(pwmPin, pwm);
     setDirectionForward();
+
+    odom();
 }
 
 void Motor::interruptCallback() {
