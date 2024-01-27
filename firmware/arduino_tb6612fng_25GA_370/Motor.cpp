@@ -29,15 +29,21 @@ void Motor::odom() {
     v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
     v2Prev = velocity2;
 
+    Serial.print(velocity2);
+    Serial.print(" ");
     Serial.print(v2Filt);
     Serial.println();
 
-    rpm = velocity2 * 60 / encCountRev;
+    rpm = v2Filt * 60 / encCountRev;
     angVelocity = rpm * RPM_TO_RADIANS;
 }
 
 double Motor::getLinearVelocity() {
     return wheelRadiusMeters * angVelocity;
+}
+
+double Motor::getAngularVelocity() {
+    return angVelocity;
 }
 
 void Motor::move(double targetVelocity) {

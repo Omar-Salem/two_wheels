@@ -17,6 +17,8 @@ public:
 
     double getLinearVelocity();
 
+    double getAngularVelocity();
+
     int getEncoderPin();
 
     int getRPM();
