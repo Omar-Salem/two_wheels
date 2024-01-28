@@ -27,7 +27,7 @@ void Motor::initialize() {
     pid.tune(Kp, Ki, Kd);
 }
 
-void Motor::odom() {
+double Motor::getAngularVelocity() {
     float velocity2 = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -38,11 +38,7 @@ void Motor::odom() {
     v2Prev = velocity2;
 
     double rpm = v2Filt * 60 / encCountRev;
-    angVelocity = rpm * RPM_TO_RADIANS;
-}
-
-double Motor::getAngularVelocity() {
-    return angVelocity;
+    return rpm * RPM_TO_RADIANS;
 }
 
 int Motor::getAngle() {
@@ -63,8 +59,6 @@ void Motor::move(double targetVelocity) {
 void Motor::movePWM(int pwm) {
     analogWrite(pwmPin, pwm);
     setDirectionForward();
-
-    odom();
 }
 
 void Motor::interruptCallback() {

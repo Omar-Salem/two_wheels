@@ -43,7 +43,6 @@ private:
     volatile long prevT_i = 0;
     volatile int posi = 0;
 
-    double angVelocity;
     float v2Filt = 0;
     float v2Prev = 0;
 
@@ -56,8 +55,6 @@ private:
     PIDController pid;
 
     void setDirectionForward();
-
-    void odom();
 };
 
 #endif
