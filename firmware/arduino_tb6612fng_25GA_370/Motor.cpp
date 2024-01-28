@@ -41,8 +41,8 @@ double Motor::getAngularVelocity() {
     return rpm * RPM_TO_RADIANS;
 }
 
-int Motor::getAngle() {
-    int pos = 0;
+double Motor::getAngle() {
+    double pos = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         pos = posi;

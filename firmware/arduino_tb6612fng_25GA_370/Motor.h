@@ -19,7 +19,7 @@ public:
 
     double getAngularVelocity();
 
-    int getAngle();
+    double getAngle();
 
     int getEncoderPin();
 
@@ -41,7 +41,7 @@ private:
     double precision;
     volatile float velocity_i = 0;
     volatile long prevT_i = 0;
-    volatile int posi = 0;
+    volatile double posi = 0;
 
     float v2Filt = 0;
     float v2Prev = 0;
