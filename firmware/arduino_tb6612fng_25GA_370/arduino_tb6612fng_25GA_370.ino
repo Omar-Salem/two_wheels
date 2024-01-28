@@ -16,7 +16,7 @@ Motor m1(ENC_COUNT_REV,
          2,
          3);
 
-bool stop = false;
+//bool stopTune = false;
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -28,34 +28,9 @@ void setup() {
 void loop() {
 //    auto target = 6.28;
 //    m1.move(target);
-    m1.movePWM(255);
-
-/**    Tuning code
-//    if (Serial.available() > 0) {
-//        // read the incoming byte:
-//        String json = Serial.readStringUntil('\n');
-//        if (json == "p") { m1.Kp += 10; }
-//        else if (json == "i") { m1.Ki += .1; }
-//        else if (json == "d") { m1.Kd += .1; }
-//        else if (json == "s") {
-//            stop = true;
-//        }
-//    }
-//    if (!stop) {
-//        auto actual = m1.getAngularVelocity();
-//        Serial.print(actual);
-//        Serial.print(" ");
-//        Serial.print(target);
-//        Serial.println();
-//    } else {
-//        Serial.print(" Kp:");
-//        Serial.print(m1.Kp);
-//        Serial.print(" Ki:");
-//        Serial.print(m1.Ki);
-//        Serial.print(" Kd:");
-//        Serial.print(m1.Kd);
-//        Serial.println();
-//    }**/
+//    m1.movePWM(255);
+//    Serial.println(m1.getAngularVelocity());
+//    tune(target);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -86,4 +61,32 @@ void writeCommand() {
     // doc["data"][1] = 2.302038;
 
     // serializeJson(doc, Serial);
+}
+
+void tune(double target) {
+//    if (Serial.available() > 0) {
+//        // read the incoming byte:
+//        String json = Serial.readStringUntil('\n');
+//        if (json == "p") { m1.Kp += 10; }
+//        else if (json == "i") { m1.Ki += .1; }
+//        else if (json == "d") { m1.Kd += .1; }
+//        else if (json == "s") {
+//            stopTune = true;
+//        }
+//    }
+//    if (!stopTune) {
+//        auto actual = m1.getAngularVelocity();
+//        Serial.print(actual);
+//        Serial.print(" ");
+//        Serial.print(target);
+//        Serial.println();
+//    } else {
+//        Serial.print(" Kp:");
+//        Serial.print(m1.Kp);
+//        Serial.print(" Ki:");
+//        Serial.print(m1.Ki);
+//        Serial.print(" Kd:");
+//        Serial.print(m1.Kd);
+//        Serial.println();
+//    }
 }

@@ -51,9 +51,9 @@ private:
 
     const double RPM_TO_RADIANS = 0.10471975512;
 
-    const double Kp = 600;
-    const double Ki = 6.5;
-    const double Kd = 0.4;
+    const double Kp = 190;
+    const double Ki = 3.7;
+    const double Kd = 0.1;
 
     PIDController pid;
 
