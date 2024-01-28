@@ -42,6 +42,9 @@ private:
     volatile float velocity_i = 0;
     volatile long prevT_i = 0;
     volatile double posi = 0;
+    // Half-second interval for measurements
+    int interval = 500;
+    long lastUpdated = 0;
 
     float v2Filt = 0;
     float v2Prev = 0;

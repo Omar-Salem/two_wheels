@@ -33,7 +33,13 @@ double Motor::getAngularVelocity() {
     {
         velocity2 = velocity_i;
     }
-    //    // Low-pass filter (25 Hz cutoff)
+
+    if (millis() - lastUpdated > interval) {
+        //reset velocity_i (measured in interruptCallback), otherwise will be stuck
+        // on last reading when motor stops moving
+        velocity_i = 0;
+    }
+    // Low-pass filter (25 Hz cutoff)
     v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
     v2Prev = velocity2;
 
@@ -62,6 +68,7 @@ void Motor::movePWM(int pwm) {
 }
 
 void Motor::interruptCallback() {
+    lastUpdated = millis();
     long currT = micros();
     float deltaT = ((float) (currT - prevT_i)) / 1.0e6;
     velocity_i = 1 / deltaT;
