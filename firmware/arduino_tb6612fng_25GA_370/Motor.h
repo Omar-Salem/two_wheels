@@ -55,7 +55,7 @@ private:
     const double Ki = 3.7;
     const double Kd = 0.1;
 
-    PIDController pid;
+    PIDController velocityPID;
 
     void setDirectionForward();
 };
