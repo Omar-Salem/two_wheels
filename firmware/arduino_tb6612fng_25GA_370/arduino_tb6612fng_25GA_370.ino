@@ -29,7 +29,7 @@ void loop() {
     auto target = 6.28;
     m1.move(target);
 //    m1.movePWM(255);
-    Serial.println(m1.getAngularVelocity());
+    Serial.println("");
 //    tune(target);
 }
 
