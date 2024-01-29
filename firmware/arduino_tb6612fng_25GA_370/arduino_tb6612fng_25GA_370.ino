@@ -26,10 +26,10 @@ void setup() {
 }
 
 void loop() {
-//    readCommand();
-    auto target = 6.28;
-    m1.move(target);
-    Serial.println("");
+    readCommand();
+//    auto target = 6.28;
+//    m1.move(target);
+//    Serial.println("");
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }

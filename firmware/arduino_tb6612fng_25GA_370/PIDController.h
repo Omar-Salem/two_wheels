@@ -27,7 +27,6 @@ private:
 
     // Variables - double
     double lastErr;
-    double timeChanged;
 
     // Variables - double, error variables
     double errSum;
@@ -42,6 +41,7 @@ private:
     double divisor = 10;
     double minOut;
     double maxOut;
+    double currentGoal;
 };
 
 #endif

@@ -15,10 +15,12 @@ void PIDController::limit(double min, double max) {
 
 
 double PIDController::compute(double goal, double current) {
-    // Return false if it could not execute;
-    // This is the actual PID algorithm executed every loop();
-
-    // Calculate time difference since last time executed
+    if (currentGoal != goal) { //goal changed, reset
+        errSum = 0;
+        lastTime = 0;
+        lastErr = 0;
+        currentGoal = goal;
+    }
     unsigned long now = millis();
     double timeChange = (double) (now - lastTime);
 
