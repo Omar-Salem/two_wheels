@@ -21,6 +21,7 @@ void Motor::initialize() {
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoder1Pin, INPUT_PULLUP);
     pinMode(encoder2Pin, INPUT);
+    velocityPID.tune(Kp, Ki, Kd);
 }
 
 double Motor::getAngularVelocity() {
@@ -53,7 +54,6 @@ double Motor::getAngle() {
 }
 
 void Motor::move(double targetVelocity) {
-    velocityPID.tune(Kp, Ki, Kd);
     int pwm = velocityPID.compute(getAngularVelocity(), targetVelocity);
     movePWM(pwm);
 }
