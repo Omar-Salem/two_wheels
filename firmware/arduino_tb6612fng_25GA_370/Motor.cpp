@@ -22,7 +22,6 @@ void Motor::initialize() {
     pinMode(encoder1Pin, INPUT_PULLUP);
     pinMode(encoder2Pin, INPUT);
 
-    velocityPID.begin();
     velocityPID.limit(0, 255);
     velocityPID.tune(Kp, Ki, Kd);
 }
