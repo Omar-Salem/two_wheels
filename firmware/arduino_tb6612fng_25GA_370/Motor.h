@@ -29,6 +29,10 @@ public:
 
     void interruptCallback();
 
+    double Kp = 1.0;
+    double Ki = 0;
+    double Kd = 0;
+
 private:
     int encCountRev;
 
@@ -51,10 +55,6 @@ private:
     float velocityPrev = 0;
 
     const double RPM_TO_RADIANS = 0.10471975512;
-
-    const double Kp = 190;
-    const double Ki = 3.7;
-    const double Kd = 0.1;
 
     PIDController velocityPID;
 

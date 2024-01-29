@@ -1,14 +1,47 @@
 #include "PIDController.h"
 
-void PIDController::init(double Kp, double Ki, double Kd, double min, double max) {
-    pid_ = new PID(&current_, &output_, &target_, Kp, Ki, Kd, DIRECT);
-    pid_->SetOutputLimits(min, max);
+
+void PIDController::tune(double Kp, double Ki, double Kd) {
+    Kp_ = Kp;
+    Ki_ = Ki;
+    Kd_ = Kd;
 }
 
-
 double PIDController::compute(double current, double target) {
-    current_ = current;
-    target_ = target;
-    pid_->Compute();
-    return output_;
+    unsigned long now = millis();
+    unsigned long timeChange = (now - lastTime);
+//    if (timeChange >= SampleTime) {
+    /*Compute all the working error variables*/
+    double error = target - current;
+//    Serial.print("error:");
+//    Serial.println(error);
+    double dInput = (current - lastInput);
+    outputSum += (Ki_ * error);
+
+    outputSum -= Kp_ * dInput;
+
+    if (outputSum > outMax) outputSum = outMax;
+    else if (outputSum < outMin) outputSum = outMin;
+
+    /*Add Proportional on Error, if P_ON_E is specified*/
+    double output = 0;
+//        if (pOnE) output = kp * error;
+
+    /*Compute Rest of PID Output*/
+    output += outputSum - Kd_ * dInput;
+
+    if (output > outMax) {
+        outputSum -= output - outMax; // backcalculate integral to feasability
+        output = outMax;
+    } else if (output < outMin) {
+        outputSum += outMin - output; // backcalculate integral to feasability
+        output = outMin;
+    }
+
+//    Serial.println(output);
+
+    /*Remember some variables for next time*/
+    lastInput = target;
+    lastTime = now;
+    return output;
 }

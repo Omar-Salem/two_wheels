@@ -16,7 +16,7 @@ Motor m1(ENC_COUNT_REV,
          2,
          3);
 
-//bool stopTune = false;
+bool stopTune = false;
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -26,10 +26,12 @@ void setup() {
 }
 
 void loop() {
-//    readCommand();
-    auto target = 6.28;
-    m1.move(target);
-    Serial.println("");
+    readCommand();
+//    auto target = 6.28;
+//    m1.move(target);
+//    tune(target);
+//    Serial.println("");
+//    m1.movePWM(200);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -43,7 +45,7 @@ void readCommand() {
         String command = doc["command"];
         double velocity = doc["params"]["velocity"];
         //TODO check if speed is over 0.6
-//        Serial.println(velocity);
+        Serial.println(velocity);
         if (command == "move_motor_1") {
             m1.move(velocity);
         } else if (command == "move_motor_2") {
@@ -64,29 +66,29 @@ void writeCommand() {
 }
 
 void tune(double target) {
-//    if (Serial.available() > 0) {
-//        // read the incoming byte:
-//        String json = Serial.readStringUntil('\n');
-//        if (json == "p") { m1.Kp += 10; }
-//        else if (json == "i") { m1.Ki += .1; }
-//        else if (json == "d") { m1.Kd += .1; }
-//        else if (json == "s") {
-//            stopTune = true;
-//        }
-//    }
-//    if (!stopTune) {
-//        auto actual = m1.getAngularVelocity();
-//        Serial.print(actual);
-//        Serial.print(" ");
-//        Serial.print(target);
-//        Serial.println();
-//    } else {
-//        Serial.print(" Kp:");
-//        Serial.print(m1.Kp);
-//        Serial.print(" Ki:");
-//        Serial.print(m1.Ki);
-//        Serial.print(" Kd:");
-//        Serial.print(m1.Kd);
-//        Serial.println();
-//    }
+    if (Serial.available() > 0) {
+        // read the incoming byte:
+        String json = Serial.readStringUntil('\n');
+        if (json == "p") { m1.Kp += 1; }
+        else if (json == "i") { m1.Ki += .1; }
+        else if (json == "d") { m1.Kd += .1; }
+        else if (json == "s") {
+            stopTune = true;
+        }
+    }
+    if (stopTune) {
+        Serial.print(" Kp:");
+        Serial.print(m1.Kp);
+        Serial.print(" Ki:");
+        Serial.print(m1.Ki);
+        Serial.print(" Kd:");
+        Serial.print(m1.Kd);
+        Serial.println();
+    } else {
+        auto actual = m1.getAngularVelocity();
+        Serial.print(actual);
+        Serial.print(" ");
+        Serial.print(target);
+        Serial.println();
+    }
 }
