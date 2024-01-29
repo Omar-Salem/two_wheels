@@ -38,16 +38,17 @@ private:
     int encoder1Pin;
     int encoder2Pin;
 
-    double precision;
-    volatile float velocity_i = 0;
-    volatile long prevT_i = 0;
     volatile double posi = 0;
+    double precision;
+
     // Half-second interval for measurements
-    int interval = 500;
+    const int interval = 500;
     long lastUpdated = 0;
 
-    float v2Filt = 0;
-    float v2Prev = 0;
+    volatile float velocity = 0;
+    volatile long prevTime = 0;
+    float velocityFiltered = 0;
+    float velocityPrev = 0;
 
     const double RPM_TO_RADIANS = 0.10471975512;
 

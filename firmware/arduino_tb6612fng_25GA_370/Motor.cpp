@@ -31,19 +31,19 @@ double Motor::getAngularVelocity() {
     float velocity2 = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        velocity2 = velocity_i;
+        velocity2 = velocity;
     }
 
     if (millis() - lastUpdated > interval) {
-        //reset velocity_i (measured in interruptCallback), otherwise will be stuck
+        //reset velocity (measured in interruptCallback), otherwise will be stuck
         // on last reading when motor stops moving
-        velocity_i = 0;
+        velocity = 0;
     }
     // Low-pass filter (25 Hz cutoff)
-    v2Filt = 0.854 * v2Filt + 0.0728 * velocity2 + 0.0728 * v2Prev;
-    v2Prev = velocity2;
+    velocityFiltered = 0.854 * velocityFiltered + 0.0728 * velocity2 + 0.0728 * velocityPrev;
+    velocityPrev = velocity2;
 
-    double rpm = v2Filt * 60 / encCountRev;
+    double rpm = velocityFiltered * 60 / encCountRev;
     return rpm * RPM_TO_RADIANS;
 }
 
@@ -70,9 +70,9 @@ void Motor::movePWM(int pwm) {
 void Motor::interruptCallback() {
     lastUpdated = millis();
     long currT = micros();
-    float deltaT = ((float) (currT - prevT_i)) / 1.0e6;
-    velocity_i = 1 / deltaT;
-    prevT_i = currT;
+    float deltaT = ((float) (currT - prevTime)) / 1.0e6;
+    velocity = 1 / deltaT;
+    prevTime = currT;
 
     int direction = digitalRead(encoder2Pin);
     direction > 0 ? posi++ : posi--;
