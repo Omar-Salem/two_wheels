@@ -57,8 +57,7 @@ double Motor::getAngle() {
 }
 
 void Motor::move(double targetVelocity) {
-    velocityPID.setpoint(targetVelocity);
-    int pwm = velocityPID.compute(getAngularVelocity());
+    int pwm = velocityPID.compute(targetVelocity, getAngularVelocity());
     movePWM(pwm);
 }
 

@@ -26,11 +26,10 @@ void setup() {
 }
 
 void loop() {
+//    readCommand();
     auto target = 6.28;
     m1.move(target);
-//    m1.movePWM(255);
     Serial.println("");
-//    tune(target);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -38,12 +37,13 @@ void firstEncoderCallback() { m1.interruptCallback(); }
 void readCommand() {
     if (Serial.available() > 0) {
         // read the incoming byte:
-        String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.4}}
+        String json = Serial.readStringUntil('\n');  //{"command":"move_motor_1","params":{"velocity":0.6}}
         JsonDocument doc;
         deserializeJson(doc, json);
         String command = doc["command"];
-        int velocity = doc["params"]["velocity"];
-
+        double velocity = doc["params"]["velocity"];
+        //TODO check if speed is over 0.6
+        Serial.println(velocity);
         if (command == "move_motor_1") {
             m1.move(velocity);
         } else if (command == "move_motor_2") {
