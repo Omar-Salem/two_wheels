@@ -1,47 +1,19 @@
 #ifndef PIDControllerLib
 #define PIDControllerLib
 
-#if (ARDUINO >= 100)
-#include "Arduino.h"
-#else
-
-#include "WProgram.h"
-
-#endif
-
+#include <PID_v1_bc.h> // https://github.com/drf5n/Arduino-PID-Library
 
 class PIDController {
 public:
 
-    // Methods - double
-    double compute(double goal, double current);
+    void init(double Kp, double Ki, double Kd, double min, double max);
 
-    void tune(double _Kp, double _Ki, double _Kd);
+    double compute(double current, double target);
 
-    void limit(double min, double max);
 
 private:
-
-    // Variables - long
-    unsigned long lastTime;
-
-    // Variables - double
-    double lastErr;
-
-    // Variables - double, error variables
-    double errSum;
-
-    // Variables - bool
-    bool doLimit;
-
-    // Variables - double - tuning
-    double Kp;
-    double Ki;
-    double Kd;
-    double divisor = 10;
-    double minOut;
-    double maxOut;
-    double currentGoal;
+    double target_, current_, output_;
+    PID *pid_;
 };
 
 #endif
