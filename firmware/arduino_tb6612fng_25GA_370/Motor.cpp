@@ -22,9 +22,9 @@ void Motor::initialize() {
     pinMode(encoder1Pin, INPUT_PULLUP);
     pinMode(encoder2Pin, INPUT);
 
-    velocityPID = new PID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-    velocityPID->SetMode(AUTOMATIC);
-    velocityPID->SetOutputLimits(0, 255);
+    velocityPID.begin();
+    velocityPID.limit(0, 255);
+    velocityPID.tune(Kp, Ki, Kd);
 }
 
 double Motor::getAngularVelocity() {
@@ -57,10 +57,9 @@ double Motor::getAngle() {
 }
 
 void Motor::move(double targetVelocity) {
-    Setpoint = targetVelocity;
-    Input = getAngularVelocity();
-    velocityPID->Compute();
-    movePWM(Output);
+    velocityPID.setpoint(targetVelocity);
+    int pwm = velocityPID.compute(getAngularVelocity());
+    movePWM(pwm);
 }
 
 void Motor::movePWM(int pwm) {

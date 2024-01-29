@@ -6,7 +6,7 @@
 
 #include <Arduino.h>
 #include <util/atomic.h>
-#include <PID_v1_bc.h> // https://github.com/drf5n/Arduino-PID-Library
+#include <PIDController.h> //https://github.com/DonnyCraft1/PIDArduino
 
 
 class Motor {
@@ -56,8 +56,7 @@ private:
     const double Ki = 3.7;
     const double Kd = 0.1;
 
-    PID *velocityPID;
-    double Setpoint, Input, Output;
+    PIDController velocityPID;
 
     void setDirectionForward();
 };
