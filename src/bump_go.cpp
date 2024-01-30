@@ -37,15 +37,14 @@ public:
         odomTopicSubscription_ = this->create_subscription<Odometry>(
                 "/diff_drive_controller/odom", 10, std::bind(&BumpAndGo::odomTopicCallback, this, _1));
         controlLoopTimer_ = this->create_wall_timer(
-                500ms, std::bind(&BumpAndGo::controlLoop, this));
+                CONTROL_LOOP_INTERVAL_MILLI_SEC, std::bind(&BumpAndGo::controlLoop, this));
     }
 
 private:
     bool turning_ = false;
     double startingAngle = 0;
-    time_t startingTime;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
-    const milliseconds CONTROL_LOOP_INTERVAL_MILLISEC = 500ms;
+    const milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
     Range::UniquePtr range_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
@@ -54,8 +53,6 @@ private:
     TwistStamped twistMsg;
 
     void rangeTopicCallback(Range::UniquePtr range) {
-//        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", to_string(range.min_range).c_str());
-//        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", to_string(range.max_range).c_str());
         range_ = std::move(range);
     }
 
@@ -77,13 +74,11 @@ private:
         if (range_ == nullptr || odometry_ == nullptr) {
             return;
         }
-//        bool passedControlInterval =
-//                abs(difftime(time(NULL), startingTime)) >= 1; //TODO use CONTROL_LOOP_INTERVAL_MILLISEC
 
-        RCLCPP_INFO(this->get_logger(), "turning_: '%s'", to_string(turning_).c_str());
-//        RCLCPP_INFO(this->get_logger(), "passedControlInterval: '%s'", to_string(passedControlInterval).c_str());
         if (turning_) {
-            bool reachedAngle = abs(getCurrentYawInDegrees() - startingAngle) >= 90;
+            double currentYawInDegrees = getCurrentYawInDegrees();
+            RCLCPP_INFO(this->get_logger(), "currentYawInDegrees: '%s'", to_string(currentYawInDegrees).c_str());
+            bool reachedAngle = abs(currentYawInDegrees - startingAngle) >= 90;
             RCLCPP_INFO(this->get_logger(), "reachedAngle: '%s'", to_string(reachedAngle).c_str());
             if (reachedAngle) {
                 turning_ = false;
@@ -93,21 +88,19 @@ private:
             //Clear, keep going
             if (range_->range > 0.5) {
                 twistMsg.twist.linear.x = 0.1;
-                twistMsg.twist.linear.z = 0.0;
+                twistMsg.twist.angular.z = 0.0;
             } else {
                 RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
                 turning_ = true;
                 startingAngle = getCurrentYawInDegrees();
-                startingTime = time(NULL);
                 //Turn left or right by random
                 int lb = 1, ub = 100;
                 auto chosen = (rand() % (ub - lb + 1)) + lb;
 
                 twistMsg.twist.linear.x = 0.0;
-                twistMsg.twist.linear.z = 1.57 * chosen <= 50 ? 1 : -1;
+                twistMsg.twist.angular.z = 1.57 * chosen <= 50 ? 1 : -1;
             }
         }
-        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", to_string(twistMsg.twist.linear.z).c_str());
         twistStampedPublisher_->publish(twistMsg);
     }
 };
