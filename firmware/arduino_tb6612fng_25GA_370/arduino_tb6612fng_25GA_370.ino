@@ -33,14 +33,11 @@ void loop() {
     readCommand();
     Serial.println(command);
     executeCommand();
-//    auto target = 6.28;
-//    if (!stopTune) {
-//        m1.move(target);
-//        stopTune = true;
-//    }
-//    tune(target);
-//    Serial.println("");
-//    m1.movePWM(200);
+//    auto actual = m1.getAngularVelocity();
+//    Serial.print(actual);
+//    Serial.print(" ");
+//    Serial.print(velocity);
+//    Serial.println();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
