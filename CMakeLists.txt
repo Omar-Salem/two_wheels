@@ -14,10 +14,11 @@ find_package(hardware_interface REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(nav_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
 add_executable(bump_go src/bump_go.cpp)
-ament_target_dependencies(bump_go rclcpp sensor_msgs geometry_msgs)
+ament_target_dependencies(bump_go rclcpp sensor_msgs geometry_msgs nav_msgs)
 
 install(TARGETS
         bump_go

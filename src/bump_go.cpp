@@ -9,10 +9,12 @@
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/range.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
 using geometry_msgs::msg::TwistStamped;
+using nav_msgs::msg::Odometry;
 using std::to_string;
 using namespace std::chrono_literals;
 
@@ -25,21 +27,29 @@ public:
                 "/diff_drive_controller/cmd_vel", 10);
         rangeTopicSubscription_ = this->create_subscription<Range>(
                 "/two_wheels/range", 10, std::bind(&BumpAndGo::rangeTopicCallback, this, _1));
+        odomTopicSubscription_ = this->create_subscription<Odometry>(
+                "/diff_drive_controller/odom", 10, std::bind(&BumpAndGo::odomTopicCallback, this, _1));
         controlLoopTimer_ = this->create_wall_timer(
                 500ms, std::bind(&BumpAndGo::controlLoop, this));
     }
 
 private:
-
+    bool turning_ = false;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
     Range::UniquePtr range_;
+    Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
     rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
+    rclcpp::Subscription<Odometry>::SharedPtr odomTopicSubscription_;
 
     void rangeTopicCallback(Range::UniquePtr range) {
 //        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", to_string(range.min_range).c_str());
 //        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", to_string(range.max_range).c_str());
         range_ = std::move(range);
+    }
+
+    void odomTopicCallback(Odometry::UniquePtr odometry) {
+        odometry_ = std::move(odometry);
     }
 
     void controlLoop() {
