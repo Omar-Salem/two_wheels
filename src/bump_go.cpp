@@ -10,11 +10,15 @@
 #include "sensor_msgs/msg/range.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "angles/angles.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
 using geometry_msgs::msg::TwistStamped;
 using nav_msgs::msg::Odometry;
+using angles::to_degrees;
+using angles::from_degrees;
 using std::to_string;
 using namespace std::chrono_literals;
 
@@ -35,12 +39,14 @@ public:
 
 private:
     bool turning_ = false;
+    double startingAngle = 0;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
     Range::UniquePtr range_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
     rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
     rclcpp::Subscription<Odometry>::SharedPtr odomTopicSubscription_;
+    TwistStamped twistMsg;
 
     void rangeTopicCallback(Range::UniquePtr range) {
 //        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", to_string(range.min_range).c_str());
@@ -52,28 +58,44 @@ private:
         odometry_ = std::move(odometry);
     }
 
+    double getCurrentYawInDegress() {
+        tf2::Quaternion quat_tf;
+        geometry_msgs::msg::Quaternion quat_msg = odometry_->pose.pose.orientation;
+        tf2::fromMsg(quat_msg, quat_tf);
+        tf2::Matrix3x3 m(quat_tf);
+        double roll, pitch, yaw;
+        m.getRPY(roll, pitch, yaw);
+        return to_degrees(yaw);
+    }
+
     void controlLoop() {
         if (range_ == nullptr) {
             return;
         }
-        RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
-        auto message = TwistStamped();
-        //Clear, keep going
-        if (range_->range > 0.5) {
-            message.twist.linear.x = 0.1;
-            message.twist.linear.z = 1.0;
+        if (turning_) {
+            if (std::abs(getCurrentYawInDegress() - startingAngle) >= 90) {
+                turning_ = false;
+            }
         } else {
+            RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
+            //Clear, keep going
+            if (range_->range > 0.5) {
+                twistMsg.twist.linear.x = 0.1;
+                twistMsg.twist.linear.z = 0.0;
+            } else {
+                RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
+                turning_ = true;
+                startingAngle = getCurrentYawInDegress();
+                //Turn left or right by random
+                int lb = 1, ub = 100;
+                auto chosen = (rand() % (ub - lb + 1)) + lb;
 
-            RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
-            //Turn left or right by random
-            int lb = 1, ub = 100;
-            auto chosen = (rand() % (ub - lb + 1)) + lb;
-
-            message.twist.linear.x = 0.7;
-            message.twist.linear.z = 2.0 * chosen < 50 ? 1 : -1;
+                twistMsg.twist.linear.x = 0.0;
+                twistMsg.twist.linear.z = 1.57 * chosen <= 50 ? 1 : -1;
+            }
         }
-//        RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message.data.c_str());
-        twistStampedPublisher_->publish(message);
+        RCLCPP_INFO(this->get_logger(), "Publishing.....");
+        twistStampedPublisher_->publish(twistMsg);
     }
 };
 
