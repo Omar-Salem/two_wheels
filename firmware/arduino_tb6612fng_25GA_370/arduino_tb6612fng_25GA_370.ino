@@ -33,7 +33,7 @@ void loop() {
     readCommand();
     Serial.println(command);
     executeCommand();
-    logOutput();
+//    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -48,7 +48,6 @@ void readCommand() {
         deserializeJson(doc, json);
         command = doc["command"];
         velocity = doc["params"]["velocity"];
-        //TODO check if speed is over 0.6
     }
 }
 
