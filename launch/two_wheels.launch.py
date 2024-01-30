@@ -35,14 +35,14 @@ def generate_launch_description():
     rviz_node = create_rviz_node(package_name)
 
     controller_nodes = create_controller_nodes(package_name, robot_description_config)
-    common = IncludeLaunchDescription(
+    core = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory(package_name), 'launch', 'common.launch.py'
+            get_package_share_directory(package_name), 'launch', 'core.launch.py'
         )]), launch_arguments={'package_name': package_name}.items()
     )
 
     return LaunchDescription(declared_arguments +
-                             [common,
+                             [core,
                               rviz_node,
                               robot_state_pub_node,
                               ]
