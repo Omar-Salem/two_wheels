@@ -31,15 +31,15 @@ public:
 private:
 
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
-    Range::UniquePtr range_;
+    Range range_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
     rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
 
-    void rangeTopicCallback(const Range::UniquePtr range) const {
+    void rangeTopicCallback(const Range &range) {
 //        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", range->min_range.c_str());
 //        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", range->max_range->c_str());
 //        RCLCPP_INFO(this->get_logger(), "range: '%s'", range->range->c_str());
-        range_ = std::move(range);
+        range_ = range;
     }
 
     void controlLoop() {
