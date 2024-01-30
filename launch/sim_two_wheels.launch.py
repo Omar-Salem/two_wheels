@@ -34,14 +34,19 @@ def generate_launch_description():
     )
 
     gazebo_nodes = create_gazebo_nodes(package_name)
-
     controller_nodes = create_controller_nodes(package_name, robot_description_config)
     rviz_node = create_rviz_node(package_name)
+    common = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([os.path.join(
+            get_package_share_directory(package_name), 'launch', 'common.launch.py'
+        )]), launch_arguments={'package_name': package_name}.items()
+    )
 
     return LaunchDescription(declared_arguments +
                              [
                                  rviz_node,
                                  robot_state_pub_node,
+                                 common
                              ]
                              + gazebo_nodes
                              + controller_nodes
