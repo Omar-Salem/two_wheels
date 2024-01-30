@@ -27,7 +27,7 @@ void Motor::initialize() {
     velocityPID.tune(Kp, Ki, Kd);
 }
 
-double Motor::getAngularVelocity() {
+double Motor::calculateAngularVelocity() {
     float velocity2 = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -47,7 +47,7 @@ double Motor::getAngularVelocity() {
     return rpm * RPM_TO_RADIANS;
 }
 
-double Motor::getAngle() {
+double Motor::getAngle() const {
     double pos = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -57,7 +57,7 @@ double Motor::getAngle() {
 }
 
 void Motor::move(double targetVelocity) {
-    int pwm = velocityPID.compute(getAngularVelocity(), targetVelocity);
+    int pwm = velocityPID.compute(calculateAngularVelocity(), targetVelocity);
     movePWM(pwm);
 }
 
@@ -82,6 +82,6 @@ void Motor::setDirectionForward() {
     digitalWrite(secondBridgePin, LOW);
 }
 
-byte Motor::getEncoderPin() {
+byte Motor::getEncoderPin() const {
     return encoder1Pin;
 }

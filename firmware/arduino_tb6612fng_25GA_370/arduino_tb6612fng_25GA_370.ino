@@ -72,10 +72,10 @@ void executeCommand() {
 //            m2.move(velocity);
             break;
         case GET_MOTOR_1_VELOCITY:
-            writeCommand(m1.getAngularVelocity());
+            writeCommand(m1.calculateAngularVelocity());
             break;
         case GET_MOTOR_2_VELOCITY:
-//            writeCommand(m2.getAngularVelocity());
+//            writeCommand(m2.calculateAngularVelocity());
             break;
         case GET_MOTOR_1_ANGLE:
             writeCommand(m1.getAngle());
@@ -87,7 +87,7 @@ void executeCommand() {
 }
 
 void logOutput() {
-    auto actual = m1.getAngularVelocity();
+    auto actual = m1.calculateAngularVelocity();
     Serial.print(actual);
     Serial.print(" ");
     Serial.print(velocity);
@@ -114,7 +114,7 @@ void logOutput() {
 //        Serial.print(m1.Kd);
 //        Serial.println();
 //    } else {
-//        auto actual = m1.getAngularVelocity();
+//        auto actual = m1.calculateAngularVelocity();
 //        Serial.print(actual);
 //        Serial.print(" ");
 //        Serial.print(target);

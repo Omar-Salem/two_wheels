@@ -20,11 +20,11 @@ public:
 
     void initialize();
 
-    double getAngularVelocity();
+    double calculateAngularVelocity();
 
-    double getAngle();
+    double getAngle() const;
 
-    byte getEncoderPin();
+    byte getEncoderPin() const;
 
     void move(double velocity);
 
