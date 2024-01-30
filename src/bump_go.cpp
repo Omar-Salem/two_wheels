@@ -13,6 +13,7 @@
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
 using geometry_msgs::msg::TwistStamped;
+using std::to_string;
 using namespace std::chrono_literals;
 
 
@@ -36,14 +37,14 @@ private:
     rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
 
     void rangeTopicCallback(const Range &range) {
-//        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", range->min_range.c_str());
-//        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", range->max_range->c_str());
-//        RCLCPP_INFO(this->get_logger(), "range: '%s'", range->range->c_str());
+        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", to_string(range.min_range).c_str());
+        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", to_string(range.max_range).c_str());
+        RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range.range).c_str());
         range_ = range;
     }
 
     void controlLoop() {
-//        if (range_ == nullptr) {
+//        if (&range_ == nullptr) {
 //            return;
 //        }
         auto message = TwistStamped();
