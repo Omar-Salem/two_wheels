@@ -3,9 +3,12 @@
 //
 #include "Motor.h"
 
-Motor::Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePin,
-             int encoder1Pin,
-             int encoder2Pin)
+Motor::Motor(int encCountRev,
+             byte pwmPin,
+             byte firstBridgePin,
+             byte secondBridgePin,
+             byte encoder1Pin,
+             byte encoder2Pin)
         : encCountRev(encCountRev),
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
@@ -70,7 +73,7 @@ void Motor::interruptCallback() {
     velocity = 1 / deltaT;
     prevTime = currT;
 
-    int direction = digitalRead(encoder2Pin);
+    bool direction = digitalRead(encoder2Pin);
     direction > 0 ? posi++ : posi--;
 }
 
@@ -79,6 +82,6 @@ void Motor::setDirectionForward() {
     digitalWrite(secondBridgePin, LOW);
 }
 
-int Motor::getEncoderPin() {
+byte Motor::getEncoderPin() {
     return encoder1Pin;
 }

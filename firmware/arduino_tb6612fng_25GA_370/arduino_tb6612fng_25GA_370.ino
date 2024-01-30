@@ -33,14 +33,16 @@ void loop() {
     readCommand();
     Serial.println(command);
     executeCommand();
-    log(target);
+    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
 
+/*
+ * {"command":1,"params":{"velocity":6.28}}
+ * */
 void readCommand() {
     if (Serial.available() > 0) {
-        //{"command":1,"params":{"velocity":6.28}}
         String json = Serial.readStringUntil('\n');
         JsonDocument doc;
         deserializeJson(doc, json);
@@ -69,7 +71,7 @@ void executeCommand() {
     }
 }
 
-void log(double target) {
+void logOutput() {
     auto actual = m1.getAngularVelocity();
     Serial.print(actual);
     Serial.print(" ");

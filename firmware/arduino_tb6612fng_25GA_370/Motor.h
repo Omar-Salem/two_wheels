@@ -11,9 +11,12 @@
 
 class Motor {
 public:
-    Motor(int encCountRev, int pwmPin, int firstBridgePin, int secondBridgePin,
-          int encoder1Pin,
-          int encoder2Pin);
+    Motor(int encCountRev,
+          byte pwmPin,
+          byte firstBridgePin,
+          byte secondBridgePin,
+          byte encoder1Pin,
+          byte encoder2Pin);
 
     void initialize();
 
@@ -21,7 +24,7 @@ public:
 
     double getAngle();
 
-    int getEncoderPin();
+    byte getEncoderPin();
 
     void move(double velocity);
 
@@ -32,11 +35,11 @@ public:
 private:
     int encCountRev;
 
-    int pwmPin;
-    int firstBridgePin;
-    int secondBridgePin;
-    int encoder1Pin;
-    int encoder2Pin;
+    byte pwmPin;
+    byte firstBridgePin;
+    byte secondBridgePin;
+    byte encoder1Pin;
+    byte encoder2Pin;
 
     volatile double posi = 0;
     double precision;
