@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <time.h>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/range.hpp"
@@ -20,6 +21,8 @@ using nav_msgs::msg::Odometry;
 using angles::to_degrees;
 using angles::from_degrees;
 using std::to_string;
+using std::abs;
+using std::chrono::milliseconds;
 using namespace std::chrono_literals;
 
 
@@ -34,13 +37,15 @@ public:
         odomTopicSubscription_ = this->create_subscription<Odometry>(
                 "/diff_drive_controller/odom", 10, std::bind(&BumpAndGo::odomTopicCallback, this, _1));
         controlLoopTimer_ = this->create_wall_timer(
-                500ms, std::bind(&BumpAndGo::controlLoop, this));
+                CONTROL_LOOP_INTERVAL_MILLISEC, std::bind(&BumpAndGo::controlLoop, this));
     }
 
 private:
     bool turning_ = false;
     double startingAngle = 0;
+    time_t startingTime;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
+    const milliseconds CONTROL_LOOP_INTERVAL_MILLISEC = 500ms;
     Range::UniquePtr range_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
@@ -72,10 +77,11 @@ private:
         if (range_ == nullptr) {
             return;
         }
-        if (turning_) {
-            if (std::abs(getCurrentYawInDegress() - startingAngle) >= 90) {
-                turning_ = false;
-            }
+        bool reachedAngle = abs(getCurrentYawInDegress() - startingAngle) >= 90;
+        bool passedControlInterval =
+                abs(difftime(time(NULL), startingTime)) >= 1; //TODO use CONTROL_LOOP_INTERVAL_MILLISEC
+        if (turning_ && passedControlInterval && reachedAngle) {
+            turning_ = false;
         } else {
             RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
             //Clear, keep going
@@ -86,6 +92,7 @@ private:
                 RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
                 turning_ = true;
                 startingAngle = getCurrentYawInDegress();
+                startingTime = time(NULL);
                 //Turn left or right by random
                 int lb = 1, ub = 100;
                 auto chosen = (rand() % (ub - lb + 1)) + lb;
