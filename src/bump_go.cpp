@@ -32,24 +32,24 @@ public:
 private:
 
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
-    Range range_;
+    Range::UniquePtr range_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
     rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
 
-    void rangeTopicCallback(const Range &range) {
+    void rangeTopicCallback(Range::UniquePtr range) {
 //        RCLCPP_INFO(this->get_logger(), "min_range: '%s'", to_string(range.min_range).c_str());
 //        RCLCPP_INFO(this->get_logger(), "max_range: '%s'", to_string(range.max_range).c_str());
-        range_ = range;
+        range_ = std::move(range);
     }
 
     void controlLoop() {
-//        if (&range_ == nullptr) {
-//            return;
-//        }
-        RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_.range).c_str());
+        if (range_ == nullptr) {
+            return;
+        }
+        RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
         auto message = TwistStamped();
         //Clear, keep going
-        if (range_.range > 0.5) {
+        if (range_->range > 0.5) {
             message.twist.linear.x = 0.1;
             message.twist.linear.z = 1.0;
         } else {
