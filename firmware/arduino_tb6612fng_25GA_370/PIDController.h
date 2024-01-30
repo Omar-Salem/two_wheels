@@ -14,7 +14,7 @@ public:
 private:
     unsigned long lastTime;
     unsigned long SampleTime = 100;
-    double lastInput;
+    double lastTarget;
     double outputSum;
     double Kp_ = 1;
     double Ki_ = 1;

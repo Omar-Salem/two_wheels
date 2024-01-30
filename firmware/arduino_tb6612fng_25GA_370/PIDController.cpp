@@ -8,6 +8,10 @@ void PIDController::tune(double Kp, double Ki, double Kd) {
 }
 
 double PIDController::compute(double current, double target) {
+    if (lastTarget != target) {
+        lastTarget = target;
+        outputSum = 0;
+    }
     unsigned long now = millis();
     unsigned long timeChange = (now - lastTime);
 //    if (timeChange >= SampleTime) {
@@ -15,13 +19,16 @@ double PIDController::compute(double current, double target) {
     double error = target - current;
 //    Serial.print("error:");
 //    Serial.println(error);
-    double dInput = (current - lastInput);
+    double dInput = (current - lastTarget);
     outputSum += (Ki_ * error);
 
     outputSum -= Kp_ * dInput;
 
-    if (outputSum > outMax) outputSum = outMax;
-    else if (outputSum < outMin) outputSum = outMin;
+    if (outputSum > outMax) {
+        outputSum = outMax;
+    } else if (outputSum < outMin) {
+        outputSum = outMin;
+    }
 
     /*Add Proportional on Error, if P_ON_E is specified*/
     double output = 0;
@@ -38,10 +45,6 @@ double PIDController::compute(double current, double target) {
         output = outMin;
     }
 
-//    Serial.println(output);
-
-    /*Remember some variables for next time*/
-    lastInput = target;
     lastTime = now;
     return output;
 }

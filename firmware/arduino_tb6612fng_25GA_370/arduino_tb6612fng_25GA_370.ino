@@ -33,11 +33,7 @@ void loop() {
     readCommand();
     Serial.println(command);
     executeCommand();
-//    auto actual = m1.getAngularVelocity();
-//    Serial.print(actual);
-//    Serial.print(" ");
-//    Serial.print(velocity);
-//    Serial.println();
+    log(target);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -71,6 +67,14 @@ void executeCommand() {
     } else if (command == MOVE_MOTOR_2) {
 //            m1.move(velocity);
     }
+}
+
+void log(double target) {
+    auto actual = m1.getAngularVelocity();
+    Serial.print(actual);
+    Serial.print(" ");
+    Serial.print(velocity);
+    Serial.println();
 }
 
 //void tune(double target) {
