@@ -21,6 +21,10 @@ byte command;
 double velocity;
 #define MOVE_MOTOR_1 1
 #define MOVE_MOTOR_2 2
+#define GET_MOTOR_1_VELOCITY 3
+#define GET_MOTOR_2_VELOCITY 4
+#define GET_MOTOR_1_ANGLE 5
+#define GET_MOTOR_2_ANGLE 6
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -47,26 +51,38 @@ void readCommand() {
         JsonDocument doc;
         deserializeJson(doc, json);
         command = doc["command"];
-        velocity = doc["params"]["velocity"];
+        if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
+            velocity = doc["params"]["velocity"];
+        }
     }
 }
 
-void writeCommand() {
-    // JsonDocument doc;
-
-    // doc["sensor"] = "gps";
-    // doc["time"] = 1351824120;
-    // doc["data"][0] = 48.756080;
-    // doc["data"][1] = 2.302038;
-
-    // serializeJson(doc, Serial);
+void writeCommand(double value) {
+    JsonDocument doc;
+    doc["value"] = value;
+    serializeJson(doc, Serial);
 }
 
 void executeCommand() {
-    if (command == MOVE_MOTOR_1) {
-        m1.move(velocity);
-    } else if (command == MOVE_MOTOR_2) {
-//            m1.move(velocity);
+    switch (command) {
+        case MOVE_MOTOR_1:
+            m1.move(velocity);
+            break;
+        case MOVE_MOTOR_2:
+//            m2.move(velocity);
+            break;
+        case GET_MOTOR_1_VELOCITY:
+            writeCommand(m1.getAngularVelocity());
+            break;
+        case GET_MOTOR_2_VELOCITY:
+//            writeCommand(m2.getAngularVelocity());
+            break;
+        case GET_MOTOR_1_ANGLE:
+            writeCommand(m1.getAngle());
+            break;
+        case GET_MOTOR_2_ANGLE:
+//            writeCommand(m2.getAngle());
+            break;
     }
 }
 
