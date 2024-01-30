@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <time.h>
+#include <random>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/range.hpp"
@@ -24,6 +25,7 @@ using std::to_string;
 using std::abs;
 using std::chrono::milliseconds;
 using namespace std::chrono_literals;
+using namespace std;
 
 
 class BumpAndGo : public rclcpp::Node {
@@ -70,6 +72,14 @@ private:
         return to_degrees(yaw);
     }
 
+    int getRandomDirection() {
+        random_device rd;
+        mt19937 mt(rd());
+        uniform_int_distribution<int> dist(1, 100);
+        auto chosen = dist(mt);
+        return chosen <= 50 ? 1 : -1;
+    }
+
     void controlLoop() {
         if (range_ == nullptr || odometry_ == nullptr) {
             return;
@@ -93,12 +103,8 @@ private:
                 RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
                 turning_ = true;
                 startingAngle = getCurrentYawInDegrees();
-                //Turn left or right by random
-                int lb = 1, ub = 100;
-                auto chosen = (rand() % (ub - lb + 1)) + lb;
-
                 twistMsg.twist.linear.x = 0.0;
-                twistMsg.twist.angular.z = 1.57 * chosen <= 50 ? 1 : -1;
+                twistMsg.twist.angular.z = 1.57 * getRandomDirection();
             }
         }
         twistStampedPublisher_->publish(twistMsg);
