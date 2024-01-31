@@ -44,9 +44,10 @@ public:
 
 private:
     bool turning_ = false;
-    double startingAngle = 0;
+    double startingYaw = 0;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
     static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
+    static constexpr double LINEAR_VELOCITY = 0.1;
     Range::UniquePtr range_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
@@ -62,17 +63,17 @@ private:
         odometry_ = std::move(odometry);
     }
 
-    double getCurrentYawInDegrees() {
+    double getYaw() {
         tf2::Quaternion quat_tf;
         geometry_msgs::msg::Quaternion quat_msg = odometry_->pose.pose.orientation;
         tf2::fromMsg(quat_msg, quat_tf);
         tf2::Matrix3x3 m(quat_tf);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        return to_degrees(yaw);
+        return yaw;
     }
 
-    int getRandomDirection() {
+    static int getRandomDirection() {
         random_device rd;
         mt19937 mt(rd());
         uniform_int_distribution<int> dist(1, 100);
@@ -86,10 +87,8 @@ private:
         }
 
         if (turning_) {
-            double currentYawInDegrees = getCurrentYawInDegrees();
-            RCLCPP_INFO(this->get_logger(), "currentYawInDegrees: '%s'", to_string(currentYawInDegrees).c_str());
-            bool reachedAngle = abs(currentYawInDegrees - startingAngle) >= 90;
-            RCLCPP_INFO(this->get_logger(), "reachedAngle: '%s'", to_string(reachedAngle).c_str());
+            double yaw = getYaw();
+            bool reachedAngle = abs(yaw - startingYaw) > 1.5708; //90 degree turn
             if (reachedAngle) {
                 turning_ = false;
             }
@@ -97,12 +96,11 @@ private:
             RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
             //Clear, keep going
             if (range_->range > 0.5) {
-                twistMsg.twist.linear.x = 0.1;
+                twistMsg.twist.linear.x = LINEAR_VELOCITY;
                 twistMsg.twist.angular.z = 0.0;
             } else {
-                RCLCPP_INFO(this->get_logger(), "BLOCKED! Turning!.....");
                 turning_ = true;
-                startingAngle = getCurrentYawInDegrees();
+                startingYaw = getYaw();
                 twistMsg.twist.linear.x = 0.0;
                 twistMsg.twist.angular.z = 1.57 * getRandomDirection();
             }
