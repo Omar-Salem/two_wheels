@@ -46,7 +46,7 @@ private:
     bool turning_ = false;
     double startingAngle = 0;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
-    const milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
+    static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
     Range::UniquePtr range_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<TwistStamped>::SharedPtr twistStampedPublisher_;
