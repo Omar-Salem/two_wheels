@@ -2,6 +2,7 @@
 #include <ArduinoJson.hpp>
 
 #include "Motor.h"
+#include "Commands.h"
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 
 #define BAUDRATE 9600
@@ -21,12 +22,6 @@ byte command;
 double velocity;
 
 unsigned long moveCommandLastReceivedOn;
-#define MOVE_MOTOR_1 1
-#define MOVE_MOTOR_2 2
-#define GET_MOTOR_1_VELOCITY 3
-#define GET_MOTOR_2_VELOCITY 4
-#define GET_MOTOR_1_ANGLE 5
-#define GET_MOTOR_2_ANGLE 6
 #define DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC 500
 
 void setup() {
