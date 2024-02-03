@@ -38,10 +38,6 @@ ekf_filter_node:
     base_link_frame: base_footprint  # Defaults to "base_link" if unspecified
     world_frame: odom           # Defaults to the value of odom_frame if unspecified
 
-
-
-    # IMU Configuration
-    imu0: /two_wheels/imu
     # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
     # values from each measurement are fed to the filter. For example, if you have an odometry message as input, but only
     # want to use its Z position value, then set the entire vector to false, except for the third entry. The order of the
@@ -50,24 +46,16 @@ ekf_filter_node:
     # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
     # if unspecified, effectively making this parameter required for each sensor.
 
-
-    # only roll, pitch, and yaw are used.
-    # Typical mobile robot-grade IMUs will also provide angular velocities and linear accelerations.
-    # For robot_localization to work properly, you should not fuse in multiple fields that are derivative of each other.
-    # Since angular velocity is fused internally to the IMU to provide the roll, pitch and yaw estimates,
-    # we should not fuse in the angular velocities used to derive that information.
-    # We also do not fuse in angular velocity due to the noisy characteristics it has when not using exceptionally high quality (and expensive) IMUs.
-    imu0_config: [ false, false, false,
-                   true,  true,  true,
-                   false, false, false,
-                   false, false, false,
-                   false, false, false ]
-
     odom0: /diff_drive_controller/odom
-    
-    # fuse only x, y, z, and the vyaw
-    odom0_config: [ true,  true,  true,   # x, y, z,
+    odom0_config: [ false,  false,  false,   # x, y, z,
                     false, false, false,  # roll, pitch, yaw,
-                    false, false, false,  # vx, vy, vz,
+                    true, false, false,  # vx, vy, vz,
                     false, false, true,   # vroll, vpitch, vyaw,
                     false, false, false ]  # ax, ay, az
+
+    imu0: /two_wheels/imu
+    imu0_config: [ false,  false,  false,   # x, y, z,
+                   false, false, false,  # roll, pitch, yaw,
+                   true, false, false,  # vx, vy, vz,
+                   false, false, true,   # vroll, vpitch, vyaw,
+                   false, false, false ]  # ax, ay, az
