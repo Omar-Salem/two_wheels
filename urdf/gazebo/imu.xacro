@@ -7,18 +7,18 @@
             <always_on>true</always_on>
             <imu>
                 <angular_velocity>
-                    <!--                    <x>-->
-                    <!--                        <noise type="gaussian">-->
-                    <!--                            <mean>0.0</mean>-->
-                    <!--                            <stddev>2e-4</stddev>-->
-                    <!--                        </noise>-->
-                    <!--                    </x>-->
-                    <!--                    <y>-->
-                    <!--                        <noise type="gaussian">-->
-                    <!--                            <mean>0.0</mean>-->
-                    <!--                            <stddev>2e-4</stddev>-->
-                    <!--                        </noise>-->
-                    <!--                    </y>-->
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </y>
                     <z>
                         <noise type="gaussian">
                             <mean>0.0</mean>
@@ -33,18 +33,18 @@
                             <stddev>1.7e-2</stddev>
                         </noise>
                     </x>
-                    <!--                    <y>-->
-                    <!--                        <noise type="gaussian">-->
-                    <!--                            <mean>0.0</mean>-->
-                    <!--                            <stddev>1.7e-2</stddev>-->
-                    <!--                        </noise>-->
-                    <!--                    </y>-->
-                    <!--                    <z>-->
-                    <!--                        <noise type="gaussian">-->
-                    <!--                            <mean>0.0</mean>-->
-                    <!--                            <stddev>1.7e-2</stddev>-->
-                    <!--                        </noise>-->
-                    <!--                    </z>-->
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </z>
                 </linear_acceleration>
             </imu>
             <update_rate>30</update_rate>
