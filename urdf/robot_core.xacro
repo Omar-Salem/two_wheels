@@ -21,6 +21,9 @@
     <xacro:property name="sonar_size" value="0.01"/>
     <xacro:property name="sonar_mass" value="0.01"/>
 
+    <xacro:property name="imu_size" value="0.01"/>
+    <xacro:property name="imu_mass" value="0.01"/>
+
     <material name="white">
         <color rgba="1.0 1.0 1.0 1.0"/>
     </material>
@@ -35,6 +38,10 @@
 
     <material name="blue">
         <color rgba="0 1 1 1"/>
+    </material>
+
+    <material name="red">
+        <color rgba="0.596078431372549 0.0 0.00784313725490196 1.0"/>
     </material>
 
     <xacro:macro name="wheel" params="prefix y_reflect">
@@ -137,4 +144,29 @@
         <child link="sonar_link"/>
         <origin xyz="${disc_radius} 0 0"/>
     </joint>
+
+    <link name="imu_link">
+        <xacro:box_inertial mass="${imu_mass}" x="${imu_size}" y="${imu_size}" z="${imu_size}"/>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${imu_size} ${imu_size} ${imu_size}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${imu_size} ${imu_size} ${imu_size}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
 </robot>
