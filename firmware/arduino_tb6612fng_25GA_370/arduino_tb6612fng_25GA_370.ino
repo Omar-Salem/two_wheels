@@ -16,6 +16,12 @@ Motor m1(ENC_COUNT_REV,
          7,
          2,
          3);
+Motor m2(ENC_COUNT_REV,
+         5,
+         6,
+         7,
+         2,
+         3);
 
 //bool stopTune = false;
 byte command;
@@ -27,8 +33,8 @@ unsigned long moveCommandLastReceivedOn;
 void setup() {
     Serial.begin(BAUDRATE);
     m1.initialize();
-    // Every time the pin goes high, this is a pulse
     attachInterrupt(digitalPinToInterrupt(m1.getEncoderPin()), firstEncoderCallback, RISING);
+    attachInterrupt(digitalPinToInterrupt(m2.getEncoderPin()), secondEncoderCallback, RISING);
 }
 
 void loop() {
@@ -37,12 +43,14 @@ void loop() {
     executeCommand();
     if (millis() - moveCommandLastReceivedOn >= DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC) {
         m1.move(0);
-//        m2.move(0);
+        m2.move(0);
     }
 //    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
+
+void secondEncoderCallback() { m2.interruptCallback(); }
 
 /*
  * {"command":1,"params":{"velocity":6.28}}
@@ -72,19 +80,22 @@ void executeCommand() {
             m1.move(velocity);
             break;
         case MOVE_MOTOR_2:
-//            m2.move(velocity);
+            m2.move(velocity);
             break;
         case GET_MOTOR_1_VELOCITY:
             writeCommand(m1.calculateAngularVelocity());
             break;
         case GET_MOTOR_2_VELOCITY:
-//            writeCommand(m2.calculateAngularVelocity());
+            writeCommand(m2.calculateAngularVelocity());
             break;
         case GET_MOTOR_1_ANGLE:
             writeCommand(m1.getAngle());
             break;
         case GET_MOTOR_2_ANGLE:
-//            writeCommand(m2.getAngle());
+            writeCommand(m2.getAngle());
+            break;
+        default:
+            //TODO throw exception?  https://stackoverflow.com/a/10229439/801743
             break;
     }
 }
