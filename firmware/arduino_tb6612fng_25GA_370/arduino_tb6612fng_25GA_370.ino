@@ -19,12 +19,15 @@ Motor m1(ENC_COUNT_REV,
 //bool stopTune = false;
 byte command;
 double velocity;
+
+unsigned long moveCommandLastReceivedOn;
 #define MOVE_MOTOR_1 1
 #define MOVE_MOTOR_2 2
 #define GET_MOTOR_1_VELOCITY 3
 #define GET_MOTOR_2_VELOCITY 4
 #define GET_MOTOR_1_ANGLE 5
 #define GET_MOTOR_2_ANGLE 6
+#define DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC 500
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -37,6 +40,10 @@ void loop() {
     readCommand();
     Serial.println(command);
     executeCommand();
+    if (millis() - moveCommandLastReceivedOn >= DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC) {
+        m1.move(0);
+//        m2.move(0);
+    }
 //    logOutput();
 }
 
@@ -52,6 +59,7 @@ void readCommand() {
         deserializeJson(doc, json);
         command = doc["command"];
         if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
+            moveCommandLastReceivedOn = millis();
             velocity = doc["params"]["velocity"];
         }
     }
