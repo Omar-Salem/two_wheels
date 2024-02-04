@@ -7,11 +7,12 @@
 #include <Arduino.h>
 #include <util/atomic.h>
 #include "PIDController.h" //https://github.com/DonnyCraft1/PIDArduino
+#include "MotorConfig.h"
 
 
 class Motor {
 public:
-    Motor(int encCountRev,
+    Motor(MotorConfig motorConfig,
           byte pwmPin,
           byte firstBridgePin,
           byte secondBridgePin,
@@ -34,7 +35,6 @@ public:
 
 private:
     int encCountRev;
-
     byte pwmPin;
     byte firstBridgePin;
     byte secondBridgePin;
@@ -56,10 +56,6 @@ private:
     const double RPM_TO_RADIANS = 0.10471975512;
 
     PIDController velocityPID;
-
-    const double Kp = 1.0;
-    const double Ki = 0;
-    const double Kd = 0;
 
     void setDirectionForward();
 };

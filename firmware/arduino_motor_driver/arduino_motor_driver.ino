@@ -2,6 +2,7 @@
 #include <ArduinoJson.hpp>
 
 #include "Motor.h"
+#include "MotorConfig.h"
 #include "Commands.h"
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 
@@ -9,14 +10,14 @@
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
-
-Motor m1(ENC_COUNT_REV,
+MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, 1.0, 0, 0);
+Motor m1(_25GA_370_MotorConfig,
          5,
          6,
          7,
          2,
          3);
-Motor m2(ENC_COUNT_REV,
+Motor m2(_25GA_370_MotorConfig,
          5,
          6,
          7,
@@ -53,7 +54,13 @@ void firstEncoderCallback() { m1.interruptCallback(); }
 void secondEncoderCallback() { m2.interruptCallback(); }
 
 /*
- * {"command":1,"params":{"velocity":6.28}}
+ *
+ * {
+        "command": 1,
+        "params": {
+          "velocity": 6.28
+        }
+    }
  * */
 void readCommand() {
     if (Serial.available() > 0) {

@@ -3,19 +3,22 @@
 //
 #include "Motor.h"
 
-Motor::Motor(int encCountRev,
+Motor::Motor(MotorConfig motorConfig,
              byte pwmPin,
              byte firstBridgePin,
              byte secondBridgePin,
              byte encoder1Pin,
              byte encoder2Pin)
-        : encCountRev(encCountRev),
+        : encCountRev(motorConfig.getEncCountRev()),
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
           encoder1Pin(encoder1Pin),
           encoder2Pin(encoder2Pin) {
-    precision = (2 * PI) / encCountRev;
+    precision = (2 * PI) / motorConfig.getEncCountRev();
+    velocityPID.tune(motorConfig.getKp(),
+                     motorConfig.getKi(),
+                     motorConfig.getKd());
 }
 
 void Motor::initialize() {
@@ -24,7 +27,6 @@ void Motor::initialize() {
     pinMode(secondBridgePin, OUTPUT);
     pinMode(encoder1Pin, INPUT_PULLUP);
     pinMode(encoder2Pin, INPUT);
-    velocityPID.tune(Kp, Ki, Kd);
 }
 
 double Motor::calculateAngularVelocity() {
