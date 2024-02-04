@@ -47,5 +47,5 @@ def create_robot_node() -> list:
         name="bump_go",
     )
     return [robot_localization,
-            bump_go
+            # bump_go
             ]
