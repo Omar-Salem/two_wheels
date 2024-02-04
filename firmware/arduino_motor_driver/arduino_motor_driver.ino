@@ -55,12 +55,7 @@ void secondEncoderCallback() { m2.interruptCallback(); }
 
 /*
  *
- * {
-        "command": 1,
-        "params": {
-          "velocity": 6.28
-        }
-    }
+ * {"command":1,"params":{"velocity":6.28}}
  * */
 void readCommand() {
     if (Serial.available() > 0) {
