@@ -55,13 +55,14 @@ def create_robot_node() -> list:
             get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py'
         )])
     )
+    map_path = PathJoinSubstitution([FindPackageShare(package_name), "worlds", "traffic_cones_map.yaml"])
     nav2_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory("nav2_bringup"), 'launch', 'navigation_launch.py'
-        )])
+        )]), launch_arguments={'map': map_path, 'use_sim_time': is_sim}.items()
     )
     return [robot_localization,
-            bump_go,
+            # bump_go,
             slam_toolbox,
             nav2_bringup
             ]
