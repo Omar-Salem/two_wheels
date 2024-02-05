@@ -61,8 +61,9 @@ def create_robot_node() -> list:
             get_package_share_directory("nav2_bringup"), 'launch', 'navigation_launch.py'
         )]), launch_arguments={'map': map_path, 'use_sim_time': is_sim}.items()
     )
-    return [robot_localization,
-            bump_go,
-            # slam_toolbox,
-            # nav2_bringup
+    return [
+        # robot_localization,
+        # bump_go,
+        slam_toolbox,
+        nav2_bringup
             ]
