@@ -19,11 +19,18 @@ find_package(angles REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
+set(deps rclcpp sensor_msgs geometry_msgs nav_msgs angles tf2_geometry_msgs)
+set(targets bump_go velocity_remapper)
+
 add_executable(bump_go src/bump_go.cpp)
-ament_target_dependencies(bump_go rclcpp sensor_msgs geometry_msgs nav_msgs angles tf2_geometry_msgs)
+ament_target_dependencies(bump_go ${deps})
+
+add_executable(velocity_remapper src/velocity_remapper.cpp)
+ament_target_dependencies(velocity_remapper ${deps})
+
 
 install(TARGETS
-        bump_go
+        ${targets}
         DESTINATION lib/${PROJECT_NAME})
 
 
