@@ -62,7 +62,7 @@ def create_robot_node() -> list:
         )]), launch_arguments={'map': map_path, 'use_sim_time': is_sim}.items()
     )
     return [robot_localization,
-            # bump_go,
-            slam_toolbox,
-            nav2_bringup
+            bump_go,
+            # slam_toolbox,
+            # nav2_bringup
             ]

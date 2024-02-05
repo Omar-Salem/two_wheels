@@ -16,6 +16,7 @@ diff_drive_controller:
     wheel_separation: 0.09 # the disc diameter is 0.14, but it's cut on both sides, not a perfect circle
     wheel_radius: 0.033
 
+    use_stamped_vel: false
 #    wheel_separation_multiplier: 1.0
 #    left_wheel_radius_multiplier: 1.0
 #    right_wheel_radius_multiplier: 1.0
