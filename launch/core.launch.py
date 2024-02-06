@@ -61,10 +61,12 @@ def create_robot_node() -> list:
         )])
     )
     map_path = PathJoinSubstitution([FindPackageShare(package_name), "worlds", "traffic_cones_map.yaml"])
+    navigation_launch_file_path = [os.path.join(
+        get_package_share_directory("nav2_bringup"), 'launch', 'navigation_launch.py'
+    )]
     nav2_bringup = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory("nav2_bringup"), 'launch', 'navigation_launch.py'
-        )]), launch_arguments={'map': map_path, 'use_sim_time': is_sim}.items()
+        PythonLaunchDescriptionSource(navigation_launch_file_path),
+        launch_arguments={'map': map_path, 'use_sim_time': is_sim}.items()
     )
     return [
         # robot_localization,
@@ -72,4 +74,4 @@ def create_robot_node() -> list:
         velocity_remapper,
         slam_toolbox,
         nav2_bringup
-            ]
+    ]
