@@ -11,22 +11,28 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(geometry_msgs REQUIRED)
-find_package(nav_msgs REQUIRED)
-find_package(angles REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
 
-set(deps rclcpp sensor_msgs geometry_msgs nav_msgs angles tf2_geometry_msgs)
-set(targets bump_go velocity_remapper)
+set(deps
+        rclcpp
+        sensor_msgs
+        geometry_msgs
+        nav_msgs
+        angles
+        tf2_geometry_msgs)
+set(targets
+        bump_go)
 
-add_executable(bump_go src/bump_go.cpp)
-ament_target_dependencies(bump_go ${deps})
+foreach (d ${deps})
+    find_package(${d} REQUIRED)
+endforeach ()
 
-add_executable(velocity_remapper src/velocity_remapper.cpp)
-ament_target_dependencies(velocity_remapper ${deps})
+foreach (t ${targets})
+    add_executable(${t} src/${t}.cpp)
+    ament_target_dependencies(${t} ${deps})
+endforeach ()
+
+#add_executable(bump_go src/bump_go.cpp)
+#ament_target_dependencies(bump_go ${deps})
 
 
 install(TARGETS

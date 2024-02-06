@@ -36,7 +36,7 @@ public:
     BumpAndGo()
             : Node("bump_go") {
         twistPublisher_ = this->create_publisher<Twist>(
-                "/diff_drive_controller/cmd_vel_unstamped", 10);
+                "/cmd_vel", 10);
         rangeTopicSubscription_ = this->create_subscription<Range>(
                 "/two_wheels/range", 10, std::bind(&BumpAndGo::rangeTopicCallback, this, _1));
         odomTopicSubscription_ = this->create_subscription<Odometry>(
