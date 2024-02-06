@@ -3,10 +3,10 @@ import os
 import launch_ros
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
-from launch_ros.actions import Node
+from launch_ros.actions import Node, SetRemap
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -70,8 +70,12 @@ def create_robot_node() -> list:
     )
     return [
         # robot_localization,
-        # bump_go,
-        velocity_remapper,
-        slam_toolbox,
-        nav2_bringup
+        # # bump_go,
+        GroupAction(
+            actions=[
+                SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
+                slam_toolbox,
+                nav2_bringup
+            ]
+        )
     ]
