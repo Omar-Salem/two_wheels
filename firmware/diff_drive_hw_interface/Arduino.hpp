@@ -13,7 +13,7 @@
 #include "Wheel.h"
 
 namespace diff_drive_hw_interface {
-    class ArduinoTB6612FNG : public hardware_interface::SystemInterface {
+    class Arduino : public hardware_interface::SystemInterface {
     public:
         hardware_interface::CallbackReturn on_init(
                 const hardware_interface::HardwareInfo &info) override;

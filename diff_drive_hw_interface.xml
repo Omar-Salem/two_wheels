@@ -1,6 +1,6 @@
 <library path="diff_drive_hw_interface">
-  <class name="diff_drive_hw_interface/ArduinoTB6612FNG"
-         type="diff_drive_hw_interface::ArduinoTB6612FNG"
+  <class name="diff_drive_hw_interface/Arduino"
+         type="diff_drive_hw_interface::Arduino"
          base_class_type="hardware_interface::SystemInterface">
     <description>
       ros2_control hardware interface.

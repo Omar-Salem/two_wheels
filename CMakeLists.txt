@@ -41,7 +41,7 @@ set(HW_INTERFACE_LIB "diff_drive_hw_interface")
 add_library(
         ${HW_INTERFACE_LIB}
         SHARED
-        firmware/arduino_tb6612fng.cpp
+        firmware/Arduino.cpp
 )
 ament_target_dependencies(
         ${HW_INTERFACE_LIB}
@@ -56,8 +56,6 @@ install(
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
 )
-# prevent pluginlib from using boost
-target_compile_definitions(${HW_INTERFACE_LIB} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
 #The arguments to the pluginlib_export_plugin_description_file command are:
 #The package with the base class, i.e. polygon_base.
