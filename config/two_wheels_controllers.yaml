@@ -13,8 +13,8 @@ diff_drive_controller:
     left_wheel_names: ["left_wheel_joint"]
     right_wheel_names: ["right_wheel_joint"]
 
-    wheel_separation: 0.09 # the disc diameter is 0.14, but it's cut on both sides, not a perfect circle
-    wheel_radius: 0.033
+    wheel_separation: 0.19 # read from the URDF if this parameter is not specified.
+    #    wheel_radius: 0.033 # read from the URDF if this parameter is not specified.
 
     use_stamped_vel: false
 #    wheel_separation_multiplier: 1.0
