@@ -49,9 +49,19 @@ ament_target_dependencies(
         rclcpp
         rclcpp_lifecycle
 )
+install(
+        TARGETS
+        ${HW_INTERFACE_LIB}
+        RUNTIME DESTINATION bin
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+)
 # prevent pluginlib from using boost
 target_compile_definitions(${HW_INTERFACE_LIB} PUBLIC "PLUGINLIB__DISABLE_BOOST_FUNCTIONS")
 
+#The arguments to the pluginlib_export_plugin_description_file command are:
+#The package with the base class, i.e. polygon_base.
+#The relative path to the Plugin Declaration xml, i.e. plugins.xml.
 pluginlib_export_plugin_description_file(hardware_interface ${HW_INTERFACE_LIB}.xml)
 
 install(
