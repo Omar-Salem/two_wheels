@@ -34,7 +34,7 @@ def generate_launch_description():
     )
 
     gazebo_nodes = create_gazebo_nodes(package_name)
-    controller_nodes = create_controller_nodes(package_name, robot_description_config)
+    controller_nodes = create_controller_nodes()
     rviz_node = create_rviz_node(package_name)
     core = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
@@ -68,7 +68,7 @@ def create_rviz_node(package_name):
     return rviz_node
 
 
-def create_controller_nodes(package_name: object, robot_description_config: object) -> list:
+def create_controller_nodes() -> list:
     """
 
     :rtype: list
