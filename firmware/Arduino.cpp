@@ -40,18 +40,18 @@ namespace diff_drive_hw_interface {
 //        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "info_.joints[1].name: %s'",info_.joints[1].name.c_str());
 
 
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-                leftWheel->name, hardware_interface::HW_IF_POSITION, &leftWheel->position_state));
+        state_interfaces.emplace_back(
+                leftWheel->name, hardware_interface::HW_IF_POSITION, &leftWheel->position_state);
 
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_state));
+        state_interfaces.emplace_back(
+                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_state);
 
 
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-                rightWheel->name, hardware_interface::HW_IF_POSITION, &rightWheel->position_state));
+        state_interfaces.emplace_back(
+                rightWheel->name, hardware_interface::HW_IF_POSITION, &rightWheel->position_state);
 
-        state_interfaces.emplace_back(hardware_interface::StateInterface(
-                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_state));
+        state_interfaces.emplace_back(
+                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_state);
 
         return state_interfaces;
     }
@@ -59,10 +59,10 @@ namespace diff_drive_hw_interface {
     std::vector<hardware_interface::CommandInterface> Arduino::export_command_interfaces() {
         RCLCPP_INFO(rclcpp::get_logger("Arduino"), "export_command_interfaces ...please wait...");
         std::vector<hardware_interface::CommandInterface> command_interfaces;
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(
-                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_command));
-        command_interfaces.emplace_back(hardware_interface::CommandInterface(
-                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_command));
+        command_interfaces.emplace_back(
+                leftWheel->name, hardware_interface::HW_IF_VELOCITY, &leftWheel->velocity_command);
+        command_interfaces.emplace_back(
+                rightWheel->name, hardware_interface::HW_IF_VELOCITY, &rightWheel->velocity_command);
 
 
         return command_interfaces;
