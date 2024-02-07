@@ -31,9 +31,6 @@ foreach (t ${targets})
     ament_target_dependencies(${t} ${deps})
 endforeach ()
 
-#add_executable(bump_go src/bump_go.cpp)
-#ament_target_dependencies(bump_go ${deps})
-
 
 install(TARGETS
         ${targets}
