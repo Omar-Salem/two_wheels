@@ -10,7 +10,7 @@
 #include "serialib.h"
 //#include <cstdio.h>
 
-#define SERIAL_PORT "/dev/ttyACM0"
+#define SERIAL_PORT "/dev/ttyUSB0"
 #define BAUD 115200
 
 #define MOVE_MOTOR_1 1

@@ -40,7 +40,6 @@ void setup() {
 
 void loop() {
     readCommand();
-    Serial.println(command);
     executeCommand();
     if (millis() - moveCommandLastReceivedOn >= DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC) {
         m1.move(0);
@@ -74,6 +73,7 @@ void writeCommand(double value) {
     JsonDocument doc;
     doc["value"] = value;
     serializeJson(doc, Serial);
+    Serial.println();
 }
 
 void executeCommand() {
