@@ -13,9 +13,9 @@ void ArduinoFirmware::configure() {
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
-    serial.writeString("{\"command\":5");
-    char buffer[100];
-    serial.readString(buffer, '\n', 100, 2000);
+    serial.writeString("{\"command\":5}");
+    char buffer[1000];
+    serial.readString(buffer, '\n', 2000, 1000);
     printf("String read: %s\n", buffer);
     return 0;
 }
