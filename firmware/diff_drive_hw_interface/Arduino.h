@@ -11,6 +11,8 @@
 #include "rclcpp/macros.hpp"
 #include "rclcpp_lifecycle/state.hpp"
 #include "Wheel.h"
+#include "../interface/Firmware.h"
+#include "../interface/ArduinoFirmware.h"
 
 namespace diff_drive_hw_interface {
     class Arduino : public hardware_interface::SystemInterface {
@@ -47,6 +49,7 @@ namespace diff_drive_hw_interface {
     private:
         Wheel *leftWheel;
         Wheel *rightWheel;
+        Firmware *firmware;
     };
 
 }

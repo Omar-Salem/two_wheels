@@ -1,0 +1,37 @@
+//
+// Created by omar on 2/8/24.
+//
+
+#ifndef TWO_WHEELS_ARDUINOFIRMWARE_H
+#define TWO_WHEELS_ARDUINOFIRMWARE_H
+
+
+#include "Firmware.h"
+#include "serialib.h"
+//#include <cstdio.h>
+
+#define SERIAL_PORT "/dev/ttyACM0"
+#define BAUD 115200
+
+#define MOVE_MOTOR_1 1
+#define MOVE_MOTOR_2 2
+#define GET_MOTOR_1_VELOCITY 3
+#define GET_MOTOR_2_VELOCITY 4
+#define GET_MOTOR_1_POSITION 5
+#define GET_MOTOR_2_POSITION 6
+
+class ArduinoFirmware : public Firmware {
+public:
+    void configure();
+
+    double getFirstMotorPosition();
+
+    double getFirstMotorVelocity();
+
+    void setFirstMotorVelocity(double v);
+
+private:
+    serialib serial;
+};
+
+#endif //TWO_WHEELS_ARDUINOFIRMWARE_H

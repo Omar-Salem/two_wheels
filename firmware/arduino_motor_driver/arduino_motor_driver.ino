@@ -6,7 +6,7 @@
 #include "Commands.h"
 //https://www.phippselectronics.com/using-the-dual-dc-stepper-motor-drive-tb6612fng-with-arduino/
 
-#define BAUDRATE 9600
+#define BAUDRATE 115200
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
@@ -90,10 +90,10 @@ void executeCommand() {
         case GET_MOTOR_2_VELOCITY:
             writeCommand(m2.calculateAngularVelocity());
             break;
-        case GET_MOTOR_1_ANGLE:
+        case GET_MOTOR_1_POSITION:
             writeCommand(m1.getAngle());
             break;
-        case GET_MOTOR_2_ANGLE:
+        case GET_MOTOR_2_POSITION:
             writeCommand(m2.getAngle());
             break;
         default:
