@@ -14,12 +14,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "pluginlib/class_list_macros.hpp"
 
-using namespace hardware_interface;
-using namespace std;
+
 namespace diff_drive_hw_interface {
     CallbackReturn Arduino::on_init(
             const HardwareInfo &info) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "on_init ...please wait...");
+        RCLCPP_INFO(get_logger("Arduino"), "on_init ...please wait...");
 
         if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
             return CallbackReturn::ERROR;
@@ -31,14 +30,14 @@ namespace diff_drive_hw_interface {
     }
 
     CallbackReturn Arduino::on_configure(
-            const rclcpp_lifecycle::State & /*previous_state*/) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "on_configure ...please wait...");
+            const State & /*previous_state*/) {
+        RCLCPP_INFO(get_logger("Arduino"), "on_configure ...please wait...");
         firmware->configure();
         return CallbackReturn::SUCCESS;
     }
 
-    vector <StateInterface> Arduino::export_state_interfaces() {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "export_state_interfaces ...please wait...");
+    vector<StateInterface> Arduino::export_state_interfaces() {
+        RCLCPP_INFO(get_logger("Arduino"), "export_state_interfaces ...please wait...");
         vector<StateInterface> state_interfaces;
 
         state_interfaces.emplace_back(
@@ -57,8 +56,8 @@ namespace diff_drive_hw_interface {
         return state_interfaces;
     }
 
-    vector <CommandInterface> Arduino::export_command_interfaces() {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "export_command_interfaces ...please wait...");
+    vector<CommandInterface> Arduino::export_command_interfaces() {
+        RCLCPP_INFO(get_logger("Arduino"), "export_command_interfaces ...please wait...");
         vector<CommandInterface> command_interfaces;
         command_interfaces.emplace_back(
                 leftWheel->name, HW_IF_VELOCITY, &leftWheel->velocity_command);
@@ -70,20 +69,20 @@ namespace diff_drive_hw_interface {
     }
 
     CallbackReturn Arduino::on_activate(
-            const rclcpp_lifecycle::State & /*previous_state*/) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "on_activate ...please wait...");
+            const State & /*previous_state*/) {
+        RCLCPP_INFO(get_logger("Arduino"), "on_activate ...please wait...");
         return CallbackReturn::SUCCESS;
     }
 
     CallbackReturn Arduino::on_deactivate(
-            const rclcpp_lifecycle::State & /*previous_state*/) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "on_deactivate ...please wait...");
+            const State & /*previous_state*/) {
+        RCLCPP_INFO(get_logger("Arduino"), "on_deactivate ...please wait...");
         return CallbackReturn::SUCCESS;
     }
 
     return_type Arduino::read(
-            const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "read ...please wait...");
+            const Time & /*time*/, const Duration & /*period*/) {
+        RCLCPP_INFO(get_logger("Arduino"), "read ...please wait...");
 
         //TODO:update leftWheel->position_state and rightWheel->position_state from arduino
         //TODO:update leftWheel->velocity_state and rightWheel->velocity_state from arduino
@@ -93,11 +92,11 @@ namespace diff_drive_hw_interface {
     }
 
     return_type Arduino::write(
-            const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/) {
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "write ...please wait...");
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "leftWheel->velocity_command: %f'",
+            const Time & /*time*/, const Duration & /*period*/) {
+        RCLCPP_INFO(get_logger("Arduino"), "write ...please wait...");
+        RCLCPP_INFO(get_logger("Arduino"), "leftWheel->velocity_command: %f'",
                     leftWheel->velocity_command);
-        RCLCPP_INFO(rclcpp::get_logger("Arduino"), "rightWheel->velocity_command: %f'",
+        RCLCPP_INFO(get_logger("Arduino"), "rightWheel->velocity_command: %f'",
                     rightWheel->velocity_command);
         //TODO:send leftWheel->velocity_command and rightWheel->velocity_command to firmware
         firmware->setFirstMotorVelocity(12.0);
