@@ -28,8 +28,6 @@ Motor m2(_25GA_370_MotorConfig,
 byte command;
 double velocity;
 
-unsigned long moveCommandLastReceivedOn;
-#define DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC 500
 
 void setup() {
     Serial.begin(BAUDRATE);
@@ -41,11 +39,6 @@ void setup() {
 void loop() {
     readCommand();
     executeCommand();
-    if (millis() - moveCommandLastReceivedOn >= DEAD_MAN_SWITCH_INTERVAL_MILLI_SEC) {
-        m1.move(0);
-        m2.move(0);
-    }
-//    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -63,7 +56,6 @@ void readCommand() {
         deserializeJson(doc, json);
         command = doc["command"];
         if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
-            moveCommandLastReceivedOn = millis();
             velocity = doc["params"]["velocity"];
         }
     }
