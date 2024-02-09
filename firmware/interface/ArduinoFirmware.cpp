@@ -8,20 +8,80 @@
 void ArduinoFirmware::configure() {
     auto errorOpening = serial.openDevice(SERIAL_PORT, BAUD);
     if (errorOpening != 1) {
-        throw std::invalid_argument("SerialDeviceException: Could not open device");
+        throw invalid_argument("SerialDeviceException: Could not open device");
     }
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
-    serial.writeString("{\"command\":5}");
+    return readCommandUtil(GET_MOTOR_1_POSITION);
+}
+
+double ArduinoFirmware::getFirstMotorVelocity() {
+    return readCommandUtil(GET_MOTOR_1_VELOCITY);
+}
+
+void ArduinoFirmware::setFirstMotorVelocity(double v) {
+    string command = std::regex_replace(WRITE_COMMAND_TEMPLATE,
+                                        std::regex("#command"),
+                                        to_string(MOVE_MOTOR_1));
+    command = std::regex_replace(command,
+                                 std::regex("#velocity"),
+                                 to_string(v));
+    sendCommand(command);
+}
+
+
+void ArduinoFirmware::sendCommand(const string &command) {
+
+    printf("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC: %s\n", command.c_str());
+    int res = serial.writeString(command.c_str());
+    if (res != 1) {
+        throw invalid_argument("Could not write to serial");
+    }
+}
+
+double ArduinoFirmware::readCommand() {
     char buffer[1000];
-    serial.readString(buffer, '\n', 2000, 1000);
-    printf("String read: %s\n", buffer);
+    int result = serial.readString(buffer, '\n', 2000, 2000);
+    if (result <= 0) {
+        string errorMsg = "ReadException:";
+        switch (result) {
+            case 0:
+                errorMsg += "timeout reached";
+                break;
+            case -1:
+                errorMsg += "error while setting the Timeout";
+                break;
+            case -2:
+                errorMsg += "error while reading the character";
+                break;
+            case -3:
+                errorMsg += "MaxNbBytes is reached";
+                break;
+            default:
+                errorMsg += to_string(result);
+                break;
+        }
+        throw invalid_argument(errorMsg);
+    }
+    try {
+        json data = json::parse(buffer);
+    } catch (...) {
+        printf("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO String read: %s\n", buffer);
+    }
+    // {\"value\":5.9}
+//    const auto value = data["value"];
+//    printf("JSON read: %s\n", value.dump().c_str());
+//    value.
+//    return value.get<nlohmann::json::number_float_t>();
     return 0;
 }
 
-double ArduinoFirmware::getFirstMotorVelocity() { return 0; }
-
-void ArduinoFirmware::setFirstMotorVelocity(double v) {
-    serial.writeString("{\"command\":1,\"params\":{\"velocity\":6.28}}");
+double ArduinoFirmware::readCommandUtil(int commandNumber) {
+    const string command = regex_replace(READ_COMMAND_TEMPLATE,
+                                         regex("#command"),
+                                         to_string(commandNumber));
+    sendCommand(command);
+    return 0;
+//    return readCommand();
 }

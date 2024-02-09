@@ -8,7 +8,8 @@
 
 #include "Firmware.h"
 #include "serialib.h"
-//#include <cstdio.h>
+#include <regex>
+#include <nlohmann/json.hpp>
 
 #define SERIAL_PORT "/dev/ttyUSB0"
 #define BAUD 115200
@@ -19,6 +20,9 @@
 #define GET_MOTOR_2_VELOCITY 4
 #define GET_MOTOR_1_POSITION 5
 #define GET_MOTOR_2_POSITION 6
+
+using json = nlohmann::json;
+using namespace std;
 
 class ArduinoFirmware : public Firmware {
 public:
@@ -32,6 +36,15 @@ public:
 
 private:
     serialib serial;
+
+    void sendCommand(const string &command);
+
+    double readCommand();
+
+    const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
+    const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
+
+    double readCommandUtil(int commandNumber);
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

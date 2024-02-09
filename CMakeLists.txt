@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(ament_cmake REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(hardware_interface REQUIRED)
+find_package(nlohmann_json 3.2.0 REQUIRED)
 
 set(deps
         rclcpp
@@ -50,6 +51,7 @@ ament_target_dependencies(
         hardware_interface
         rclcpp
         rclcpp_lifecycle
+        nlohmann_json
 )
 install(
         TARGETS
