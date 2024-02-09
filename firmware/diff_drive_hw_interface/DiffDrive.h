@@ -19,7 +19,7 @@ using namespace rclcpp_lifecycle;
 using namespace rclcpp;
 using namespace std;
 namespace diff_drive_hw_interface {
-    class Arduino : public SystemInterface {
+    class DiffDrive : public SystemInterface {
     public:
         CallbackReturn on_init(
                 const HardwareInfo &info) override;

@@ -4,7 +4,7 @@
 
     <ros2_control name="RealRobot" type="system">
         <hardware>
-            <plugin>diff_drive_hw_interface/Arduino</plugin>
+            <plugin>diff_drive_hw_interface/DiffDrive</plugin>
         </hardware>
         <xacro:joints/>
     </ros2_control>

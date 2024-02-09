@@ -42,7 +42,7 @@ set(HW_INTERFACE_LIB "diff_drive_hw_interface")
 add_library(
         ${HW_INTERFACE_LIB}
         SHARED
-        firmware/${HW_INTERFACE_LIB}/Arduino.cpp
+        firmware/${HW_INTERFACE_LIB}/DiffDrive.cpp
         firmware/interface/ArduinoFirmware.cpp
         firmware/interface/serialib.cpp
 )
