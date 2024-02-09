@@ -7,7 +7,7 @@
 
 
 #include "Firmware.h"
-#include "serialib.h"
+#include "SerialOps.h"
 #include <regex>
 #include <nlohmann/json.hpp>
 #include <chrono>
@@ -37,7 +37,7 @@ public:
     void setFirstMotorVelocity(double v);
 
 private:
-    serialib serial;
+    SerialOps *serial;
 
     void sendCommand(const string &command);
 

@@ -82,12 +82,15 @@ namespace hw_interface {
 
     return_type DiffDrive::read(
             const Time & /*time*/, const Duration & /*period*/) {
-        RCLCPP_INFO(get_logger("DiffDrive"), "read ...please wait...");
 
-        //TODO:update leftWheel->position_state and rightWheel->position_state from arduino
+        //TODO:update  and rightWheel->position_state from arduino
         //TODO:update leftWheel->velocity_state and rightWheel->velocity_state from arduino
+        try {
+            leftWheel->position_state = firmware->getFirstMotorPosition();
+            RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->position_state:%f", leftWheel->position_state);
+        } catch (invalid_argument &ex) {
 
-        firmware->getFirstMotorPosition();
+        }
         return return_type::OK;
     }
 
