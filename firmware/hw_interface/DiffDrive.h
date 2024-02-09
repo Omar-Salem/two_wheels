@@ -51,9 +51,9 @@ namespace hw_interface {
                 const Time &time, const Duration &period) override;
 
     private:
-        Wheel *leftWheel;
-        Wheel *rightWheel;
-        Firmware *firmware;
+        unique_ptr<Wheel> leftWheel;
+        unique_ptr<Wheel> rightWheel;
+        unique_ptr<Firmware> firmware;
     };
 
 }

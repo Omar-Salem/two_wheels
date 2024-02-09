@@ -23,9 +23,9 @@ namespace hw_interface {
         if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
             return CallbackReturn::ERROR;
         }
-        leftWheel = new Wheel("left_wheel_joint"); //TODO use smart pointers!
-        rightWheel = new Wheel("right_wheel_joint");
-        firmware = new ArduinoFirmware();
+        leftWheel = make_unique<Wheel>("left_wheel_joint");
+        rightWheel = make_unique<Wheel>("right_wheel_joint");
+        firmware = make_unique<ArduinoFirmware>();
         return CallbackReturn::SUCCESS;
     }
 
