@@ -97,9 +97,9 @@ void executeCommand() {
             writeCommand(m2.getAngle());
             break;
         default:
-            //TODO throw exception?  https://stackoverflow.com/a/10229439/801743
             break;
     }
+    command = 0;//reset command
 }
 
 void logOutput() {
