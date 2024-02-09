@@ -41,8 +41,8 @@ private:
 
     double readCommand();
 
-    const string READ_COMMAND_TEMPLATE = R"({"command":#command}\n)";
-    const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}}\n)";
+    const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
+    const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
 
     double readCommandUtil(int commandNumber);
 };
