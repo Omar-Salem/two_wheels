@@ -13,9 +13,9 @@ class SerialOps {
 public:
     SerialOps(std::string port, unsigned int baudRate);
 
-    std::string read();
+    void write(const std::string &firmwareCommand);
 
-    void write(const std::string &line);
+    std::string read();
 
 private:
     std::string exec(const char *cmd);
