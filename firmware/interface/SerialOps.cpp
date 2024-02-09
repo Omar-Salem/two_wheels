@@ -16,12 +16,12 @@ SerialOps::SerialOps(string port, unsigned int baudRate) : port(std::move(port))
 }
 
 void SerialOps::write(const std::string &firmwareCommand) {
-    const string cmd = "echo '{\"command\":5}' > " + port;
+    const string cmd = "echo '" + firmwareCommand + "' > " + port;
     exec(cmd.c_str());
 }
 
 std::string SerialOps::read() {
-    auto cmd = "cat " + port;
+    const auto cmd = "cat " + port;
     return exec(cmd.c_str());
 }
 
