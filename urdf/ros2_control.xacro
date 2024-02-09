@@ -2,9 +2,9 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:include filename="joints.macro.xacro"/>
 
-    <ros2_control name="RealRobot" type="system">
+    <ros2_control name="DiffDrive" type="system">
         <hardware>
-            <plugin>diff_drive_hw_interface/DiffDrive</plugin>
+            <plugin>hw_interface/DiffDrive</plugin>
         </hardware>
         <xacro:joints/>
     </ros2_control>

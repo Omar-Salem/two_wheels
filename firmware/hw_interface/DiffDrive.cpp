@@ -15,7 +15,7 @@
 #include "pluginlib/class_list_macros.hpp"
 
 
-namespace diff_drive_hw_interface {
+namespace hw_interface {
     CallbackReturn DiffDrive::on_init(
             const HardwareInfo &info) {
         RCLCPP_INFO(get_logger("DiffDrive"), "on_init ...please wait...");
@@ -107,4 +107,4 @@ namespace diff_drive_hw_interface {
 }
 
 
-PLUGINLIB_EXPORT_CLASS(diff_drive_hw_interface::DiffDrive, SystemInterface)
+PLUGINLIB_EXPORT_CLASS(hw_interface::DiffDrive, SystemInterface)

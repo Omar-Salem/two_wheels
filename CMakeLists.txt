@@ -38,7 +38,7 @@ install(TARGETS
         DESTINATION lib/${PROJECT_NAME})
 
 
-set(HW_INTERFACE_LIB "diff_drive_hw_interface")
+set(HW_INTERFACE_LIB "hw_interface")
 add_library(
         ${HW_INTERFACE_LIB}
         SHARED

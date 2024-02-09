@@ -18,7 +18,7 @@ using namespace hardware_interface;
 using namespace rclcpp_lifecycle;
 using namespace rclcpp;
 using namespace std;
-namespace diff_drive_hw_interface {
+namespace hw_interface {
     class DiffDrive : public SystemInterface {
     public:
         CallbackReturn on_init(
