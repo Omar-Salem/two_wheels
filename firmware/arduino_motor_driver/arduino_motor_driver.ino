@@ -92,7 +92,11 @@ void executeCommand() {
         default:
             break;
     }
-    command = 0;//reset command
+    resetCommand();
+}
+
+void resetCommand() {
+    command = 0;
 }
 
 void logOutput() {

@@ -10,6 +10,8 @@
 #include "serialib.h"
 #include <regex>
 #include <nlohmann/json.hpp>
+#include <chrono>
+#include <thread>
 
 #define SERIAL_PORT "/dev/ttyUSB0"
 #define BAUD 115200

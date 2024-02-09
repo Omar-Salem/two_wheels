@@ -10,6 +10,20 @@ void ArduinoFirmware::configure() {
     if (errorOpening != 1) {
         throw invalid_argument("SerialDeviceException: Could not open device");
     }
+    bool serialReady = false;
+    unsigned int retryCount = 5;
+    while (!serialReady && retryCount > 0) {
+        try {
+            getFirstMotorPosition();
+            serialReady = true;
+        } catch (...) {
+            --retryCount;
+            std::this_thread::sleep_for(500ms);
+        }
+    }
+    if (!serialReady) {
+        throw invalid_argument("Could not configure");
+    }
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
@@ -42,7 +56,7 @@ void ArduinoFirmware::sendCommand(const string &command) {
 
 double ArduinoFirmware::readCommand() {
     char buffer[1000];
-    int result = serial.readString(buffer, '\n', 2000, 2000);
+    int result = serial.readString(buffer, '\n', 2000, 500);
     if (result <= 0) {
         string errorMsg = "ReadException:";
         switch (result) {
@@ -82,6 +96,5 @@ double ArduinoFirmware::readCommandUtil(int commandNumber) {
                                          regex("#command"),
                                          to_string(commandNumber));
     sendCommand(command);
-    return 0;
-//    return readCommand();
+    return readCommand();
 }
