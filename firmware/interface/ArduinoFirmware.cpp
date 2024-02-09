@@ -6,7 +6,7 @@
 #include "ArduinoFirmware.h"
 
 void ArduinoFirmware::configure() {
-    serial = new SerialOps(SERIAL_PORT, BAUD);
+    serial = make_unique<SerialOps>(SERIAL_PORT, BAUD);
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {

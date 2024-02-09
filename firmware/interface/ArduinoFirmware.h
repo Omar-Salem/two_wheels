@@ -37,7 +37,7 @@ public:
     void setFirstMotorVelocity(double v);
 
 private:
-    SerialOps *serial;
+    unique_ptr<SerialOps> serial;
 
     void sendCommand(const string &command);
 
