@@ -50,14 +50,15 @@ void secondEncoderCallback() { m2.interruptCallback(); }
  * {"command":1,"params":{"velocity":6.28}}
  * */
 void readCommand() {
-    if (Serial.available() > 0) {
-        String json = Serial.readStringUntil('\n');
-        JsonDocument doc;
-        deserializeJson(doc, json);
-        command = doc["command"];
-        if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
-            velocity = doc["params"]["velocity"];
-        }
+    if (Serial.available() <= 0) {
+        return;
+    }
+    String json = Serial.readStringUntil('\n');
+    JsonDocument doc;
+    deserializeJson(doc, json);
+    command = doc["command"];
+    if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
+        velocity = doc["params"]["velocity"];
     }
 }
 
