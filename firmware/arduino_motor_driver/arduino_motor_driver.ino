@@ -18,10 +18,10 @@ Motor m1(_25GA_370_MotorConfig,
          2,
          4);
 Motor m2(_25GA_370_MotorConfig,
-         5,
          9,
          10,
          11,
+         3,
          8);
 
 bool stopTune = false;
@@ -42,9 +42,9 @@ void setup() {
 void loop() {
 //    double velocity = readCommand();
 //    executeCommand(velocity);
-//    tune(6.0);
+    tune(6.0);
 //    m1.move(6.0);
-    logOutput();
+//    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
