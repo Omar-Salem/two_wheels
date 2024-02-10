@@ -23,7 +23,7 @@ public:
 
     double calculateAngularVelocity();
 
-    double getAngle() const;
+    double getPosition() const;
 
     byte getVelocityEncoder() const;
 

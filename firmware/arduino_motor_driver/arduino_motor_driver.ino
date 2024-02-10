@@ -44,6 +44,7 @@ void loop() {
 //    executeCommand(velocity);
 //    tune(6.0);
 //    m1.move(6.0);
+    logOutput();
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -91,10 +92,10 @@ void executeCommand(double velocity) {
             writeCommand(m2.calculateAngularVelocity());
             break;
         case GET_MOTOR_1_POSITION:
-            writeCommand(m1.getAngle());
+            writeCommand(m1.getPosition());
             break;
         case GET_MOTOR_2_POSITION:
-            writeCommand(m2.getAngle());
+            writeCommand(m2.getPosition());
             break;
         default:
             break;
@@ -109,8 +110,6 @@ void resetCommand() {
 void logOutput() {
     auto actual = m1.calculateAngularVelocity();
     Serial.print(actual);
-    Serial.print(" ");
-    Serial.print(velocity);
     Serial.println();
 }
 

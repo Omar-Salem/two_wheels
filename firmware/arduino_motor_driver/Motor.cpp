@@ -49,7 +49,7 @@ double Motor::calculateAngularVelocity() {
     return rpm * RPM_TO_RADIANS;
 }
 
-double Motor::getAngle() const {
+double Motor::getPosition() const {
     double pos = 0;
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
