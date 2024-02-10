@@ -56,7 +56,7 @@ void firstEncoderCallback() { m1.interruptCallback(); }
 void secondEncoderCallback() { m2.interruptCallback(); }
 
 void readCommand() {
-    if (Serial.available() <= 0) {
+    if (!Serial.available()) {
         return;
     }
     String json = Serial.readStringUntil('\n');
