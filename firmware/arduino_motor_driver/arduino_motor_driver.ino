@@ -40,21 +40,21 @@ void setup() {
 }
 
 void loop() {
+/*
+ *
+ * {"command":1,"params":{"velocity":6.28}}
+ * */
 //    double velocity = readCommand();
 //    executeCommand(velocity);
-    tune(6.0);
-//    m1.move(6.0);
-//    logOutput();
+    tune(6.28);
+//    m1.move(6.28);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
 
 void secondEncoderCallback() { m2.interruptCallback(); }
 
-/*
- *
- * {"command":1,"params":{"velocity":6.28}}
- * */
+
 double readCommand() {
     if (Serial.available() <= 0) {
         return 0.0;
