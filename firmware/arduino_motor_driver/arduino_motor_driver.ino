@@ -16,7 +16,7 @@ Motor m1(_25GA_370_MotorConfig,
          6,
          7,
          2,
-         3);
+         4);
 Motor m2(_25GA_370_MotorConfig,
          5,
          6,
