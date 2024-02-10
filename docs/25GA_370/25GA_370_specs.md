@@ -8,7 +8,7 @@ https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with
 |              |       |         | Red Wire - positive power supply of motor(+)             | A0        |
 |              |       |         | White Wire - negative power supply of motor(-)           | A1        |
 |              |       | 2       | Yellow Wire - C1                                         |           |
-|              |       | 3       | Green Wire - C2                                          |           |
+|              |       | 4       | Green Wire - C2                                          |           |
 |              |       | 5       |                                                          | PWMA      |
 |              |       | 6       |                                                          | AI1       |
 |              |       | 7       |                                                          | AI2       |
