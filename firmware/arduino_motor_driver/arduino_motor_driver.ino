@@ -10,7 +10,7 @@
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
-MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, 0.1, 0.0, 0);
+MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, 0.3, 0.0, 0);
 Motor m1(_25GA_370_MotorConfig,
          5,
          6,
@@ -25,7 +25,7 @@ Motor m2(_25GA_370_MotorConfig,
          8);
 
 bool stopTune = false;
-double Kp = 0;
+double Kp = 0.3;
 double Ki = 0;
 double Kd = 0;
 
@@ -115,17 +115,18 @@ void logOutput() {
 
 void tune(double target) {
     m1.move(target);
+    m1.tunePID(Kp, Ki, Kd);
     if (Serial.available() > 0) {
         // read the incoming byte:
         String input = Serial.readStringUntil('\n');
-        if (input == "p" || input == "p" || input == "p") {
+        if (input == "p" || input == "i" || input == "d") {
             if (input == "p") { Kp += .1; }
             else if (input == "i") { Ki += .1; }
             else if (input == "d") { Kd += .1; }
-            m1.tunePID(Kp, Ki, Kd);
         } else if (input == "s") {
             stopTune = true;
         }
+        input == "";
     }
     if (stopTune) {
         Serial.print(" Kp:");
