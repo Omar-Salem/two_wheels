@@ -30,6 +30,7 @@ Motor m2(_25GA_370_MotorConfig,
 //double Kd = 0;
 
 byte command;
+double velocity = 0;
 
 
 void setup() {
@@ -44,22 +45,20 @@ void loop() {
  *
  * {"command":1,"params":{"velocity":6.28}}
  * */
-//    double velocity = readCommand();
-//    executeCommand(velocity);
+    readCommand();
+    executeCommand();
 //    tune(6.28);
-    m1.move(6.28);
+//    m1.move(6.28);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
 
 void secondEncoderCallback() { m2.interruptCallback(); }
 
-
-double readCommand() {
+void readCommand() {
     if (Serial.available() <= 0) {
-        return 0.0;
+        return;
     }
-    double velocity = 0;
     String json = Serial.readStringUntil('\n');
     JsonDocument doc;
     deserializeJson(doc, json);
@@ -67,7 +66,6 @@ double readCommand() {
     if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
         velocity = doc["params"]["velocity"];
     }
-    return velocity;
 }
 
 void writeCommand(double value) {
@@ -77,7 +75,7 @@ void writeCommand(double value) {
     Serial.println();
 }
 
-void executeCommand(double velocity) {
+void executeCommand() {
     switch (command) {
         case MOVE_MOTOR_1:
             m1.move(velocity);
@@ -100,11 +98,6 @@ void executeCommand(double velocity) {
         default:
             break;
     }
-    resetCommand();
-}
-
-void resetCommand() {
-    command = 0;
 }
 
 void logOutput() {
