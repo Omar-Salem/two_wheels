@@ -87,3 +87,9 @@ void Motor::setDirectionForward() {
 byte Motor::getVelocityEncoder() const {
     return velocityEncoder;
 }
+
+void Motor::tunePID(double p, double i, double d) {
+    velocityPID.tune(p,
+                     i,
+                     d);
+}

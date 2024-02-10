@@ -33,6 +33,8 @@ public:
 
     void interruptCallback();
 
+    void tunePID(double p, double i, double d);
+
 private:
     int encCountRev;
     byte pwmPin;

@@ -10,7 +10,7 @@
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
-MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, 1.0, 0, 0);
+MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, 0.1, 0.0, 0);
 Motor m1(_25GA_370_MotorConfig,
          5,
          6,
@@ -24,9 +24,12 @@ Motor m2(_25GA_370_MotorConfig,
          11,
          8);
 
-//bool stopTune = false;
+bool stopTune = false;
+double Kp = 0;
+double Ki = 0;
+double Kd = 0;
+
 byte command;
-double velocity;
 
 
 void setup() {
@@ -37,8 +40,10 @@ void setup() {
 }
 
 void loop() {
-    readCommand();
-    executeCommand();
+//    double velocity = readCommand();
+//    executeCommand(velocity);
+//    tune(6.0);
+//    m1.move(6.0);
 }
 
 void firstEncoderCallback() { m1.interruptCallback(); }
@@ -49,10 +54,11 @@ void secondEncoderCallback() { m2.interruptCallback(); }
  *
  * {"command":1,"params":{"velocity":6.28}}
  * */
-void readCommand() {
+double readCommand() {
     if (Serial.available() <= 0) {
-        return;
+        return 0.0;
     }
+    double velocity = 0;
     String json = Serial.readStringUntil('\n');
     JsonDocument doc;
     deserializeJson(doc, json);
@@ -60,6 +66,7 @@ void readCommand() {
     if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
         velocity = doc["params"]["velocity"];
     }
+    return velocity;
 }
 
 void writeCommand(double value) {
@@ -69,7 +76,7 @@ void writeCommand(double value) {
     Serial.println();
 }
 
-void executeCommand() {
+void executeCommand(double velocity) {
     switch (command) {
         case MOVE_MOTOR_1:
             m1.move(velocity);
@@ -107,30 +114,33 @@ void logOutput() {
     Serial.println();
 }
 
-//void tune(double target) {
-//    if (Serial.available() > 0) {
-//        // read the incoming byte:
-//        String json = Serial.readStringUntil('\n');
-//        if (json == "p") { m1.Kp += 1; }
-//        else if (json == "i") { m1.Ki += .1; }
-//        else if (json == "d") { m1.Kd += .1; }
-//        else if (json == "s") {
-//            stopTune = true;
-//        }
-//    }
-//    if (stopTune) {
-//        Serial.print(" Kp:");
-//        Serial.print(m1.Kp);
-//        Serial.print(" Ki:");
-//        Serial.print(m1.Ki);
-//        Serial.print(" Kd:");
-//        Serial.print(m1.Kd);
-//        Serial.println();
-//    } else {
-//        auto actual = m1.calculateAngularVelocity();
-//        Serial.print(actual);
-//        Serial.print(" ");
-//        Serial.print(target);
-//        Serial.println();
-//    }
-//}
+void tune(double target) {
+    m1.move(target);
+    if (Serial.available() > 0) {
+        // read the incoming byte:
+        String input = Serial.readStringUntil('\n');
+        if (input == "p" || input == "p" || input == "p") {
+            if (input == "p") { Kp += .1; }
+            else if (input == "i") { Ki += .1; }
+            else if (input == "d") { Kd += .1; }
+            m1.tunePID(Kp, Ki, Kd);
+        } else if (input == "s") {
+            stopTune = true;
+        }
+    }
+    if (stopTune) {
+        Serial.print(" Kp:");
+        Serial.print(Kp);
+        Serial.print(" Ki:");
+        Serial.print(Ki);
+        Serial.print(" Kd:");
+        Serial.print(Kd);
+        Serial.println();
+    } else {
+        auto actual = m1.calculateAngularVelocity();
+        Serial.print(actual);
+        Serial.print(" ");
+        Serial.print(target);
+        Serial.println();
+    }
+}
