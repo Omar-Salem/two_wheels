@@ -59,7 +59,8 @@ double Motor::getPosition() const {
 }
 
 void Motor::move(double targetVelocity) {
-    int pwm = velocityPID.compute(calculateAngularVelocity(), targetVelocity);
+    double currentV = calculateAngularVelocity();
+    int pwm = velocityPID.compute(currentV, targetVelocity);
     movePWM(pwm);
 }
 
