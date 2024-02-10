@@ -16,8 +16,8 @@ public:
           byte pwmPin,
           byte firstBridgePin,
           byte secondBridgePin,
-          byte encoder1Pin,
-          byte encoder2Pin);
+          byte velocityEncoder,
+          byte directionPin);
 
     void initialize();
 
@@ -25,7 +25,7 @@ public:
 
     double getAngle() const;
 
-    byte getEncoderPin() const;
+    byte getVelocityEncoder() const;
 
     void move(double velocity);
 
@@ -38,8 +38,8 @@ private:
     byte pwmPin;
     byte firstBridgePin;
     byte secondBridgePin;
-    byte encoder1Pin;
-    byte encoder2Pin;
+    byte velocityEncoder;
+    byte directionPin;
 
     volatile double posi = 0;
     double precision;

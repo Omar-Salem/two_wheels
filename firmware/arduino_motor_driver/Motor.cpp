@@ -7,14 +7,14 @@ Motor::Motor(MotorConfig motorConfig,
              byte pwmPin,
              byte firstBridgePin,
              byte secondBridgePin,
-             byte encoder1Pin,
-             byte encoder2Pin)
+             byte velocityEncoder,
+             byte directionPin)
         : encCountRev(motorConfig.getEncCountRev()),
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
-          encoder1Pin(encoder1Pin),
-          encoder2Pin(encoder2Pin) {
+          velocityEncoder(velocityEncoder),
+          directionPin(directionPin) {
     precision = (2 * PI) / motorConfig.getEncCountRev();
     velocityPID.tune(motorConfig.getKp(),
                      motorConfig.getKi(),
@@ -25,8 +25,8 @@ void Motor::initialize() {
     pinMode(pwmPin, OUTPUT);
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
-    pinMode(encoder1Pin, INPUT_PULLUP);
-    pinMode(encoder2Pin, INPUT);
+    pinMode(velocityEncoder, INPUT_PULLUP);
+    pinMode(directionPin, INPUT);
 }
 
 double Motor::calculateAngularVelocity() {
@@ -75,7 +75,7 @@ void Motor::interruptCallback() {
     velocity = 1 / deltaT;
     prevTime = currT;
 
-    bool direction = digitalRead(encoder2Pin);
+    bool direction = digitalRead(directionPin);
     direction > 0 ? posi++ : posi--;
 }
 
@@ -84,6 +84,6 @@ void Motor::setDirectionForward() {
     digitalWrite(secondBridgePin, LOW);
 }
 
-byte Motor::getEncoderPin() const {
-    return encoder1Pin;
+byte Motor::getVelocityEncoder() const {
+    return velocityEncoder;
 }

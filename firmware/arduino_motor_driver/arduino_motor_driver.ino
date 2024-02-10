@@ -19,10 +19,10 @@ Motor m1(_25GA_370_MotorConfig,
          4);
 Motor m2(_25GA_370_MotorConfig,
          5,
-         6,
-         7,
-         2,
-         3);
+         9,
+         10,
+         11,
+         8);
 
 //bool stopTune = false;
 byte command;
@@ -32,8 +32,8 @@ double velocity;
 void setup() {
     Serial.begin(BAUDRATE);
     m1.initialize();
-    attachInterrupt(digitalPinToInterrupt(m1.getEncoderPin()), firstEncoderCallback, RISING);
-    attachInterrupt(digitalPinToInterrupt(m2.getEncoderPin()), secondEncoderCallback, RISING);
+    attachInterrupt(digitalPinToInterrupt(m1.getVelocityEncoder()), firstEncoderCallback, RISING);
+    attachInterrupt(digitalPinToInterrupt(m2.getVelocityEncoder()), secondEncoderCallback, RISING);
 }
 
 void loop() {
