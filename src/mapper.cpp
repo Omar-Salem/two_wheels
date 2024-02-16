@@ -33,6 +33,7 @@ using std::abs;
 using std::chrono::milliseconds;
 using namespace std::chrono_literals;
 using namespace std;
+using std::chrono::steady_clock;
 
 
 class Mapper : public rclcpp::Node {
@@ -49,6 +50,7 @@ public:
 
         controlLoopTimer_ = this->create_wall_timer(
                 CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
+        sleep(5);//Wait till bt_navigator is active
     }
 
 private:
