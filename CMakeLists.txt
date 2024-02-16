@@ -21,7 +21,8 @@ set(deps
         angles
         tf2_geometry_msgs)
 set(targets
-        bump_go)
+        bump_go
+        mapper)
 
 foreach (d ${deps})
     find_package(${d} REQUIRED)

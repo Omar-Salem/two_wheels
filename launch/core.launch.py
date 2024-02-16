@@ -50,6 +50,11 @@ def create_robot_node() -> list:
         executable="bump_go",
         name="bump_go",
     )
+    mapper = Node(
+        package=LaunchConfiguration("package_name"),
+        executable="mapper",
+        name="mapper",
+    )
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py'
@@ -60,16 +65,17 @@ def create_robot_node() -> list:
         [FindPackageShare(package_name), 'launch', 'navigation_launch.py'])
     nav2_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(navigation_launch_file_path),
-        launch_arguments={'map': map_path, 'use_sim_time': is_sim, 'package_name': package_name}.items()
+        launch_arguments={'use_sim_time': is_sim, 'package_name': package_name}.items()
     )
     return [
         # robot_localization,
         GroupAction(
             actions=[
-                # SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
-                # slam_toolbox,
-                # nav2_bringup,
-                bump_go,
+                SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
+                slam_toolbox,
+                nav2_bringup,
+                mapper,
+                # bump_go,
             ]
         )
     ]
