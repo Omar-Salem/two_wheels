@@ -93,7 +93,7 @@ def create_gazebo_nodes(package_name) -> list:
     """
     package_dir = FindPackageShare(package_name)
     world = PathJoinSubstitution(
-        [package_dir, 'worlds', 'traffic_cones.world']
+        [package_dir, 'worlds', 'walls.world']
     )
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(

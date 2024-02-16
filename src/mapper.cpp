@@ -50,7 +50,7 @@ public:
 
         controlLoopTimer_ = this->create_wall_timer(
                 CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
-        sleep(5);//Wait till bt_navigator is active
+        sleep(10);//Wait till bt_navigator is active //TODO
     }
 
 private:
@@ -76,7 +76,9 @@ private:
         reachedGoal = calculateDistance(goalPosition.x,
                                         goalPosition.y,
                                         currentPosition.x,
-                                        currentPosition.y) <= 5;
+                                        currentPosition.y) <= 2;
+        if (reachedGoal)
+            RCLCPP_INFO(this->get_logger(), "********************* GOAL REACHED *******************");
     }
 
     void controlLoop() {
@@ -120,13 +122,13 @@ private:
         bool notVisited = visited.find(coords) == visited.end();
         if (notVisited) {
             visited.insert(coords);
-            reachedGoal = true;
             RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %td,%td", x, y);
             goal.pose.position.x = x;
             goal.pose.position.y = y;
 //            goal.pose.orientation.z = .38;
 //            goal.pose.orientation.w = .92;
             goal.header.frame_id = "map";
+            reachedGoal = false;
             goalPublisher_->publish(goal);
         } else {
             RCLCPP_INFO(this->get_logger(), "********************* VISITED??????? ******************* : %td,%td", x, y);
