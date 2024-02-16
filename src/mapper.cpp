@@ -53,7 +53,7 @@ public:
 
 private:
     static constexpr signed char UNKNOWN = -1;
-    set<pair<int, int>> visited;
+    set<pair<double, double>> visited;
     bool reachedGoal = false;
     bool isDone = false;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
@@ -106,9 +106,11 @@ private:
         RCLCPP_INFO(this->get_logger(), "********************* FIRST FRONTIER INDEX******************* : %td", val);
         RCLCPP_INFO(this->get_logger(), "********************* WIDTH ******************* : %u", width);
 
-        const auto y = val / width;
-        const auto x = val - (y * width);
-
+        auto y = val / width;
+        auto x = val - (y * width);
+        const auto origin = metaData.origin.position;
+        x += origin.x;
+        y += origin.y;
 
         RCLCPP_INFO(this->get_logger(), "********************* COORDS ******************* : %td,%td", x, y);
 
@@ -117,10 +119,15 @@ private:
         if (notVisited) {
             visited.insert(coords);
             reachedGoal = true;
-            RCLCPP_INFO(this->get_logger(), "Navigating to : %u,%u", x, y);
+            RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %td,%td", x, y);
             goal.pose.position.x = x;
             goal.pose.position.y = y;
+//            goal.pose.orientation.z = .38;
+//            goal.pose.orientation.w = .92;
+            goal.header.frame_id = "map";
             goalPublisher_->publish(goal);
+        } else {
+            RCLCPP_INFO(this->get_logger(), "********************* VISITED??????? ******************* : %td,%td", x, y);
         }
     }
 
