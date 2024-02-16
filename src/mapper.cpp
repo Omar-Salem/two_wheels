@@ -85,7 +85,7 @@ private:
         }
         const auto metaData = occupancyGrid_->info;
         const auto width = metaData.width;
-        const auto height = metaData.height;
+//        const auto height = metaData.height;
         /*
         # 0 represents unoccupied, 1 represents definitely occupied, and
 
