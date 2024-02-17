@@ -19,7 +19,8 @@ set(deps
         geometry_msgs
         nav_msgs
         angles
-        tf2_geometry_msgs)
+        tf2_geometry_msgs
+        map_msgs)
 set(targets
         bump_go
         mapper)
@@ -68,7 +69,7 @@ install(
 pluginlib_export_plugin_description_file(hardware_interface ${HW_INTERFACE_LIB}.xml)
 
 install(
-        DIRECTORY config launch rviz urdf worlds
+        DIRECTORY config launch maps rviz urdf worlds
         DESTINATION share/${PROJECT_NAME}
 )
 
