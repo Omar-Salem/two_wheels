@@ -150,8 +150,8 @@ private:
         RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %d,%d", x, y);
         goal.pose.position.x = x;
         goal.pose.position.y = y;
-//            goal.pose.orientation.z = .38;
-//            goal.pose.orientation.w = .92;
+        goal.pose.orientation.z = .38;
+        goal.pose.orientation.w = .92;
         goal.header.frame_id = "map";
         reachedGoal = false;
         goalPublisher_->publish(goal);
