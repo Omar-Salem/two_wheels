@@ -64,6 +64,10 @@ def create_rviz_node(package_name):
         name="rviz2",
         output="log",
         arguments=["-d", rviz_config_file],
+        ros_arguments=[
+            "--log-level",
+            "warn"
+        ]
     )
     return rviz_node
 
@@ -81,6 +85,10 @@ def create_controller_nodes() -> list:
                 package="controller_manager",
                 executable="spawner",
                 arguments=[controller],
+                ros_arguments=[
+                    "--log-level",
+                    "warn"
+                ]
             )
         ]
     return robot_controller_spawners
