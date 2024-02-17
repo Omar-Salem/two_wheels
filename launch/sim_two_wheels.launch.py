@@ -1,7 +1,5 @@
-import logging
 import os
 
-import launch.logging
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
@@ -107,5 +105,5 @@ def create_gazebo_nodes(package_name) -> list:
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'my_bot'],
                         output='screen')
-    launch.logging.launch_config.level = logging.WARN
+    # launch.logging.launch_config.level = logging.WARN
     return [gazebo, spawn_entity]

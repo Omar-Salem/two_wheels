@@ -74,8 +74,8 @@ def create_robot_node() -> list:
                 SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
                 slam_toolbox,
                 nav2_bringup,
-                # mapper,
-                bump_go,
+                mapper,
+                # bump_go,
             ]
         )
     ]
