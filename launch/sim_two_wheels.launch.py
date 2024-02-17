@@ -1,5 +1,7 @@
+import logging
 import os
 
+import launch.logging
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
@@ -63,11 +65,7 @@ def create_rviz_node(package_name):
         executable="rviz2",
         name="rviz2",
         output="log",
-        arguments=["-d", rviz_config_file],
-        ros_arguments=[
-            "--log-level",
-            "warn"
-        ]
+        arguments=["-d", rviz_config_file]
     )
     return rviz_node
 
@@ -84,11 +82,7 @@ def create_controller_nodes() -> list:
             Node(
                 package="controller_manager",
                 executable="spawner",
-                arguments=[controller],
-                ros_arguments=[
-                    "--log-level",
-                    "warn"
-                ]
+                arguments=[controller]
             )
         ]
     return robot_controller_spawners
@@ -108,8 +102,10 @@ def create_gazebo_nodes(package_name) -> list:
             get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
         launch_arguments={'world': world}.items()
     )
-    spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
+    spawn_entity = Node(package='gazebo_ros',
+                        executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'my_bot'],
                         output='screen')
+    launch.logging.launch_config.level = logging.WARN
     return [gazebo, spawn_entity]
