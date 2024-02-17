@@ -44,7 +44,10 @@ public:
 
         poseSubscription_ = this->create_subscription<PoseWithCovarianceStamped>(
                 "/pose", 10, std::bind(&Mapper::poseTopicCallback, this, _1));
-
+        /*
+         * TODO
+         * rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr cancel_navto_client = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(node,"/navigate_to_pose");
+         * */
         goalPublisher_ = this->create_publisher<PoseStamped>(
                 "/goal_pose", 10);
 
