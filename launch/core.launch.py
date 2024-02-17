@@ -60,12 +60,12 @@ def create_robot_node() -> list:
             get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py'
         )])
     )
-    map_path = PathJoinSubstitution([FindPackageShare(package_name), "maps", "map.yaml"])
+    map_yaml_file = PathJoinSubstitution([FindPackageShare(package_name), "maps", "map.yaml"])
     navigation_launch_file_path = PathJoinSubstitution(
-        [FindPackageShare(package_name), 'launch', 'navigation_launch.py'])
+        [FindPackageShare(package_name), 'launch', 'bringup_launch.py'])
     nav2_bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(navigation_launch_file_path),
-        launch_arguments={'map': map_path, 'use_sim_time': is_sim, 'package_name': package_name}.items()
+        launch_arguments={'map': map_yaml_file, 'use_sim_time': is_sim, 'package_name': package_name}.items()
     )
     return [
         # robot_localization,
@@ -74,8 +74,8 @@ def create_robot_node() -> list:
                 SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
                 slam_toolbox,
                 nav2_bringup,
-                mapper,
-                # bump_go,
+                # mapper,
+                bump_go,
             ]
         )
     ]
