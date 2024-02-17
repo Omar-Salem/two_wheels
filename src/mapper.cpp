@@ -111,7 +111,7 @@ private:
     }
 
     pair<bool, pair<int, int>> findFrontier() {
-        for (auto i = 0; i < map.size(); ++i) {
+        for (size_t i = 0; i < map.size(); ++i) {
             if (map[i] != UNKNOWN) {
                 continue;
             }
