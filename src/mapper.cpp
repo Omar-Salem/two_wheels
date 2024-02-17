@@ -106,7 +106,6 @@ private:
                                         currentPosition.y) <= 2;
         if (reachedGoal) {//TODO use nav2
             RCLCPP_INFO(this->get_logger(), "********************* GOAL REACHED *******************");
-            saveMap("map");
         }
     }
 
@@ -139,6 +138,7 @@ private:
         isDone = !frontierResult.first;
         if (isDone) {
             //TODO save and
+            saveMap("map");
             return;
         }
         RCLCPP_INFO(this->get_logger(), "********************* MAP SIZE******************* : %zu", map.size());
