@@ -8,20 +8,16 @@
 #include <functional>
 #include <memory>
 #include <string>
-#include <time.h>
-#include <random>
 #include <array>
 #include <filesystem>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/range.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "map_msgs/msg/occupancy_grid_update.hpp"
 #include "angles/angles.h"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
@@ -58,8 +54,13 @@ public:
     }
 
 private:
+    /*
+# 0 represents unoccupied, 1 represents definitely occupied, and
+
+# -1 represents unknown.
+ */
     static constexpr signed char UNKNOWN = -1;
-    set<pair<double, double>> visited;
+    set<pair<int, int>> visited;
     bool reachedGoal = false;
     bool isDone = false;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
@@ -109,42 +110,44 @@ private:
         }
     }
 
+    pair<bool, pair<int, int>> findFrontier() {
+        for (auto i = 0; i < map.size(); ++i) {
+            if (map[i] != UNKNOWN) {
+                continue;
+            }
+
+            auto y = i / width;
+            auto x = i - (y * width);
+            x += originX;
+            y += originY;
+
+            const auto coords = make_pair(x, y);
+            const bool notVisited = visited.find(coords) == visited.end();
+            if (notVisited) {
+                visited.insert(coords);
+                return make_pair(true, coords);
+            }
+        }
+        return make_pair(false, make_pair(0, 0));
+    }
+
     void controlLoop() {
-        if (map.empty() || !reachedGoal) {
+        if (map.empty() || !reachedGoal || isDone) {
+            return;
+        }
+        auto frontierResult = findFrontier();
+        isDone = !frontierResult.first;
+        if (isDone) {
+            //TODO save and
             return;
         }
         RCLCPP_INFO(this->get_logger(), "********************* MAP SIZE******************* : %zu", map.size());
         RCLCPP_INFO(this->get_logger(), "********************* MAP WIDTH ******************* : %u", width);
-        /*
-        # 0 represents unoccupied, 1 represents definitely occupied, and
 
-        # -1 represents unknown.
-         */
-        auto iterator = std::find_if(map.cbegin(),
-                                     map.cend(),
-                                     [](auto cell) { return cell == UNKNOWN; });
-        isDone = map.cend() == iterator;
-        if (isDone) {
-            RCLCPP_INFO(this->get_logger(),
-                        "**************************** MAPPING COMPLETE ****************************");
-            return;
-        }
-
-        const auto val = iterator - map.begin();
-        RCLCPP_INFO(this->get_logger(), "********************* FIRST FRONTIER INDEX******************* : %td", val);
-
-        auto y = val / width;
-        auto x = val - (y * width);
-        x += originX;
-        y += originY;
-
-        RCLCPP_INFO(this->get_logger(), "********************* COORDS ******************* : %td,%td", x, y);
-
-        auto coords = make_pair(x, y);
-//        bool notVisited = visited.find(coords) == visited.end();
-//        if (notVisited) {
-        visited.insert(coords);
-        RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %td,%td", x, y);
+        const auto coords = frontierResult.second;
+        const auto x = coords.first;
+        const auto y = coords.second;
+        RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %d,%d", x, y);
         goal.pose.position.x = x;
         goal.pose.position.y = y;
 //            goal.pose.orientation.z = .38;
@@ -152,9 +155,6 @@ private:
         goal.header.frame_id = "map";
         reachedGoal = false;
         goalPublisher_->publish(goal);
-//        } else {
-//            RCLCPP_INFO(this->get_logger(), "********************* VISITED??????? ******************* : %td,%td", x, y);
-//        }
     }
 
     void saveMap(const std::string &mapName) {
