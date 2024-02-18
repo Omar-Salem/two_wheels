@@ -1,7 +1,4 @@
-import os
-
 import launch_ros
-from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, GroupAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -55,12 +52,17 @@ def create_robot_node() -> list:
         executable="mapper",
         name="mapper",
     )
+
+    slam_toolbox_launch_file_path = PathJoinSubstitution(
+        [FindPackageShare(package_name), 'launch', 'online_async_launch.py'])
+    slam_params_file = PathJoinSubstitution(
+        [FindPackageShare(package_name), "config", "mapper_params_online_async.yaml"])
     slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([os.path.join(
-            get_package_share_directory("slam_toolbox"), 'launch', 'online_async_launch.py'
-        )])
+        PythonLaunchDescriptionSource(slam_toolbox_launch_file_path),
+        launch_arguments={'use_sim_time': is_sim, 'slam_params_file': slam_params_file}.items()
     )
-    map_yaml_file = PathJoinSubstitution([FindPackageShare(package_name), "maps", "map.yaml"])
+
+    map_yaml_file = PathJoinSubstitution([FindPackageShare(package_name), "maps", "apt.yaml"])
     navigation_launch_file_path = PathJoinSubstitution(
         [FindPackageShare(package_name), 'launch', 'bringup_launch.py'])
     nav2_bringup = IncludeLaunchDescription(
@@ -74,7 +76,7 @@ def create_robot_node() -> list:
                 SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
                 slam_toolbox,
                 nav2_bringup,
-                mapper,
+                # mapper,
                 # bump_go,
             ]
         )

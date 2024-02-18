@@ -140,6 +140,8 @@ private:
         auto frontierResult = findFrontier();
         isDone = !frontierResult.first;
         if (isDone) {
+            RCLCPP_INFO(this->get_logger(),
+                        "********************* No Frontier FOUND!!**********************************");
             //TODO save and
             saveMap("map");
             return;
