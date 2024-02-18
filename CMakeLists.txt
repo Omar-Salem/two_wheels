@@ -69,7 +69,7 @@ install(
 pluginlib_export_plugin_description_file(hardware_interface ${HW_INTERFACE_LIB}.xml)
 
 install(
-        DIRECTORY config launch maps rviz urdf worlds
+        DIRECTORY config include launch maps rviz urdf worlds
         DESTINATION share/${PROJECT_NAME}
 )
 
