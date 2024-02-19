@@ -1,5 +1,11 @@
 ``check_urdf /PATH/TO/URDF``
-``docker build -t humble .``
-``docker run -it humble``
+
+``sudo docker build -t humble .``
+
+``sudo docker run -it humble``
+
+``mkdir ~/Volumes && cd Volumes && mkdir ros2_ws && cd ros2_ws && mkdir src && cd src && git clone https://github.com/Omar-Salem/two_wheels.git``
+
+``sudo docker run -it -v ~/Volumes:/home/usr/ humble``
 
 `rm -rf build/ install/ log/ && colcon build --packages-select two_wheels && source install/setup.bash && ros2 launch two_wheels sim_two_wheels.launch.py`
