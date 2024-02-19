@@ -28,25 +28,25 @@ using namespace std;
 
 class ArduinoFirmware : public Firmware {
 public:
-    void configure();
+    void configure() override;
 
-    double getFirstMotorPosition();
+    double getFirstMotorPosition() override;
 
-    double getFirstMotorVelocity();
+    double getFirstMotorVelocity() override;
 
-    void setFirstMotorVelocity(double v);
+    void setFirstMotorVelocity(double v) override;
 
 private:
     unique_ptr<SerialOps> serial;
 
-    void sendCommand(const string &command);
+    double readCommand(int commandNumber);
 
-    double readCommand();
+    void writeCommand(const string &command);
+
+    double readCommandUtil();
 
     const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
     const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
-
-    double readCommandUtil(int commandNumber);
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

@@ -10,11 +10,11 @@ void ArduinoFirmware::configure() {
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
-    return readCommandUtil(GET_MOTOR_1_POSITION);
+    return readCommand(GET_MOTOR_1_POSITION);
 }
 
 double ArduinoFirmware::getFirstMotorVelocity() {
-    return readCommandUtil(GET_MOTOR_1_VELOCITY);
+    return readCommand(GET_MOTOR_1_VELOCITY);
 }
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
@@ -24,31 +24,31 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
     command = std::regex_replace(command,
                                  std::regex("#velocity"),
                                  to_string(v));
-    sendCommand(command);
+    writeCommand(command);
 }
 
 
-void ArduinoFirmware::sendCommand(const string &command) {
+void ArduinoFirmware::writeCommand(const string &command) {
     serial->write(command);
 }
 
-double ArduinoFirmware::readCommand() {
+double ArduinoFirmware::readCommand(int commandNumber) {
+    const string command = regex_replace(READ_COMMAND_TEMPLATE,
+                                         regex("#command"),
+                                         to_string(commandNumber));
+    writeCommand(command);
+    return readCommandUtil();
+}
+
+double ArduinoFirmware::readCommandUtil() {
     const string buffer = serial->read();
     if (buffer.empty()) {
         throw invalid_argument("************************ SerialBufferEmpty");
     }
     const auto data = json::parse(buffer);
-    if (data == nullptr) {
+    if (data.is_null()) {
         throw invalid_argument("************************ SerialReadNull");
     }
     const auto &value = data["value"];
     return value.get<nlohmann::json::number_float_t>();
-}
-
-double ArduinoFirmware::readCommandUtil(int commandNumber) {
-    const string command = regex_replace(READ_COMMAND_TEMPLATE,
-                                         regex("#command"),
-                                         to_string(commandNumber));
-    sendCommand(command);
-    return readCommand();
 }
