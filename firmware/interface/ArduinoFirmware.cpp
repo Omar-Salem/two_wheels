@@ -3,6 +3,7 @@
 //
 
 
+#include <iostream>
 #include "ArduinoFirmware.h"
 
 void ArduinoFirmware::configure() {
@@ -42,6 +43,7 @@ double ArduinoFirmware::readCommand(int commandNumber) {
 
 double ArduinoFirmware::readCommandUtil() {
     const string buffer = serial->read();
+    cout << "*************************** buffer" << buffer << endl;
     if (buffer.empty()) {
         throw runtime_error("************************ SerialBufferEmpty");
     }
