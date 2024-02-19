@@ -35,10 +35,13 @@ void ArduinoFirmware::sendCommand(const string &command) {
 double ArduinoFirmware::readCommand() {
     const string buffer = serial->read();
     if (buffer.empty()) {
-        throw invalid_argument("SerialBufferEmpty");
+        throw invalid_argument("************************ SerialBufferEmpty");
     }
-    json data = json::parse(buffer);
-    const auto value = data["value"];
+    const auto data = json::parse(buffer);
+    if (data == nullptr) {
+        throw invalid_argument("************************ SerialReadNull");
+    }
+    const auto &value = data["value"];
     return value.get<nlohmann::json::number_float_t>();
 }
 

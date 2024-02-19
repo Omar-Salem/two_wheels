@@ -18,7 +18,7 @@ public:
     std::string read();
 
 private:
-    std::string exec(const char *cmd);
+    std::string exec(const std::string &cmd);
 
     std::string port;
     unsigned int baudRate;

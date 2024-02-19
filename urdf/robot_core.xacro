@@ -71,6 +71,7 @@
         </joint>
     </xacro:macro>
 
+    <link name="base_footprint"/>
     <link name="base_link">
         <xacro:cylinder_inertial mass="${disc_mass}" radius="${disc_radius}" length="${disc_height}" rotation="0"/>
         <visual>
@@ -88,8 +89,6 @@
             </geometry>
         </collision>
     </link>
-
-    <link name="base_footprint"/>
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_link"/>
         <child link="base_footprint"/>
