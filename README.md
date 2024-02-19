@@ -1,3 +1,5 @@
 ``check_urdf /PATH/TO/URDF``
+``docker build -t humble .``
+``docker run -it humble``
 
 `rm -rf build/ install/ log/ && colcon build --packages-select two_wheels && source install/setup.bash && ros2 launch two_wheels sim_two_wheels.launch.py`
