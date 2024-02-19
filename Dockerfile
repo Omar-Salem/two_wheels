@@ -24,8 +24,10 @@ RUN apt-get install -y ros-${ROS_DISTRO}-launch-xml
 RUN apt-get install -y ros-${ROS_DISTRO}-rmw-cyclonedds-cpp
 RUN apt-get install -y ros-${ROS_DISTRO}-tf2-ros
 RUN apt-get install -y ros-${ROS_DISTRO}-tf2-tools
+RUN apt-get install -y ros-${ROS_DISTRO}-rviz2
 RUN apt-get install -y ros-dev-tools
 RUN apt install -y python3-colcon-common-extensions
+RUN apt install -y vim
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
