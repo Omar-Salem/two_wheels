@@ -2,8 +2,6 @@
 
 ``sudo docker build -t humble .``
 
-``sudo docker run -it humble``
-
 ``mkdir ~/Volumes && cd Volumes && mkdir ros2_ws && cd ros2_ws && mkdir src && cd src && git clone https://github.com/Omar-Salem/two_wheels.git``
 
 ``sudo docker run -it -v ~/Volumes:/home/usr/ humble``
