@@ -43,12 +43,15 @@ double ArduinoFirmware::readCommand(int commandNumber) {
 double ArduinoFirmware::readCommandUtil() {
     const string buffer = serial->read();
     if (buffer.empty()) {
-        throw invalid_argument("************************ SerialBufferEmpty");
+        throw runtime_error("************************ SerialBufferEmpty");
     }
     const auto data = json::parse(buffer);
     if (data.is_null()) {
-        throw invalid_argument("************************ SerialReadNull");
+        throw runtime_error("************************ SerialReadNull");
     }
     const auto &value = data["value"];
+    if (value.is_null() || !value.is_number()) {
+        throw runtime_error("************************ SerialInvalidValue");
+    }
     return value.get<nlohmann::json::number_float_t>();
 }
