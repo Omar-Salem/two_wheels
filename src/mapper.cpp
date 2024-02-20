@@ -103,7 +103,7 @@ private:
 
 
     unsigned char *map_;
-    unsigned int size_x_, size_y_;;
+    unsigned int size_x_, size_y_;
     double potential_scale_ = 1e-3, gain_scale_ = 1.0;
     double min_frontier_size_ = 0.5;
     size_t last_markers_count_ = 0;

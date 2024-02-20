@@ -71,6 +71,7 @@ namespace hw_interface {
     CallbackReturn DiffDrive::on_activate(
             const State & /*previous_state*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "on_activate ...please wait...");
+        firmware->ping();
         return CallbackReturn::SUCCESS;
     }
 
