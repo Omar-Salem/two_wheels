@@ -5,6 +5,8 @@
 #ifndef TWO_WHEELS_COMMANDS_H
 #define TWO_WHEELS_COMMANDS_H
 
+#define PING 0
+#define NO_OP -1
 #define MOVE_MOTOR_1 1
 #define MOVE_MOTOR_2 2
 #define GET_MOTOR_1_VELOCITY 3

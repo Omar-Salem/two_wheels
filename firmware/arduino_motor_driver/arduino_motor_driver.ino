@@ -29,7 +29,7 @@ Motor m2(_25GA_370_MotorConfig,
 //double Ki = 0;
 //double Kd = 0;
 
-byte command;
+byte command = NO_OP;
 double velocity = 0;
 
 
@@ -77,6 +77,10 @@ void writeCommand(double value) {
 
 void executeCommand() {
     switch (command) {
+        case PING:
+            Serial.print("PONG");
+            Serial.println();
+            break;
         case MOVE_MOTOR_1:
             m1.move(velocity);
             break;
@@ -98,6 +102,7 @@ void executeCommand() {
         default:
             break;
     }
+    command = NO_OP;
 }
 
 void logOutput() {
