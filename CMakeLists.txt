@@ -18,6 +18,7 @@ set(deps
         sensor_msgs
         geometry_msgs
         nav_msgs
+        nav2_costmap_2d
         angles
         tf2_geometry_msgs
         map_msgs)
