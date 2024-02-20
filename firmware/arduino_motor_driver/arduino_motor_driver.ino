@@ -68,7 +68,15 @@ void readCommand() {
     }
 }
 
-void writeCommand(double value) {
+void writeNumeric(double value) {
+    JsonDocument doc;
+    doc["value"] = value;
+    serializeJson(doc, Serial);
+    Serial.println();
+}
+
+//TODO use templates
+void writeString(String value) {
     JsonDocument doc;
     doc["value"] = value;
     serializeJson(doc, Serial);
@@ -78,7 +86,7 @@ void writeCommand(double value) {
 void executeCommand() {
     switch (command) {
         case PING:
-            Serial.println("PONG");
+            writeString("PONG");
             break;
         case MOVE_MOTOR_1:
             m1.move(velocity);
@@ -87,16 +95,16 @@ void executeCommand() {
             m2.move(velocity);
             break;
         case GET_MOTOR_1_VELOCITY:
-            writeCommand(m1.calculateAngularVelocity());
+            writeNumeric(m1.calculateAngularVelocity());
             break;
         case GET_MOTOR_2_VELOCITY:
-            writeCommand(m2.calculateAngularVelocity());
+            writeNumeric(m2.calculateAngularVelocity());
             break;
         case GET_MOTOR_1_POSITION:
-            writeCommand(m1.getPosition());
+            writeNumeric(m1.getPosition());
             break;
         case GET_MOTOR_2_POSITION:
-            writeCommand(m2.getPosition());
+            writeNumeric(m2.getPosition());
             break;
         default:
             break;

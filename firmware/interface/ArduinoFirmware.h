@@ -16,6 +16,7 @@
 #define SERIAL_PORT "/dev/ttyUSB0"
 #define BAUD 115200
 
+#define PING 0
 #define MOVE_MOTOR_1 1
 #define MOVE_MOTOR_2 2
 #define GET_MOTOR_1_VELOCITY 3
@@ -25,10 +26,13 @@
 
 using json = nlohmann::json;
 using namespace std;
+using namespace nlohmann;
 
 class ArduinoFirmware : public Firmware {
 public:
     void configure() override;
+
+    void ping() override;
 
     double getFirstMotorPosition() override;
 
@@ -39,11 +43,7 @@ public:
 private:
     unique_ptr<SerialOps> serial;
 
-    double readCommand(int commandNumber);
-
-    void writeCommand(const string &command);
-
-    double readCommandUtil();
+    string readJsonValue(int commandNumber);
 
     const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
     const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";

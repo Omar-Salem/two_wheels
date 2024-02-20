@@ -15,7 +15,7 @@ public:
 
     void write(const std::string &firmwareCommand);
 
-    std::string read();
+    std::string read(const std::string &firmwareCommand);
 
 private:
     std::string exec(const std::string &cmd);

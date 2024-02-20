@@ -10,6 +10,8 @@ public:
 
     virtual void configure() = 0;
 
+    virtual void ping() = 0;
+
     virtual double getFirstMotorPosition() = 0;
 
     virtual double getFirstMotorVelocity() = 0;

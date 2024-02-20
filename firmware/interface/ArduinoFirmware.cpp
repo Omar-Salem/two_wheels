@@ -10,12 +10,21 @@ void ArduinoFirmware::configure() {
     serial = make_unique<SerialOps>(SERIAL_PORT, BAUD);
 }
 
+void ArduinoFirmware::ping() {
+    const auto value = readJsonValue(PING);
+    if (value != "PONG") {
+        throw runtime_error("************************ SerialConnectionError");
+    }
+}
+
 double ArduinoFirmware::getFirstMotorPosition() {
-    return readCommand(GET_MOTOR_1_POSITION);
+    const auto value = readJsonValue(GET_MOTOR_1_POSITION);
+    return std::stod(value);
 }
 
 double ArduinoFirmware::getFirstMotorVelocity() {
-    return readCommand(GET_MOTOR_1_VELOCITY);
+    const auto value = readJsonValue(GET_MOTOR_1_VELOCITY);
+    return std::stod(value);
 }
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
@@ -25,24 +34,15 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
     command = std::regex_replace(command,
                                  std::regex("#velocity"),
                                  to_string(v));
-    writeCommand(command);
-}
-
-
-void ArduinoFirmware::writeCommand(const string &command) {
     serial->write(command);
 }
 
-double ArduinoFirmware::readCommand(int commandNumber) {
+string ArduinoFirmware::readJsonValue(int commandNumber) {
     const string command = regex_replace(READ_COMMAND_TEMPLATE,
                                          regex("#command"),
                                          to_string(commandNumber));
-    writeCommand(command);
-    return readCommandUtil();
-}
 
-double ArduinoFirmware::readCommandUtil() {
-    const string buffer = serial->read();
+    const string buffer = serial->read(command);
     cout << "*************************** buffer" << buffer << endl;
     if (buffer.empty()) {
         throw runtime_error("************************ SerialBufferEmpty");
@@ -52,8 +52,8 @@ double ArduinoFirmware::readCommandUtil() {
         throw runtime_error("************************ SerialReadNull");
     }
     const auto &value = data["value"];
-    if (value.is_null() || !value.is_number()) {
-        throw runtime_error("************************ SerialInvalidValue");
+    if (value.is_null()) {
+        throw runtime_error("************************ SerialNullValue");
     }
-    return value.get<nlohmann::json::number_float_t>();
+    return value.get<nlohmann::json::string_t>();
 }

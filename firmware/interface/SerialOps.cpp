@@ -20,8 +20,9 @@ void SerialOps::write(const std::string &firmwareCommand) {
     exec(cmd);
 }
 
-std::string SerialOps::read() {
-    const std::string cmd = "cat " + port;
+std::string SerialOps::read(const std::string &firmwareCommand) {
+    // cat < /dev/ttyUSB0 && echo '{"command":0}' > /dev/ttyUSB0
+    const std::string cmd = "cat < " + port + " && echo '" + firmwareCommand + "' > " + port;
     return exec(cmd);
 }
 
