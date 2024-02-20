@@ -106,8 +106,8 @@ private:
     unsigned int size_x_, size_y_;;
     double potential_scale_ = 1e-3, gain_scale_ = 1.0;
     double min_frontier_size_ = 0.5;
-
     size_t last_markers_count_ = 0;
+    vector<Point> frontier_blacklist_;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
@@ -213,17 +213,16 @@ private:
     }
 
     bool goalOnBlacklist(const Point &goal) {
-        constexpr static size_t tolerace = 5;
-        return false;
+        constexpr static size_t tolerance = 5;
         // check if a goal is on the blacklist for goals that we're pursuing
-//        for (auto& frontier_goal : frontier_blacklist_) {
-//            double x_diff = fabs(goal.x - frontier_goal.x);
-//            double y_diff = fabs(goal.y - frontier_goal.y);
-//
-//            if (x_diff < tolerace * costmap2d.getResolution() &&
-//                y_diff < tolerace * costmap2d.getResolution())
-//                return true;
-//        }
+        for (auto &frontier_goal: frontier_blacklist_) {
+            double x_diff = fabs(goal.x - frontier_goal.x);
+            double y_diff = fabs(goal.y - frontier_goal.y);
+
+            if (x_diff < tolerance * costmap_.getResolution() &&
+                y_diff < tolerance * costmap_.getResolution())
+                return true;
+        }
         return false;
     }
 
