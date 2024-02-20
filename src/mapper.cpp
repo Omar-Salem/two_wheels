@@ -15,6 +15,7 @@
 #include "sensor_msgs/msg/range.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/point.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "map_msgs/msg/occupancy_grid_update.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
@@ -24,6 +25,7 @@ using std::placeholders::_1;
 using sensor_msgs::msg::Range;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
+using geometry_msgs::msg::Point;
 using nav_msgs::msg::OccupancyGrid;
 using map_msgs::msg::OccupancyGridUpdate;
 using nav2_costmap_2d::Costmap2D;
@@ -64,12 +66,15 @@ public:
 
 private:
     Costmap2D costmap_;
-    /*
-# 0 represents unoccupied, 1 represents definitely occupied, and
-
-# -1 represents unknown.
- */
-    static constexpr signed char UNKNOWN = -1;
+    struct Frontier {
+        std::uint32_t size;
+        double min_distance;
+        double cost;
+        Point initial;
+        Point centroid;
+        Point middle;
+        vector<Point> points;
+    };
     set<pair<int, int>> visited;
     bool reachedGoal = false;
     bool isDone = false;
@@ -87,8 +92,8 @@ private:
     vector<signed char> map;
     double originX, originY;
 
-    std::array<unsigned char, 256> init_translation_table() {
-        std::array<unsigned char, 256> cost_translation_table;
+    array<unsigned char, 256> init_translation_table() {
+        array<unsigned char, 256> cost_translation_table;
 
         // lineary mapped from [0..100] to [0..255]
         for (size_t i = 0; i < 256; ++i) {
@@ -105,7 +110,7 @@ private:
         return cost_translation_table;
     }
 
-    std::array<unsigned char, 256> cost_translation_table_ = init_translation_table();
+    array<unsigned char, 256> cost_translation_table_ = init_translation_table();
 
     void updateFullMap(OccupancyGrid::UniquePtr msg) {
         unsigned int size_in_cells_x = msg->info.width;
@@ -124,7 +129,7 @@ private:
 
         // lock as we are accessing raw underlying map
         auto *mutex = costmap_.getMutex();
-        std::lock_guard<Costmap2D::mutex_t> lock(*mutex);
+        lock_guard<Costmap2D::mutex_t> lock(*mutex);
 
         // fill map with data
         unsigned char *costmap_data = costmap_.getCharMap();
@@ -151,7 +156,7 @@ private:
 
         // lock as we are accessing raw underlying map
         auto *mutex = costmap_.getMutex();
-        std::lock_guard<Costmap2D::mutex_t> lock(*mutex);
+        lock_guard<Costmap2D::mutex_t> lock(*mutex);
 
         size_t costmap_xn = costmap_.getSizeInCellsX();
         size_t costmap_yn = costmap_.getSizeInCellsY();
@@ -189,59 +194,38 @@ private:
         }
     }
 
-    pair<bool, pair<int, int>> findFrontier() {
-        for (size_t i = 0; i < map.size(); ++i) {
-            if (map[i] != UNKNOWN) {
-                continue;
-            }
-
-            auto y = i / width;
-            auto x = i - (y * width);
-            x += originX;
-            y += originY;
-
-            const auto coords = make_pair(x, y);
-            const bool notVisited = visited.find(coords) == visited.end();
-            if (notVisited) {
-                visited.insert(coords);
-                return make_pair(true, coords);
-            }
-        }
-        return make_pair(false, make_pair(0, 0));
-    }
-
     void controlLoop() {
-        if (map.empty() || !reachedGoal || isDone) {
-            return;
-        }
-        auto frontierResult = findFrontier();
-        isDone = !frontierResult.first;
-        if (isDone) {
-            RCLCPP_INFO(this->get_logger(),
-                        "********************* No Frontier FOUND!!**********************************");
-            //TODO save and
-            saveMap("map");
-            return;
-        }
-        RCLCPP_INFO(this->get_logger(), "********************* MAP SIZE******************* : %zu", map.size());
-        RCLCPP_INFO(this->get_logger(), "********************* MAP WIDTH ******************* : %u", width);
-
-        const auto coords = frontierResult.second;
-        const auto x = coords.first;
-        const auto y = coords.second;
-        RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %d,%d", x, y);
-        goal.pose.position.x = x;
-        goal.pose.position.y = y;
-        goal.pose.orientation.z = .38;
-        goal.pose.orientation.w = .92;
-        goal.header.frame_id = "map";
-        reachedGoal = false;
-        goalPublisher_->publish(goal);
+//        if (map.empty() || !reachedGoal || isDone) {
+//            return;
+//        }
+//        auto frontierResult = findFrontier();
+//        isDone = !frontierResult.first;
+//        if (isDone) {
+//            RCLCPP_INFO(this->get_logger(),
+//                        "********************* No Frontier FOUND!!**********************************");
+//            //TODO save and
+//            saveMap("map");
+//            return;
+//        }
+//        RCLCPP_INFO(this->get_logger(), "********************* MAP SIZE******************* : %zu", map.size());
+//        RCLCPP_INFO(this->get_logger(), "********************* MAP WIDTH ******************* : %u", width);
+//
+//        const auto coords = frontierResult.second;
+//        const auto x = coords.first;
+//        const auto y = coords.second;
+//        RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %d,%d", x, y);
+//        goal.pose.position.x = x;
+//        goal.pose.position.y = y;
+//        goal.pose.orientation.z = .38;
+//        goal.pose.orientation.w = .92;
+//        goal.header.frame_id = "map";
+//        reachedGoal = false;
+//        goalPublisher_->publish(goal);
     }
 
-    void saveMap(const std::string &mapName) {
+    void saveMap(const string &mapName) {
         auto packageName = "two_wheels";//TODO get package name
-        auto executionPath = std::filesystem::current_path().string();///home/${user}/ros2_ws
+        auto executionPath = filesystem::current_path().string();///home/${user}/ros2_ws
         auto mapsDir = executionPath + "/install/" + packageName + "/share/" + packageName + "/maps";
         RCLCPP_INFO(this->get_logger(), "********************* mapsDir %s *******************",
                     mapsDir.c_str());
@@ -265,14 +249,14 @@ private:
     }
 
     static double calculateDistance(double x1, double y1, double x2, double y2) {
-        return std::sqrt(std::pow((x2 - x1), 2) + std::pow((y2 - y1), 2));
+        return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
     }
 
 };
 
 int main(int argc, char *argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<Mapper>());
+    rclcpp::spin(make_shared<Mapper>());
     rclcpp::shutdown();
     return 0;
 }
