@@ -22,7 +22,9 @@
 #include "nav2_costmap_2d/cost_values.hpp"
 #include "nav2_util/occ_grid_values.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
+#include "visualization_msgs/msg/marker.hpp"
 #include "angles/angles.h"
+#include "std_msgs/std_msgs/msg/color_rgba.hpp"
 
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
@@ -32,6 +34,8 @@ using geometry_msgs::msg::Point;
 using nav_msgs::msg::OccupancyGrid;
 using map_msgs::msg::OccupancyGridUpdate;
 using visualization_msgs::msg::MarkerArray;
+using visualization_msgs::msg::Marker;
+using std_msgs::msg::ColorRGBA;
 using nav2_costmap_2d::Costmap2D;
 using nav2_costmap_2d::LETHAL_OBSTACLE;
 using nav2_costmap_2d::NO_INFORMATION;
@@ -102,6 +106,8 @@ private:
     unsigned int size_x_, size_y_;;
     double potential_scale_ = 1e-3, gain_scale_ = 1.0;
     double min_frontier_size_ = 0.5;
+
+    size_t last_markers_count_ = 0;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
@@ -206,9 +212,107 @@ private:
 //        }
     }
 
+    bool goalOnBlacklist(const Point &goal) {
+        constexpr static size_t tolerace = 5;
+        return false;
+        // check if a goal is on the blacklist for goals that we're pursuing
+//        for (auto& frontier_goal : frontier_blacklist_) {
+//            double x_diff = fabs(goal.x - frontier_goal.x);
+//            double y_diff = fabs(goal.y - frontier_goal.y);
+//
+//            if (x_diff < tolerace * costmap2d.getResolution() &&
+//                y_diff < tolerace * costmap2d.getResolution())
+//                return true;
+//        }
+        return false;
+    }
+
+    void visualizeFrontiers(const std::vector<Frontier> &frontiers) {
+        ColorRGBA blue;
+        blue.r = 0;
+        blue.g = 0;
+        blue.b = 1.0;
+        blue.a = 1.0;
+        ColorRGBA red;
+        red.r = 1.0;
+        red.g = 0;
+        red.b = 0;
+        red.a = 1.0;
+        ColorRGBA green;
+        green.r = 0;
+        green.g = 1.0;
+        green.b = 0;
+        green.a = 1.0;
+
+        RCLCPP_DEBUG(this->get_logger(), "visualising %lu frontiers", frontiers.size());
+        MarkerArray markers_msg;
+        vector<Marker> &markers = markers_msg.markers;
+        Marker m;
+
+        m.header.frame_id = pose_->header.frame_id;
+        m.header.stamp = now();
+        m.ns = "frontiers";
+        m.scale.x = 1.0;
+        m.scale.y = 1.0;
+        m.scale.z = 1.0;
+        m.color.r = 0;
+        m.color.g = 0;
+        m.color.b = 255;
+        m.color.a = 255;
+        // lives forever
+//        m.lifetime = rclcpp::Duration(0);
+        m.frame_locked = true;
+
+        // weighted frontiers are always sorted
+        double min_cost = frontiers.empty() ? 0. : frontiers.front().cost;
+
+        m.action = Marker::ADD;
+        size_t id = 0;
+        for (auto &frontier: frontiers) {
+            m.type = Marker::POINTS;
+            m.id = int(id);
+//            m.pose.position = {};
+            m.scale.x = 0.1;
+            m.scale.y = 0.1;
+            m.scale.z = 0.1;
+            m.points = frontier.points;
+            if (goalOnBlacklist(frontier.centroid)) {
+                m.color = red;
+            } else {
+                m.color = blue;
+            }
+            markers.push_back(m);
+            ++id;
+            m.type = Marker::SPHERE;
+            m.id = int(id);
+            m.pose.position = frontier.initial;
+            // scale frontier according to its cost (costier frontiers will be smaller)
+            double scale = min(abs(min_cost * 0.4 / frontier.cost), 0.5);
+            m.scale.x = scale;
+            m.scale.y = scale;
+            m.scale.z = scale;
+            m.points = {};
+            m.color = green;
+            markers.push_back(m);
+            ++id;
+        }
+        size_t current_markers_count = markers.size();
+
+        // delete previous markers, which are now unused
+        m.action = Marker::DELETE;
+        for (; id < last_markers_count_; ++id) {
+            m.id = int(id);
+            markers.push_back(m);
+        }
+
+        last_markers_count_ = current_markers_count;
+        marker_array_publisher_->publish(markers_msg);
+    }
+
     void controlLoop() {
         if (pose_ == nullptr) { return; }
-        searchFrom(pose_->pose.pose.position);
+        auto frontiers = searchFrom(pose_->pose.pose.position);
+        visualizeFrontiers(frontiers);
 //        if (map.empty() || !reachedGoal || isDone) {
 //            return;
 //        }
@@ -245,7 +349,7 @@ private:
                     mapsDir.c_str());
         //TODO better to call
         /*
-         *   auto map_saver = std::make_shared<nav2_map_server::MapSaver>();
+         *   auto map_saver = make_shared<nav2_map_server::MapSaver>();
     map_saver->on_configure(rclcpp_lifecycle::State());
     if (map_saver->saveMapTopicToFile(map_topic, save_parameters)) {
       retcode = 0;
@@ -266,10 +370,10 @@ private:
         return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
     }
 
-    std::vector<unsigned int> nhood4(unsigned int idx,
+    vector<unsigned int> nhood4(unsigned int idx,
                                      const Costmap2D &costmap) {
         // get 4-connected neighbourhood indexes, check for edge of map
-        std::vector<unsigned int> out;
+        vector<unsigned int> out;
 
         unsigned int size_x_ = costmap.getSizeInCellsX(),
                 size_y_ = costmap.getSizeInCellsY();
@@ -296,13 +400,13 @@ private:
 
     Frontier buildNewFrontier(unsigned int initial_cell,
                               unsigned int reference,
-                              std::vector<bool> &frontier_flag) {
+                              vector<bool> &frontier_flag) {
         // initialize frontier structure
         Frontier output;
         output.centroid.x = 0;
         output.centroid.y = 0;
         output.size = 1;
-        output.min_distance = std::numeric_limits<double>::infinity();
+        output.min_distance = numeric_limits<double>::infinity();
 
         // record initial contact point for frontier
         unsigned int ix, iy;
@@ -310,7 +414,7 @@ private:
         costmap_.mapToWorld(ix, iy, output.initial.x, output.initial.y);
 
         // push initial gridcell onto queue
-        std::queue<unsigned int> bfs;
+        queue<unsigned int> bfs;
         bfs.push(initial_cell);
 
         // cache reference position in world coords
@@ -375,7 +479,7 @@ private:
     }
 
     bool isNewFrontierCell(unsigned int idx,
-                           const std::vector<bool> &frontier_flag) {
+                           const vector<bool> &frontier_flag) {
         // check that cell is unknown and not already marked as frontier
         if (map_[idx] != NO_INFORMATION || frontier_flag[idx]) {
             return false;
@@ -392,8 +496,8 @@ private:
         return false;
     }
 
-    std::vector<Frontier> searchFrom(Point position) {
-        std::vector<Frontier> frontier_list;
+    vector<Frontier> searchFrom(Point position) {
+        vector<Frontier> frontier_list;
 
         // Sanity check that robot is inside costmap bounds before searching
         unsigned int mx, my;
@@ -403,20 +507,20 @@ private:
         }
 
         // make sure map is consistent and locked for duration of search
-        std::lock_guard<Costmap2D::mutex_t> lock(*(costmap_.getMutex()));
+        lock_guard<Costmap2D::mutex_t> lock(*(costmap_.getMutex()));
 
         map_ = costmap_.getCharMap();
         size_x_ = costmap_.getSizeInCellsX();
         size_y_ = costmap_.getSizeInCellsY();
 
         // initialize flag arrays to keep track of visited and frontier cells
-        std::vector<bool> frontier_flag(size_x_ * size_y_,
+        vector<bool> frontier_flag(size_x_ * size_y_,
                                         false);
-        std::vector<bool> visited_flag(size_x_ * size_y_,
+        vector<bool> visited_flag(size_x_ * size_y_,
                                        false);
 
         // initialize breadth first search
-        std::queue<unsigned int> bfs;
+        queue<unsigned int> bfs;
 
         // find closest clear cell to start search
         unsigned int clear, pos = costmap_.getIndex(mx, my);
@@ -456,7 +560,7 @@ private:
         for (auto &frontier: frontier_list) {
             frontier.cost = frontierCost(frontier);
         }
-        std::sort(
+        sort(
                 frontier_list.begin(), frontier_list.end(),
                 [](const Frontier &f1, const Frontier &f2) { return f1.cost < f2.cost; });
 
@@ -474,8 +578,8 @@ private:
         }
 
         // initialize breadth first search
-        std::queue<unsigned int> bfs;
-        std::vector<bool> visited_flag(size_x * size_y, false);
+        queue<unsigned int> bfs;
+        vector<bool> visited_flag(size_x * size_y, false);
 
         // push initial cell
         bfs.push(start);
@@ -504,10 +608,10 @@ private:
         return false;
     }
 
-    std::vector<unsigned int> nhood8(unsigned int idx,
+    vector<unsigned int> nhood8(unsigned int idx,
                                      const Costmap2D &costmap) {
         // get 8-connected neighbourhood indexes, check for edge of map
-        std::vector<unsigned int> out = nhood4(idx, costmap);
+        vector<unsigned int> out = nhood4(idx, costmap);
 
         unsigned int size_x_ = costmap.getSizeInCellsX(),
                 size_y_ = costmap.getSizeInCellsY();

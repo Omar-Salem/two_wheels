@@ -21,6 +21,7 @@ set(deps
         nav2_costmap_2d
         visualization_msgs
         nav2_util
+        std_msgs
         angles
         tf2_geometry_msgs
         map_msgs)
