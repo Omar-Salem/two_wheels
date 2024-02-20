@@ -19,6 +19,9 @@
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "map_msgs/msg/occupancy_grid_update.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
+#include "nav2_costmap_2d/cost_values.hpp"
+#include "nav2_util/occ_grid_values.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 #include "angles/angles.h"
 
 using std::placeholders::_1;
@@ -28,7 +31,11 @@ using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Point;
 using nav_msgs::msg::OccupancyGrid;
 using map_msgs::msg::OccupancyGridUpdate;
+using visualization_msgs::msg::MarkerArray;
 using nav2_costmap_2d::Costmap2D;
+using nav2_costmap_2d::LETHAL_OBSTACLE;
+using nav2_costmap_2d::NO_INFORMATION;
+using nav2_costmap_2d::FREE_SPACE;
 using angles::to_degrees;
 using angles::from_degrees;
 using std::to_string;
@@ -36,28 +43,29 @@ using std::abs;
 using std::chrono::milliseconds;
 using namespace std::chrono_literals;
 using namespace std;
+using namespace rclcpp;
 using std::chrono::steady_clock;
 
 
-class Mapper : public rclcpp::Node {
+class Mapper : public Node {
 public:
     Mapper()
             : Node("mapper") {
         mapSubscription_ = this->create_subscription<OccupancyGrid>(
-                "/map", 10, std::bind(&Mapper::updateFullMap, this, _1));
+                "/map", 10, bind(&Mapper::updateFullMap, this, _1));
 
         mapUpdatesSubscription_ = this->create_subscription<OccupancyGridUpdate>(
-                "/map_updates", 10, std::bind(&Mapper::updatePartialMap, this, _1));
+                "/map_updates", 10, bind(&Mapper::updatePartialMap, this, _1));
 
 
         poseSubscription_ = this->create_subscription<PoseWithCovarianceStamped>(
-                "/pose", 10, std::bind(&Mapper::poseTopicCallback, this, _1));
+                "/pose", 10, bind(&Mapper::poseTopicCallback, this, _1));
         /*
          * TODO
          * rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr cancel_navto_client = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(node,"/navigate_to_pose");
          * */
-        goalPublisher_ = this->create_publisher<PoseStamped>(
-                "/goal_pose", 10);
+        goalPublisher_ = this->create_publisher<PoseStamped>("/goal_pose", 10);
+        marker_array_publisher_ = this->create_publisher<MarkerArray>("/frontiers", 10);
 
         controlLoopTimer_ = this->create_wall_timer(
                 CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
@@ -67,7 +75,7 @@ public:
 private:
     Costmap2D costmap_;
     struct Frontier {
-        std::uint32_t size;
+        uint32_t size;
         double min_distance;
         double cost;
         Point initial;
@@ -75,22 +83,25 @@ private:
         Point middle;
         vector<Point> points;
     };
-    set<pair<int, int>> visited;
     bool reachedGoal = false;
     bool isDone = false;
-    rclcpp::TimerBase::SharedPtr controlLoopTimer_;
+    TimerBase::SharedPtr controlLoopTimer_;
     static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
 
-    rclcpp::Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
-    rclcpp::Subscription<OccupancyGridUpdate>::SharedPtr mapUpdatesSubscription_;
+    Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
+    Subscription<OccupancyGridUpdate>::SharedPtr mapUpdatesSubscription_;
+    Publisher<MarkerArray>::SharedPtr marker_array_publisher_;
 
-    rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr poseSubscription_;
-    rclcpp::Publisher<PoseStamped>::SharedPtr goalPublisher_;
+    Subscription<PoseWithCovarianceStamped>::SharedPtr poseSubscription_;
+    PoseWithCovarianceStamped::UniquePtr pose_;
+    Publisher<PoseStamped>::SharedPtr goalPublisher_;
     PoseStamped goal;
 
-    uint32_t width;
-    vector<signed char> map;
-    double originX, originY;
+
+    unsigned char *map_;
+    unsigned int size_x_, size_y_;;
+    double potential_scale_ = 1e-3, gain_scale_ = 1.0;
+    double min_frontier_size_ = 0.5;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
@@ -183,18 +194,21 @@ private:
     }
 
     void poseTopicCallback(PoseWithCovarianceStamped::UniquePtr pose) {
-        const auto goalPosition = goal.pose.position;
-        const auto currentPosition = pose->pose.pose.position;
-        reachedGoal = calculateDistance(goalPosition.x,
-                                        goalPosition.y,
-                                        currentPosition.x,
-                                        currentPosition.y) <= 2;
-        if (reachedGoal) {//TODO use nav2
-            RCLCPP_INFO(this->get_logger(), "********************* GOAL REACHED *******************");
-        }
+        pose_ = move(pose);
+//        const auto goalPosition = goal.pose.position;
+//        const auto currentPosition = pose->pose.pose.position;
+//        reachedGoal = calculateDistance(goalPosition.x,
+//                                        goalPosition.y,
+//                                        currentPosition.x,
+//                                        currentPosition.y) <= 2;
+//        if (reachedGoal) {//TODO use nav2
+//            RCLCPP_INFO(this->get_logger(), "********************* GOAL REACHED *******************");
+//        }
     }
 
     void controlLoop() {
+        if (pose_ == nullptr) { return; }
+        searchFrom(pose_->pose.pose.position);
 //        if (map.empty() || !reachedGoal || isDone) {
 //            return;
 //        }
@@ -252,11 +266,277 @@ private:
         return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
     }
 
+    std::vector<unsigned int> nhood4(unsigned int idx,
+                                     const Costmap2D &costmap) {
+        // get 4-connected neighbourhood indexes, check for edge of map
+        std::vector<unsigned int> out;
+
+        unsigned int size_x_ = costmap.getSizeInCellsX(),
+                size_y_ = costmap.getSizeInCellsY();
+
+        if (idx > size_x_ * size_y_ - 1) {
+            RCLCPP_WARN(this->get_logger(), "Evaluating nhood for offmap point");
+            return out;
+        }
+
+        if (idx % size_x_ > 0) {
+            out.push_back(idx - 1);
+        }
+        if (idx % size_x_ < size_x_ - 1) {
+            out.push_back(idx + 1);
+        }
+        if (idx >= size_x_) {
+            out.push_back(idx - size_x_);
+        }
+        if (idx < size_x_ * (size_y_ - 1)) {
+            out.push_back(idx + size_x_);
+        }
+        return out;
+    }
+
+    Frontier buildNewFrontier(unsigned int initial_cell,
+                              unsigned int reference,
+                              std::vector<bool> &frontier_flag) {
+        // initialize frontier structure
+        Frontier output;
+        output.centroid.x = 0;
+        output.centroid.y = 0;
+        output.size = 1;
+        output.min_distance = std::numeric_limits<double>::infinity();
+
+        // record initial contact point for frontier
+        unsigned int ix, iy;
+        costmap_.indexToCells(initial_cell, ix, iy);
+        costmap_.mapToWorld(ix, iy, output.initial.x, output.initial.y);
+
+        // push initial gridcell onto queue
+        std::queue<unsigned int> bfs;
+        bfs.push(initial_cell);
+
+        // cache reference position in world coords
+        unsigned int rx, ry;
+        double reference_x, reference_y;
+        costmap_.indexToCells(reference, rx, ry);
+        costmap_.mapToWorld(rx, ry, reference_x, reference_y);
+
+        while (!bfs.empty()) {
+            unsigned int idx = bfs.front();
+            bfs.pop();
+
+            // try adding cells in 8-connected neighborhood to frontier
+            for (unsigned int nbr: nhood8(idx, costmap_)) {
+                // check if neighbour is a potential frontier cell
+                if (isNewFrontierCell(nbr, frontier_flag)) {
+                    // mark cell as frontier
+                    frontier_flag[nbr] = true;
+                    unsigned int mx, my;
+                    double wx, wy;
+                    costmap_.indexToCells(nbr, mx, my);
+                    costmap_.mapToWorld(mx, my, wx, wy);
+
+                    Point point;
+                    point.x = wx;
+                    point.y = wy;
+                    output.points.push_back(point);
+
+                    // update frontier size
+                    output.size++;
+
+                    // update centroid of frontier
+                    output.centroid.x += wx;
+                    output.centroid.y += wy;
+
+                    // determine frontier's distance from robot, going by closest gridcell
+                    // to robot
+                    double distance = sqrt(pow((double(reference_x) - double(wx)), 2.0) +
+                                           pow((double(reference_y) - double(wy)), 2.0));
+                    if (distance < output.min_distance) {
+                        output.min_distance = distance;
+                        output.middle.x = wx;
+                        output.middle.y = wy;
+                    }
+
+                    // add to queue for breadth first search
+                    bfs.push(nbr);
+                }
+            }
+        }
+
+        // average out frontier centroid
+        output.centroid.x /= output.size;
+        output.centroid.y /= output.size;
+        return output;
+    }
+
+    double frontierCost(const Frontier &frontier) {
+        return (potential_scale_ * frontier.min_distance *
+                costmap_.getResolution()) -
+               (gain_scale_ * frontier.size * costmap_.getResolution());
+    }
+
+    bool isNewFrontierCell(unsigned int idx,
+                           const std::vector<bool> &frontier_flag) {
+        // check that cell is unknown and not already marked as frontier
+        if (map_[idx] != NO_INFORMATION || frontier_flag[idx]) {
+            return false;
+        }
+
+        // frontier cells should have at least one cell in 4-connected neighbourhood
+        // that is free
+        for (unsigned int nbr: nhood4(idx, costmap_)) {
+            if (map_[nbr] == FREE_SPACE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    std::vector<Frontier> searchFrom(Point position) {
+        std::vector<Frontier> frontier_list;
+
+        // Sanity check that robot is inside costmap bounds before searching
+        unsigned int mx, my;
+        if (!costmap_.worldToMap(position.x, position.y, mx, my)) {
+            RCLCPP_ERROR(this->get_logger(), "Robot out of costmap bounds, cannot search for frontiers");
+            return frontier_list;
+        }
+
+        // make sure map is consistent and locked for duration of search
+        std::lock_guard<Costmap2D::mutex_t> lock(*(costmap_.getMutex()));
+
+        map_ = costmap_.getCharMap();
+        size_x_ = costmap_.getSizeInCellsX();
+        size_y_ = costmap_.getSizeInCellsY();
+
+        // initialize flag arrays to keep track of visited and frontier cells
+        std::vector<bool> frontier_flag(size_x_ * size_y_,
+                                        false);
+        std::vector<bool> visited_flag(size_x_ * size_y_,
+                                       false);
+
+        // initialize breadth first search
+        std::queue<unsigned int> bfs;
+
+        // find closest clear cell to start search
+        unsigned int clear, pos = costmap_.getIndex(mx, my);
+        if (nearestCell(clear, pos, FREE_SPACE, costmap_)) {
+            bfs.push(clear);
+        } else {
+            bfs.push(pos);
+            RCLCPP_WARN(this->get_logger(), "Could not find nearby clear cell to start search");
+        }
+        visited_flag[bfs.front()] = true;
+
+        while (!bfs.empty()) {
+            unsigned int idx = bfs.front();
+            bfs.pop();
+
+            // iterate over 4-connected neighbourhood
+            for (unsigned nbr: nhood4(idx, costmap_)) {
+                // add to queue all free, unvisited cells, use descending search in case
+                // initialized on non-free cell
+                if (map_[nbr] <= map_[idx] && !visited_flag[nbr]) {
+                    visited_flag[nbr] = true;
+                    bfs.push(nbr);
+                    // check if cell is new frontier cell (unvisited, NO_INFORMATION, free
+                    // neighbour)
+                } else if (isNewFrontierCell(nbr, frontier_flag)) {
+                    frontier_flag[nbr] = true;
+                    Frontier new_frontier = buildNewFrontier(nbr, pos, frontier_flag);
+                    if (new_frontier.size * costmap_.getResolution() >=
+                        min_frontier_size_) {
+                        frontier_list.push_back(new_frontier);
+                    }
+                }
+            }
+        }
+
+        // set costs of frontiers
+        for (auto &frontier: frontier_list) {
+            frontier.cost = frontierCost(frontier);
+        }
+        std::sort(
+                frontier_list.begin(), frontier_list.end(),
+                [](const Frontier &f1, const Frontier &f2) { return f1.cost < f2.cost; });
+
+        return frontier_list;
+    }
+
+    bool nearestCell(unsigned int &result, unsigned int start, unsigned char val,
+                     const Costmap2D &costmap) {
+        const unsigned char *map = costmap.getCharMap();
+        const unsigned int size_x = costmap.getSizeInCellsX(),
+                size_y = costmap.getSizeInCellsY();
+
+        if (start >= size_x * size_y) {
+            return false;
+        }
+
+        // initialize breadth first search
+        std::queue<unsigned int> bfs;
+        std::vector<bool> visited_flag(size_x * size_y, false);
+
+        // push initial cell
+        bfs.push(start);
+        visited_flag[start] = true;
+
+        // search for neighbouring cell matching value
+        while (!bfs.empty()) {
+            unsigned int idx = bfs.front();
+            bfs.pop();
+
+            // return if cell of correct value is found
+            if (map[idx] == val) {
+                result = idx;
+                return true;
+            }
+
+            // iterate over all adjacent unvisited cells
+            for (unsigned nbr: nhood8(idx, costmap)) {
+                if (!visited_flag[nbr]) {
+                    bfs.push(nbr);
+                    visited_flag[nbr] = true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    std::vector<unsigned int> nhood8(unsigned int idx,
+                                     const Costmap2D &costmap) {
+        // get 8-connected neighbourhood indexes, check for edge of map
+        std::vector<unsigned int> out = nhood4(idx, costmap);
+
+        unsigned int size_x_ = costmap.getSizeInCellsX(),
+                size_y_ = costmap.getSizeInCellsY();
+
+        if (idx > size_x_ * size_y_ - 1) {
+            return out;
+        }
+
+        if (idx % size_x_ > 0 && idx >= size_x_) {
+            out.push_back(idx - 1 - size_x_);
+        }
+        if (idx % size_x_ > 0 && idx < size_x_ * (size_y_ - 1)) {
+            out.push_back(idx - 1 + size_x_);
+        }
+        if (idx % size_x_ < size_x_ - 1 && idx >= size_x_) {
+            out.push_back(idx + 1 - size_x_);
+        }
+        if (idx % size_x_ < size_x_ - 1 && idx < size_x_ * (size_y_ - 1)) {
+            out.push_back(idx + 1 + size_x_);
+        }
+
+        return out;
+    }
+
 };
 
 int main(int argc, char *argv[]) {
-    rclcpp::init(argc, argv);
-    rclcpp::spin(make_shared<Mapper>());
-    rclcpp::shutdown();
+    init(argc, argv);
+    spin(make_shared<Mapper>());
+    shutdown();
     return 0;
 }
