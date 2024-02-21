@@ -10,15 +10,15 @@ constexpr int MAX_PING_RETRY = 5;
 
 void ArduinoFirmware::configure() {
     char errorOpening = serial.openDevice(SERIAL_PORT, BAUD);
-    if (errorOpening != 1)
+    if (errorOpening != 1) {
         throw runtime_error("************************ SerialConfigurationError");
+    }
 }
 
 void ArduinoFirmware::ping() {
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
         writeCommand(PING);
         const auto value = readOutput();
-//        throw runtime_error("************************ " + value + " ************************");
         if (value == "PONG") {
             return;
         }
@@ -51,7 +51,7 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
 
 string ArduinoFirmware::readOutput() {
     char buffer[15];
-    serial.readString(buffer, '\n', 14, 5000);
+    serial.readString(buffer, '\n', 14, 10);
     std::string value(buffer);
     value.erase(remove(value.begin(), value.end(), '\r'), value.end());
     value.erase(remove(value.begin(), value.end(), '\n'), value.end());
