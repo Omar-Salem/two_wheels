@@ -48,10 +48,10 @@ private:
     void writeCommand(int commandNumber);
 
 
-    const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
-    const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
+    const string QUERY_TEMPLATE = R"({"command":#command})";
+    const string COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
 
-    const string MOVE_MOTOR_1_COMMAND = std::regex_replace(WRITE_COMMAND_TEMPLATE,
+    const string MOVE_MOTOR_1_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
                                                            std::regex("#command"),
                                                            to_string(MOVE_MOTOR_1));
 };

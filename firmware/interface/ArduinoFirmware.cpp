@@ -56,7 +56,7 @@ string ArduinoFirmware::readOutput() {
 }
 
 void ArduinoFirmware::writeCommand(int commandNumber) {
-    const string command = regex_replace(READ_COMMAND_TEMPLATE,
+    const string command = regex_replace(QUERY_TEMPLATE,
                                          regex("#command"),
                                          to_string(commandNumber));
 
