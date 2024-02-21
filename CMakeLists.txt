@@ -49,7 +49,7 @@ add_library(
         SHARED
         firmware/${HW_INTERFACE_LIB}/DiffDrive.cpp
         firmware/interface/ArduinoFirmware.cpp
-        firmware/interface/SerialOps.cpp
+        firmware/interface/serialib.cpp
 )
 ament_target_dependencies(
         ${HW_INTERFACE_LIB}

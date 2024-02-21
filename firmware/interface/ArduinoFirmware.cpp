@@ -2,20 +2,23 @@
 // Created by omar on 2/8/24.
 //
 
-
 #include <iostream>
 #include "ArduinoFirmware.h"
-#include<algorithm>
+#include <algorithm>
 
 constexpr int MAX_PING_RETRY = 5;
 
 void ArduinoFirmware::configure() {
-    serial = make_unique<SerialOps>(SERIAL_PORT, BAUD);
+    char errorOpening = serial.openDevice(SERIAL_PORT, BAUD);
+    if (errorOpening != 1)
+        throw runtime_error("************************ SerialConfigurationError");
 }
 
 void ArduinoFirmware::ping() {
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
-        const auto value = readString(PING);
+        writeCommand(PING);
+        const auto value = readOutput();
+//        throw runtime_error("************************ " + value + " ************************");
         if (value == "PONG") {
             return;
         }
@@ -25,12 +28,14 @@ void ArduinoFirmware::ping() {
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
-    const auto value = readString(GET_MOTOR_1_POSITION);
+    writeCommand(GET_MOTOR_1_POSITION);
+    const auto value = readOutput();
     return std::stod(value);
 }
 
 double ArduinoFirmware::getFirstMotorVelocity() {
-    const auto value = readString(GET_MOTOR_1_VELOCITY);
+    writeCommand(GET_MOTOR_1_VELOCITY);
+    const auto value = readOutput();
     return std::stod(value);
 }
 
@@ -41,16 +46,22 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
     command = std::regex_replace(command,
                                  std::regex("#velocity"),
                                  to_string(v));
-    serial->write(command);
+    serial.writeString(command.c_str());
 }
 
-string ArduinoFirmware::readString(int commandNumber) {
+string ArduinoFirmware::readOutput() {
+    char buffer[15];
+    serial.readString(buffer, '\n', 14, 5000);
+    std::string value(buffer);
+    value.erase(remove(value.begin(), value.end(), '\r'), value.end());
+    value.erase(remove(value.begin(), value.end(), '\n'), value.end());
+    return value;
+}
+
+void ArduinoFirmware::writeCommand(int commandNumber) {
     const string command = regex_replace(READ_COMMAND_TEMPLATE,
                                          regex("#command"),
                                          to_string(commandNumber));
 
-    string value = serial->read(command);
-    value.erase(remove(value.begin(), value.end(), '\r'), value.end());
-    value.erase(remove(value.begin(), value.end(), '\n'), value.end());
-    return value;
+    serial.writeString(command.c_str());
 }

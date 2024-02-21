@@ -7,7 +7,7 @@
 
 
 #include "Firmware.h"
-#include "SerialOps.h"
+#include "serialib.h"
 #include <regex>
 #include <nlohmann/json.hpp>
 #include <chrono>
@@ -41,9 +41,12 @@ public:
     void setFirstMotorVelocity(double v) override;
 
 private:
-    unique_ptr<SerialOps> serial;
+    serialib serial;
 
-    string readString(int commandNumber);
+    string readOutput();
+
+    void writeCommand(int commandNumber);
+
 
     const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
     const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
