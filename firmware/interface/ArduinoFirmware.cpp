@@ -49,8 +49,5 @@ string ArduinoFirmware::readString(int commandNumber) {
                                          regex("#command"),
                                          to_string(commandNumber));
 
-    string value = serial->read(command);
-    value.erase(remove(value.begin(), value.end(), '\r'), value.end());
-    value.erase(remove(value.begin(), value.end(), '\n'), value.end());
-    return value;
+    return serial->read(command);
 }

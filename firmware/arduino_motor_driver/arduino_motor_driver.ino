@@ -71,7 +71,7 @@ void readCommand() {
 void executeCommand() {
     switch (command) {
         case PING:
-            Serial.println("PONG");
+            Serial.print("PONG");
             break;
         case MOVE_MOTOR_1:
             m1.move(velocity);
@@ -80,16 +80,16 @@ void executeCommand() {
             m2.move(velocity);
             break;
         case GET_MOTOR_1_VELOCITY:
-            Serial.println(m1.calculateAngularVelocity());
+            Serial.print(m1.calculateAngularVelocity());
             break;
         case GET_MOTOR_2_VELOCITY:
-            Serial.println(m2.calculateAngularVelocity());
+            Serial.print(m2.calculateAngularVelocity());
             break;
         case GET_MOTOR_1_POSITION:
-            Serial.println(m1.getPosition());
+            Serial.print(m1.getPosition());
             break;
         case GET_MOTOR_2_POSITION:
-            Serial.println(m2.getPosition());
+            Serial.print(m2.getPosition());
             break;
         default:
             break;
