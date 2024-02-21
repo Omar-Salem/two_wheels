@@ -50,6 +50,10 @@ private:
 
     const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
     const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
+
+    const string MOVE_MOTOR_1_COMMAND = std::regex_replace(WRITE_COMMAND_TEMPLATE,
+                                                           std::regex("#command"),
+                                                           to_string(MOVE_MOTOR_1));
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

@@ -40,10 +40,7 @@ double ArduinoFirmware::getFirstMotorVelocity() {
 }
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
-    string command = std::regex_replace(WRITE_COMMAND_TEMPLATE,
-                                        std::regex("#command"),
-                                        to_string(MOVE_MOTOR_1));
-    command = std::regex_replace(command,
+    string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
                                  std::regex("#velocity"),
                                  to_string(v));
     serial.writeString(command.c_str());
