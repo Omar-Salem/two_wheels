@@ -43,7 +43,7 @@ public:
 private:
     unique_ptr<SerialOps> serial;
 
-    string readJsonValue(int commandNumber);
+    string readString(int commandNumber);
 
     const string READ_COMMAND_TEMPLATE = R"({"command":#command})";
     const string WRITE_COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
