@@ -32,6 +32,7 @@ RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
 RUN apt-get install -y usbutils
+RUN apt-get install -y udev
 #RUN apt-get install python-pip -y
 #RUN pip install -U rosdep
 #RUN rosdep init
