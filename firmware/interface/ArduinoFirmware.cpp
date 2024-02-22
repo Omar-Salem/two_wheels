@@ -48,7 +48,7 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
 
 string ArduinoFirmware::readOutput() {
     char buffer[15];
-    serial.readString(buffer, '\n', 14, 10);
+    serial.readString(buffer, '\n', 14, 125);
     std::string value(buffer);
     value.erase(remove(value.begin(), value.end(), '\r'), value.end());
     value.erase(remove(value.begin(), value.end(), '\n'), value.end());
