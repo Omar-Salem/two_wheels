@@ -33,6 +33,7 @@ RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
 RUN apt-get install -y usbutils
 RUN apt-get install -y udev
+RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
 #RUN apt-get install python-pip -y
 #RUN pip install -U rosdep
 #RUN rosdep init
