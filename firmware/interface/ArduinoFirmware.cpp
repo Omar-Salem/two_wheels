@@ -24,7 +24,6 @@ void ArduinoFirmware::ping() {
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
         writeCommand(PING);
         const auto value = readOutput();
-        cout << "PING result:" << value << "**********";
         if (value == "PONG") {
             return;
         }
@@ -45,8 +44,8 @@ double ArduinoFirmware::getFirstMotorVelocity() {
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
     const string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
-                                        std::regex("#velocity"),
-                                        to_string(v));
+                                              std::regex("#velocity"),
+                                              to_string(v));
     serial.writeString(command.c_str());
 }
 
@@ -63,8 +62,8 @@ double ArduinoFirmware::getSecondMotorVelocity() {
 
 void ArduinoFirmware::setSecondMotorVelocity(double v) {
     const string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
-                                        std::regex("#velocity"),
-                                        to_string(v));
+                                              std::regex("#velocity"),
+                                              to_string(v));
     serial.writeString(command.c_str());
 }
 

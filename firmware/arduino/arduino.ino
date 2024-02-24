@@ -72,6 +72,7 @@ void executeCommand() {
     switch (command) {
         case PING:
             Serial.println("PONG");
+            command = NO_OP;
             break;
         case MOVE_MOTOR_1:
             m1.move(velocity);
