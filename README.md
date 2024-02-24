@@ -1,18 +1,17 @@
+## Validate URDF file
 ```check_urdf /PATH/TO/URDF```
 
-```docker build -t humble .```
-
+## Prepare docker on Pi
 ```
-mkdir ~/Volumes
-cd Volumes
-mkdir ros2_ws
-cd ros2_ws
-mkdir src
-cd src
+ssh omar.salem@192.168.1.35
+mkdir -p ~/Volumes/ros2_ws/src
+cd $_ 
 git clone https://github.com/Omar-Salem/two_wheels.git
+cd two_wheels
+docker build -t humble .
+docker run --device=/dev/ttyUSB0 -it -v ~/Volumes:/home/usr/ humble
+cd /home/usr/ros2_ws && rm -rf build/ install/ log/ && colcon build --packages-select two_wheels && source install/setup.bash && ros2 launch two_wheels two_wheels.launch.py
 ```
-
-``docker run -it -v ~/Volumes:/home/usr/ humble``
 
 ```
 cd ros2_ws
