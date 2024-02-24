@@ -89,8 +89,8 @@ void ArduinoFirmware::writeCommand(int commandNumber) {
 double ArduinoFirmware::readDouble() {
     const auto value = readOutput();
     if (!isNumber(value)) {
-        throw invalid_argument("Wrong value:" + value);
-
+        return 0; //probably still reading "PONG"
+//        throw invalid_argument("Wrong value:" + value);
     }
     return std::stod(value);
 }

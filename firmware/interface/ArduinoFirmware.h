@@ -9,7 +9,6 @@
 #include "Firmware.h"
 #include "serialib.h"
 #include <regex>
-#include <nlohmann/json.hpp>
 #include <chrono>
 #include <thread>
 
@@ -24,9 +23,7 @@
 #define GET_MOTOR_1_POSITION 5
 #define GET_MOTOR_2_POSITION 6
 
-using json = nlohmann::json;
 using namespace std;
-using namespace nlohmann;
 
 class ArduinoFirmware : public Firmware {
 public:
