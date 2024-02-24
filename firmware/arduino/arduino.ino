@@ -94,7 +94,6 @@ void executeCommand() {
         default:
             break;
     }
-    command = NO_OP;
 }
 
 void logOutput() {
