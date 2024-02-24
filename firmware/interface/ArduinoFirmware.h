@@ -55,6 +55,10 @@ private:
 
     void writeCommand(int commandNumber);
 
+    double readDouble();
+
+    bool isNumber(string s);
+
 
     const string QUERY_TEMPLATE = R"({"command":#command})";
     const string COMMAND_TEMPLATE = R"({"command":#command,"params":{"velocity":#velocity}})";
@@ -67,6 +71,7 @@ private:
     const string MOVE_MOTOR_2_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
                                                            std::regex("#command"),
                                                            to_string(MOVE_MOTOR_2));
+    const string NUMBER_REGEX = R"([-+]?((\.\d+)|(\d+\.)|(\d+))\d*([eE][-+]?\d+)?)";
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

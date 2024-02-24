@@ -23,11 +23,20 @@ arduino-cli compile -b ${ARDUINO} ${SKETCH}
 arduino-cli upload -p ${PORT} -b ${ARDUINO} ${SKETCH}
 ```
 
-### Build and run
+### Build and run simulation
 
 ```
 rm -rf build/ install/ log/
 colcon build --packages-select two_wheels
 source install/setup.bash
 ros2 launch two_wheels sim_two_wheels.launch.py
+```
+
+### Build and run
+
+```
+rm -rf build/ install/ log/
+colcon build --packages-select two_wheels
+source install/setup.bash
+ros2 launch two_wheels two_wheels.launch.py
 ```

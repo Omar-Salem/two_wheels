@@ -5,6 +5,8 @@
 #include <iostream>
 #include "ArduinoFirmware.h"
 #include <algorithm>
+#include <string_view>
+#include <regex>
 
 constexpr int MAX_PING_RETRY = 5;
 
@@ -23,24 +25,23 @@ void ArduinoFirmware::ping() {
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
         writeCommand(PING);
         const auto value = readOutput();
+        cout << "PING result:" << value << "**********";
         if (value == "PONG") {
             return;
         }
-        std::this_thread::sleep_for(500ms);
+        std::this_thread::sleep_for(1000ms);
     }
     throw runtime_error("************************ SerialConnectionError");
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
     writeCommand(GET_MOTOR_1_POSITION);
-    const auto value = readOutput();
-    return std::stod(value);
+    return readDouble();
 }
 
 double ArduinoFirmware::getFirstMotorVelocity() {
     writeCommand(GET_MOTOR_1_VELOCITY);
-    const auto value = readOutput();
-    return std::stod(value);
+    return readDouble();
 }
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
@@ -53,14 +54,12 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
 
 double ArduinoFirmware::getSecondMotorPosition() {
     writeCommand(GET_MOTOR_2_POSITION);
-    const auto value = readOutput();
-    return std::stod(value);
+    return readDouble();
 }
 
 double ArduinoFirmware::getSecondMotorVelocity() {
     writeCommand(GET_MOTOR_2_VELOCITY);
-    const auto value = readOutput();
-    return std::stod(value);
+    return readDouble();
 }
 
 void ArduinoFirmware::setSecondMotorVelocity(double v) {
@@ -86,3 +85,22 @@ void ArduinoFirmware::writeCommand(int commandNumber) {
 
     serial.writeString(command.c_str());
 }
+
+double ArduinoFirmware::readDouble() {
+    const auto value = readOutput();
+    if (!isNumber(value)) {
+        throw invalid_argument("Wrong value:" + value);
+
+    }
+    return std::stod(value);
+}
+
+bool ArduinoFirmware::isNumber(string s) {
+    try {
+        std::stod(s);
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
