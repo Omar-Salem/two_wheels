@@ -8,7 +8,9 @@
 class Firmware {
 public:
 
-    virtual void configure() = 0;
+    virtual void connect() = 0;
+
+    virtual void disconnect() = 0;
 
     virtual void ping() = 0;
 
@@ -18,11 +20,11 @@ public:
 
     virtual void setFirstMotorVelocity(double v) = 0;
 
-//    virtual double getSecondMotorPosition() = 0;
-//
-//    virtual double getSecondMotorVelocity() = 0;
-//
-//    virtual void setSecondMotorVelocity(double v) = 0;
+    virtual double getSecondMotorPosition() = 0;
+
+    virtual double getSecondMotorVelocity() = 0;
+
+    virtual void setSecondMotorVelocity(double v) = 0;
 };
 
 #endif //TWO_WHEELS_FIRMWARE_H

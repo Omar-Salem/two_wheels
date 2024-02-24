@@ -30,7 +30,9 @@ using namespace nlohmann;
 
 class ArduinoFirmware : public Firmware {
 public:
-    void configure() override;
+    void connect() override;
+
+    void disconnect() override;
 
     void ping() override;
 
@@ -39,6 +41,12 @@ public:
     double getFirstMotorVelocity() override;
 
     void setFirstMotorVelocity(double v) override;
+
+    double getSecondMotorPosition() override;
+
+    double getSecondMotorVelocity() override;
+
+    void setSecondMotorVelocity(double v) override;
 
 private:
     serialib serial;
@@ -54,6 +62,11 @@ private:
     const string MOVE_MOTOR_1_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
                                                            std::regex("#command"),
                                                            to_string(MOVE_MOTOR_1));
+
+
+    const string MOVE_MOTOR_2_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
+                                                           std::regex("#command"),
+                                                           to_string(MOVE_MOTOR_2));
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

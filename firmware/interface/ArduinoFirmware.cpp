@@ -8,11 +8,15 @@
 
 constexpr int MAX_PING_RETRY = 5;
 
-void ArduinoFirmware::configure() {
+void ArduinoFirmware::connect() {
     char errorOpening = serial.openDevice(SERIAL_PORT, BAUD);
     if (errorOpening != 1) {
         throw runtime_error("************************ SerialConfigurationError");
     }
+}
+
+void ArduinoFirmware::disconnect() {
+    serial.closeDevice();
 }
 
 void ArduinoFirmware::ping() {
@@ -41,8 +45,28 @@ double ArduinoFirmware::getFirstMotorVelocity() {
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
     string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
-                                 std::regex("#velocity"),
-                                 to_string(v));
+                                        std::regex("#velocity"),
+                                        to_string(v));
+    serial.writeString(command.c_str());
+}
+
+
+double ArduinoFirmware::getSecondMotorPosition() {
+    writeCommand(GET_MOTOR_2_POSITION);
+    const auto value = readOutput();
+    return std::stod(value);
+}
+
+double ArduinoFirmware::getSecondMotorVelocity() {
+    writeCommand(GET_MOTOR_2_VELOCITY);
+    const auto value = readOutput();
+    return std::stod(value);
+}
+
+void ArduinoFirmware::setSecondMotorVelocity(double v) {
+    string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
+                                        std::regex("#velocity"),
+                                        to_string(v));
     serial.writeString(command.c_str());
 }
 

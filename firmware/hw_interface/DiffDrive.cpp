@@ -32,7 +32,7 @@ namespace hw_interface {
     CallbackReturn DiffDrive::on_configure(
             const State & /*previous_state*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "on_configure ...please wait...");
-        firmware->configure();
+        firmware->connect();
         return CallbackReturn::SUCCESS;
     }
 
@@ -78,20 +78,20 @@ namespace hw_interface {
     CallbackReturn DiffDrive::on_deactivate(
             const State & /*previous_state*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "on_deactivate ...please wait...");
+        firmware->disconnect();
         return CallbackReturn::SUCCESS;
     }
 
     return_type DiffDrive::read(
             const Time & /*time*/, const Duration & /*period*/) {
+        leftWheel->position_state = firmware->getFirstMotorPosition();
+        rightWheel->position_state = firmware->getSecondMotorPosition();
 
-        //TODO:update  and rightWheel->position_state from arduino
-        //TODO:update leftWheel->velocity_state and rightWheel->velocity_state from arduino
-        try {
-            leftWheel->position_state = firmware->getFirstMotorPosition();
-            RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->position_state:%f", leftWheel->position_state);
-        } catch (invalid_argument &ex) {
 
-        }
+        leftWheel->velocity_state = firmware->getFirstMotorVelocity();
+        rightWheel->velocity_state = firmware->getSecondMotorVelocity();
+        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->position_state:%f", leftWheel->position_state);
+
         return return_type::OK;
     }
 
@@ -102,9 +102,8 @@ namespace hw_interface {
                     leftWheel->velocity_command);
         RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
                     rightWheel->velocity_command);
-        //TODO:send leftWheel->velocity_command and rightWheel->velocity_command to firmware
-        firmware->setFirstMotorVelocity(12.0);
-//        firmware->setFirstMotorVelocity(leftWheel->velocity_command);
+        firmware->setFirstMotorVelocity(rightWheel->velocity_command);
+        firmware->setSecondMotorVelocity(leftWheel->velocity_command);
         return return_type::OK;
     }
 
