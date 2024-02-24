@@ -102,6 +102,7 @@ namespace hw_interface {
                     leftWheel->velocity_command);
         RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
                     rightWheel->velocity_command);
+
         firmware->setFirstMotorVelocity(rightWheel->velocity_command);
         firmware->setSecondMotorVelocity(leftWheel->velocity_command);
         return return_type::OK;

@@ -5,7 +5,6 @@
 #include <iostream>
 #include "ArduinoFirmware.h"
 #include <algorithm>
-#include <string_view>
 #include <regex>
 
 constexpr int MAX_PING_RETRY = 5;
@@ -45,7 +44,7 @@ double ArduinoFirmware::getFirstMotorVelocity() {
 }
 
 void ArduinoFirmware::setFirstMotorVelocity(double v) {
-    string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
+    const string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
                                         std::regex("#velocity"),
                                         to_string(v));
     serial.writeString(command.c_str());
@@ -63,7 +62,7 @@ double ArduinoFirmware::getSecondMotorVelocity() {
 }
 
 void ArduinoFirmware::setSecondMotorVelocity(double v) {
-    string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
+    const string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
                                         std::regex("#velocity"),
                                         to_string(v));
     serial.writeString(command.c_str());
