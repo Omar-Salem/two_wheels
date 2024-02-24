@@ -1,8 +1,16 @@
-``check_urdf /PATH/TO/URDF``
+```check_urdf /PATH/TO/URDF```
 
-``docker build -t humble .``
+```docker build -t humble .```
 
-``mkdir ~/Volumes && cd Volumes && mkdir ros2_ws && cd ros2_ws && mkdir src && cd src && git clone https://github.com/Omar-Salem/two_wheels.git``
+```
+mkdir ~/Volumes
+cd Volumes
+mkdir ros2_ws
+cd ros2_ws
+mkdir src
+cd src
+git clone https://github.com/Omar-Salem/two_wheels.git
+```
 
 ``docker run -it -v ~/Volumes:/home/usr/ humble``
 

@@ -33,6 +33,9 @@ RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
 RUN apt-get install -y usbutils
 RUN apt-get install -y udev
+
+
+#Install arduino-cli
 RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
 RUN arduino-cli board list
 RUN arduino-cli core install arduino:avr
@@ -40,6 +43,8 @@ RUN arduino-cli core install arduino:samd
 RUN arduino-cli config init
 RUN arduino-cli config init
 RUN arduino-cli core update-index
+#Install sketch dependencies
+RUN arduino-cli lib install ArduinoJson
 #RUN apt-get install python-pip -y
 #RUN pip install -U rosdep
 #RUN rosdep init
