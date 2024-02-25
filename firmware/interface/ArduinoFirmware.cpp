@@ -101,7 +101,7 @@ double ArduinoFirmware::readDouble() {
     return std::stod(value);
 }
 
-bool ArduinoFirmware::isNumber(string s) {
+bool ArduinoFirmware::isNumber(const string &s) {
     try {
         std::stod(s);
         return true;

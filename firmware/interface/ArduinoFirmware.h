@@ -54,7 +54,7 @@ private:
 
     double readDouble();
 
-    bool isNumber(string s);
+    bool isNumber(const string &s);
 
 
     const string QUERY_TEMPLATE = R"({"command":#command})";
