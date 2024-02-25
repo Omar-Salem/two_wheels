@@ -9,18 +9,18 @@ https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with
 |              |       |         | M1 White  - negative power supply (-)                   | A1        |
 |              |       | 2       | M1 Yellow                                               |           |
 |              |       | 4       | M1 Green                                                |           |
-|              |       | 5       |                                                         | PWMA      |
-|              |       | 6       |                                                         | AI1       |
-|              |       | 7       |                                                         | AI2       |
+|              |       | 10      |                                                         | PWMA      |
+|              |       | 11      |                                                         | AI1       |
+|              |       | 12      |                                                         | AI2       |
 |              | GND   |         | M2 Black  - negative of encoder power supply(-)(3.3-5V) |           |
 |              | +     |         | M2 BLue   - positive of encoder power supply(+)(3.3-5V) |           |
-|              |       |         | M2 Red  - positive power supply (+)                     | B0        |
-|              |       |         | M2 White  - negative power supply  (-)                  | B1        |
+|              |       |         | M2 White  -      negative power supply  (-)             | B0        |
+|              |       |         | M2 Red  - positive power supply (+)                     | B1        |
 |              |       | 3       | M2 Yellow  - M2                                         |           |
-|              |       | 8       | M2 Green  - M2                                          |           |
-|              |       | 9       |                                                         | PWMB      |
-|              |       | 10      |                                                         | BI1       |
-|              |       | 11      |                                                         | BI2       |
+|              |       | 5       | M2 Green  - M2                                          |           |
+|              |       | 14      |                                                         | PWMB      |
+|              |       | 15      |                                                         | BI1       |
+|              |       | 16      |                                                         | BI2       |
 
 https://www.openimpulse.com/blog/products-page/25d-gearmotors/jga25-370-dc-gearmotor-77-rpm-6-v/
 
