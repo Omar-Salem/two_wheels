@@ -22,7 +22,7 @@ void ArduinoFirmware::disconnect() {
 
 void ArduinoFirmware::ping() {
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
-        writeCommand(PING);
+        writeQueryCommand(PING);
         const auto value = readOutput();
         if (value == "PONG") {
             return;
@@ -33,12 +33,12 @@ void ArduinoFirmware::ping() {
 }
 
 double ArduinoFirmware::getFirstMotorPosition() {
-    writeCommand(GET_MOTOR_1_POSITION);
+    writeQueryCommand(GET_MOTOR_1_POSITION);
     return readDouble();
 }
 
 double ArduinoFirmware::getFirstMotorVelocity() {
-    writeCommand(GET_MOTOR_1_VELOCITY);
+    writeQueryCommand(GET_MOTOR_1_VELOCITY);
     return readDouble();
 }
 
@@ -46,17 +46,20 @@ void ArduinoFirmware::setFirstMotorVelocity(double v) {
     const string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
                                               std::regex("#velocity"),
                                               to_string(v));
-    serial.writeString(command.c_str());
+    int res = serial.writeString(command.c_str());
+    if (res != 1) {
+        throw runtime_error("************************ Could not write command");
+    }
 }
 
 
 double ArduinoFirmware::getSecondMotorPosition() {
-    writeCommand(GET_MOTOR_2_POSITION);
+    writeQueryCommand(GET_MOTOR_2_POSITION);
     return readDouble();
 }
 
 double ArduinoFirmware::getSecondMotorVelocity() {
-    writeCommand(GET_MOTOR_2_VELOCITY);
+    writeQueryCommand(GET_MOTOR_2_VELOCITY);
     return readDouble();
 }
 
@@ -64,7 +67,10 @@ void ArduinoFirmware::setSecondMotorVelocity(double v) {
     const string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
                                               std::regex("#velocity"),
                                               to_string(v));
-    serial.writeString(command.c_str());
+    int res = serial.writeString(command.c_str());
+    if (res != 1) {
+        throw runtime_error("************************ Could not write command");
+    }
 }
 
 string ArduinoFirmware::readOutput() {
@@ -76,12 +82,14 @@ string ArduinoFirmware::readOutput() {
     return value;
 }
 
-void ArduinoFirmware::writeCommand(int commandNumber) {
+void ArduinoFirmware::writeQueryCommand(int commandNumber) {
     const string command = regex_replace(QUERY_TEMPLATE,
                                          regex("#command"),
                                          to_string(commandNumber));
-
-    serial.writeString(command.c_str());
+    int res = serial.writeString(command.c_str());
+    if (res != 1) {
+        throw runtime_error("************************ Could not write command");
+    }
 }
 
 double ArduinoFirmware::readDouble() {

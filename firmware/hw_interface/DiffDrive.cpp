@@ -101,14 +101,14 @@ namespace hw_interface {
 
     return_type DiffDrive::write(
             const Time & /*time*/, const Duration & /*period*/) {
-        RCLCPP_INFO(get_logger("DiffDrive"), "write ...please wait...");
-        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->velocity_command: %f'",
-                    leftWheel->velocity_command);
-        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
-                    rightWheel->velocity_command);
+        RCLCPP_INFO(get_logger("DiffDrive"), "write ...please wait!!!!!!!...");
+//        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->velocity_command: %f'",
+//                    leftWheel->velocity_command);
+//        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
+//                    rightWheel->velocity_command);
 
-        firmware->setFirstMotorVelocity(rightWheel->velocity_command);
-        firmware->setSecondMotorVelocity(leftWheel->velocity_command);
+        firmware->setFirstMotorVelocity(12);
+        firmware->setSecondMotorVelocity(12);
         return return_type::OK;
     }
 

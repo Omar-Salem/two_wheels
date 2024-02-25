@@ -50,7 +50,7 @@ private:
 
     string readOutput();
 
-    void writeCommand(int commandNumber);
+    void writeQueryCommand(int commandNumber);
 
     double readDouble();
 

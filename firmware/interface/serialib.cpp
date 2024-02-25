@@ -503,9 +503,9 @@ int serialib::writeString(const char *receivedString) {
 #endif
 #if defined (__linux__) || defined(__APPLE__)
     // Lenght of the string
-    int Lenght = strlen(receivedString);
+    int length = strlen(receivedString);
     // Write the string
-    if (write(fd, receivedString, Lenght) != Lenght) return -1;
+    if (write(fd, receivedString, length) != length) return -1;
     // Write operation successfull
     return 1;
 #endif
