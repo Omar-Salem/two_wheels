@@ -78,6 +78,8 @@ namespace hw_interface {
     CallbackReturn DiffDrive::on_deactivate(
             const State & /*previous_state*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "on_deactivate ...please wait...");
+        firmware->setFirstMotorVelocity(0);
+        firmware->setSecondMotorVelocity(0);
         firmware->disconnect();
         return CallbackReturn::SUCCESS;
     }
@@ -102,13 +104,13 @@ namespace hw_interface {
     return_type DiffDrive::write(
             const Time & /*time*/, const Duration & /*period*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "write ...please wait!!!!!!!...");
-//        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->velocity_command: %f'",
-//                    leftWheel->velocity_command);
-//        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
-//                    rightWheel->velocity_command);
+        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->velocity_command: %f'",
+                    leftWheel->velocity_command);
+        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
+                    rightWheel->velocity_command);
 
-        firmware->setFirstMotorVelocity(12);
-        firmware->setSecondMotorVelocity(12);
+        firmware->setFirstMotorVelocity(leftWheel->velocity_command);
+        firmware->setSecondMotorVelocity(rightWheel->velocity_command);
         return return_type::OK;
     }
 
