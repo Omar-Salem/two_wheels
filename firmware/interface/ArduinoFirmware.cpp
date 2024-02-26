@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <regex>
 
-constexpr int MAX_PING_RETRY = 5;
+constexpr int MAX_PING_RETRY = 10;
 
 void ArduinoFirmware::connect() {
     char errorOpening = serial.openDevice(SERIAL_PORT, BAUD);
@@ -27,7 +27,7 @@ void ArduinoFirmware::ping() {
         if (value == "PONG") {
             return;
         }
-        std::this_thread::sleep_for(1000ms);
+        std::this_thread::sleep_for(500ms);
     }
     throw runtime_error("************************ SerialConnectionError");
 }
@@ -76,20 +76,22 @@ void ArduinoFirmware::writeQueryCommand(int commandNumber) {
 }
 
 vector<string> ArduinoFirmware::split(const string &str) {
-    vector<string> strings;
-    char separator = ',';
-    int startIndex = 0, endIndex = 0;
-    for (int i = 0; i <= str.size(); i++) {
-
-        // If we reached the end of the word or the end of the input.
-        if (str[i] == separator || i == str.size()) {
-            endIndex = i;
-            string temp;
-            temp.append(str, startIndex, endIndex - startIndex);
-            strings.push_back(temp);
-            startIndex = endIndex + 1;
+    const char separator = ',';
+    std::vector<std::string> result;
+    std::string current;
+    for (char i: str) {
+        if (i == separator) {
+            if (!current.empty()) {
+                result.push_back(current);
+                current = "";
+            }
+            continue;
         }
+        current += i;
     }
-    return strings;
+    if (!current.empty()) {
+        result.push_back(current);
+    }
+    return result;
 }
 
