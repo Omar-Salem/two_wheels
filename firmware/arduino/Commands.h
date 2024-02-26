@@ -7,8 +7,7 @@
 
 #define PING 0
 #define NO_OP -1
-#define MOVE_MOTOR_1 1
-#define MOVE_MOTOR_2 2
+#define MOVE_MOTORS 1
 #define GET_MOTOR_1_VELOCITY 3
 #define GET_MOTOR_2_VELOCITY 4
 #define GET_MOTOR_1_POSITION 5

@@ -30,7 +30,7 @@ Motor m2(motorConfig,
 //double Kd = 0;
 
 byte command = NO_OP;
-double velocity = 0;
+JsonDocument params;
 
 
 void setup() {
@@ -43,7 +43,7 @@ void setup() {
 void loop() {
 /*
  *
- * {"command":1,"params":{"velocity":6.28}}
+ * {"command":1,"params":{"m1":15,"m2":8}}
  * */
     readCommand();
     executeCommand();
@@ -63,22 +63,24 @@ void readCommand() {
     JsonDocument doc;
     deserializeJson(doc, json);
     command = doc["command"];
-    if (command == MOVE_MOTOR_1 || command == MOVE_MOTOR_2) {
-        velocity = doc["params"]["velocity"];
+    if (command == MOVE_MOTORS) {
+        params = doc["params"];
     }
 }
 
 void executeCommand() {
+    double v1;
+    double v2;
     switch (command) {
         case PING:
             Serial.println("PONG");
             command = NO_OP;
             break;
-        case MOVE_MOTOR_1:
-            m1.move(velocity);
-            break;
-        case MOVE_MOTOR_2:
-            m2.move(velocity);
+        case MOVE_MOTORS:
+            v1 = params["m1"];
+            v2 = params["m2"];
+            m1.move(v1);
+            m2.move(v2);
             break;
         case GET_MOTOR_1_VELOCITY:
             Serial.println(m1.calculateAngularVelocity());

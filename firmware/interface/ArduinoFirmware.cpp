@@ -42,10 +42,13 @@ double ArduinoFirmware::getFirstMotorVelocity() {
     return readDouble();
 }
 
-void ArduinoFirmware::setFirstMotorVelocity(double v) {
-    const string command = std::regex_replace(MOVE_MOTOR_1_COMMAND,
-                                              std::regex("#velocity"),
-                                              to_string(v));
+void ArduinoFirmware::setMotorsVelocity(double m1, double m2) {
+    string command = std::regex_replace(MOVE_MOTORS_COMMANDS,
+                                        std::regex("#m1"),
+                                        to_string(m1));
+    command = std::regex_replace(command,
+                                 std::regex("#m2"),
+                                 to_string(m2));
     int res = serial.writeString(command.c_str());
     if (res != 1) {
         throw runtime_error("************************ Could not write command");
@@ -61,16 +64,6 @@ double ArduinoFirmware::getSecondMotorPosition() {
 double ArduinoFirmware::getSecondMotorVelocity() {
     writeQueryCommand(GET_MOTOR_2_VELOCITY);
     return readDouble();
-}
-
-void ArduinoFirmware::setSecondMotorVelocity(double v) {
-    const string command = std::regex_replace(MOVE_MOTOR_2_COMMAND,
-                                              std::regex("#velocity"),
-                                              to_string(v));
-    int res = serial.writeString(command.c_str());
-    if (res != 1) {
-        throw runtime_error("************************ Could not write command");
-    }
 }
 
 string ArduinoFirmware::readOutput() {

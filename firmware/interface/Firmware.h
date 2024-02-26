@@ -18,13 +18,11 @@ public:
 
     virtual double getFirstMotorVelocity() = 0;
 
-    virtual void setFirstMotorVelocity(double v) = 0;
+    virtual void setMotorsVelocity(double m1, double m2) = 0;
 
     virtual double getSecondMotorPosition() = 0;
 
     virtual double getSecondMotorVelocity() = 0;
-
-    virtual void setSecondMotorVelocity(double v) = 0;
 };
 
 #endif //TWO_WHEELS_FIRMWARE_H

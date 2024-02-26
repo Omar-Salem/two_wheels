@@ -16,8 +16,7 @@
 #define BAUD 115200
 
 #define PING 0
-#define MOVE_MOTOR_1 1
-#define MOVE_MOTOR_2 2
+#define MOVE_MOTORS 1
 #define GET_MOTOR_1_VELOCITY 3
 #define GET_MOTOR_2_VELOCITY 4
 #define GET_MOTOR_1_POSITION 5
@@ -37,13 +36,11 @@ public:
 
     double getFirstMotorVelocity() override;
 
-    void setFirstMotorVelocity(double v) override;
+    void setMotorsVelocity(double m1, double m2) override;
 
     double getSecondMotorPosition() override;
 
     double getSecondMotorVelocity() override;
-
-    void setSecondMotorVelocity(double v) override;
 
 private:
     serialib serial;
@@ -58,16 +55,11 @@ private:
 
 
     const string QUERY_TEMPLATE = "{'command':#command}\n";
-    const string COMMAND_TEMPLATE = "{'command':#command,'params':{'velocity':#velocity}}\n";
+    const string COMMAND_TEMPLATE = "{'command':#command,'params':{'m1':#m1,'m2':#m2}}\n";
 
-    const string MOVE_MOTOR_1_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
+    const string MOVE_MOTORS_COMMANDS = std::regex_replace(COMMAND_TEMPLATE,
                                                            std::regex("#command"),
-                                                           to_string(MOVE_MOTOR_1));
-
-
-    const string MOVE_MOTOR_2_COMMAND = std::regex_replace(COMMAND_TEMPLATE,
-                                                           std::regex("#command"),
-                                                           to_string(MOVE_MOTOR_2));
+                                                           to_string(MOVE_MOTORS));
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H
