@@ -59,6 +59,12 @@ double Motor::getPosition() const {
 }
 
 void Motor::move(double targetVelocity) {
+    if (targetVelocity > 0) {
+        setDirectionForward();
+    } else {
+        setDirectionBackward();
+        targetVelocity *= -1;
+    }
     double currentV = calculateAngularVelocity();
     int pwm = velocityPID.compute(currentV, targetVelocity);
     movePWM(pwm);
@@ -66,7 +72,6 @@ void Motor::move(double targetVelocity) {
 
 void Motor::movePWM(int pwm) {
     analogWrite(pwmPin, pwm);
-    setDirectionForward();
 }
 
 void Motor::interruptCallback(bool isLeft) {
@@ -87,6 +92,11 @@ void Motor::interruptCallback(bool isLeft) {
 void Motor::setDirectionForward() {
     digitalWrite(firstBridgePin, HIGH);
     digitalWrite(secondBridgePin, LOW);
+}
+
+void Motor::setDirectionBackward() {
+    digitalWrite(firstBridgePin, LOW);
+    digitalWrite(secondBridgePin, HIGH);
 }
 
 byte Motor::getVelocityEncoder() const {

@@ -60,6 +60,8 @@ private:
     PIDController velocityPID;
 
     void setDirectionForward();
+
+    void setDirectionBackward();
 };
 
 #endif
