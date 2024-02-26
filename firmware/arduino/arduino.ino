@@ -87,11 +87,15 @@ void executeCommand() {
             //v1,p1,v2,p2
             result.concat(m1.calculateAngularVelocity());
             result.concat(",");
+
             result.concat(m1.getPosition());
             result.concat(",");
+
             result.concat(m2.calculateAngularVelocity());
             result.concat(",");
+
             result.concat(m2.getPosition());
+
             Serial.println(result);
             break;
         default:
