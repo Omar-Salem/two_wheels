@@ -17,7 +17,7 @@ public:
           byte firstBridgePin,
           byte secondBridgePin,
           byte velocityEncoder,
-          byte directionPin);
+          byte directionEncoder);
 
     void initialize();
 
@@ -41,7 +41,7 @@ private:
     byte firstBridgePin;
     byte secondBridgePin;
     byte velocityEncoder;
-    byte directionPin;
+    byte directionEncoder;
 
     volatile double posi = 0;
     double precision;

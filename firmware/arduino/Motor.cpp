@@ -8,13 +8,13 @@ Motor::Motor(MotorConfig motorConfig,
              byte firstBridgePin,
              byte secondBridgePin,
              byte velocityEncoder,
-             byte directionPin)
+             byte directionEncoder)
         : encCountRev(motorConfig.getEncCountRev()),
           pwmPin(pwmPin),
           firstBridgePin(firstBridgePin),
           secondBridgePin(secondBridgePin),
           velocityEncoder(velocityEncoder),
-          directionPin(directionPin) {
+          directionEncoder(directionEncoder) {
     precision = (2 * PI) / motorConfig.getEncCountRev();
     velocityPID.tune(motorConfig.getKp(),
                      motorConfig.getKi(),
@@ -26,7 +26,7 @@ void Motor::initialize() {
     pinMode(firstBridgePin, OUTPUT);
     pinMode(secondBridgePin, OUTPUT);
     pinMode(velocityEncoder, INPUT_PULLUP);
-    pinMode(directionPin, INPUT);
+    pinMode(directionEncoder, INPUT);
 }
 
 double Motor::calculateAngularVelocity() {
@@ -76,7 +76,7 @@ void Motor::interruptCallback(bool isLeft) {
     velocity = 1 / deltaT;
     prevTime = currT;
 
-    bool direction = digitalRead(directionPin);
+    bool direction = digitalRead(directionEncoder);
     if (isLeft) {
         direction > 0 ? posi++ : posi--;
     } else {
