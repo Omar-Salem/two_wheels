@@ -77,7 +77,7 @@ def create_robot_node() -> list:
                 # slam_toolbox,
                 # nav2_bringup,
                 # mapper,
-                bump_go,
+                # bump_go,
             ]
         )
     ]

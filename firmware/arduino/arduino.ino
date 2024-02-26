@@ -1,5 +1,4 @@
-#include <ArduinoJson.h>    //https://arduinojson.org/
-#include <ArduinoJson.hpp>
+#include "StringSplitter.h" //https://github.com/aharshac/StringSplitter
 
 #include "Motor.h"
 #include "MotorConfig.h"
@@ -30,7 +29,7 @@ Motor m2(motorConfig,
 //double Kd = 0;
 
 byte command = NO_OP;
-JsonDocument params;
+double v1, v2;
 
 
 void setup() {
@@ -59,26 +58,27 @@ void readCommand() {
     if (!Serial.available()) {
         return;
     }
-    String json = Serial.readStringUntil('\n');
-    JsonDocument doc;
-    deserializeJson(doc, json);
-    command = doc["command"];
-    if (command == MOVE_MOTORS) {
-        params = doc["params"];
+    String input = Serial.readStringUntil('\n');
+    if (input.length() == 1) {
+        command = atoi(input.c_str());
+    } else {
+        command = MOVE_MOTORS;
+        //m1,m2
+        //15.20
+        StringSplitter *splitter = new StringSplitter(input, ',', 2);
+        v1 = atof(splitter->getItemAtIndex(0).c_str());
+        v2 = atof(splitter->getItemAtIndex(1).c_str());
+        delete splitter;
     }
 }
 
 void executeCommand() {
-    double v1;
-    double v2;
     switch (command) {
         case PING:
             Serial.println("PONG");
             command = NO_OP;
             break;
         case MOVE_MOTORS:
-            v1 = params["m1"];
-            v2 = params["m2"];
             m1.move(v1);
             m2.move(v2);
             break;

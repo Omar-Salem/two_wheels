@@ -54,8 +54,8 @@ private:
     bool isNumber(const string &s);
 
 
-    const string QUERY_TEMPLATE = "{'command':#command}\n";
-    const string COMMAND_TEMPLATE = "{'command':#command,'params':{'m1':#m1,'m2':#m2}}\n";
+    const string QUERY_TEMPLATE = "#command\n";
+    const string COMMAND_TEMPLATE = "#m1,#m2\n";
 
     const string MOVE_MOTORS_COMMANDS = std::regex_replace(COMMAND_TEMPLATE,
                                                            std::regex("#command"),

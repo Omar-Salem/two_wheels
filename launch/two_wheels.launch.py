@@ -43,9 +43,25 @@ def generate_launch_description():
     return LaunchDescription(declared_arguments +
                              [core,
                               robot_state_pub_node,
+                              create_rviz_node(package_name)
                               ]
                              + controller_nodes
                              )
+
+
+def create_rviz_node(package_name):
+    package_share = FindPackageShare(package_name)
+    rviz_config_file = PathJoinSubstitution(
+        [package_share, "rviz", "two_wheels.rviz"]
+    )
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file]
+    )
+    return rviz_node
 
 def create_controller_nodes(package_name, robot_description_config):
     robot_controller_names = ['joint_state_broadcaster', 'diff_drive_controller']

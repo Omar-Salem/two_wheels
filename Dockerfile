@@ -44,7 +44,7 @@ RUN arduino-cli config init
 RUN arduino-cli config init
 RUN arduino-cli core update-index
 #Install sketch dependencies
-RUN arduino-cli lib install ArduinoJson
+RUN arduino-cli lib install StringSplitter
 #RUN apt-get install python-pip -y
 #RUN pip install -U rosdep
 #RUN rosdep init
