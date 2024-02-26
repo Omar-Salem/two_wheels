@@ -10,14 +10,15 @@
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
-MotorConfig _25GA_370_MotorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
-Motor m1(_25GA_370_MotorConfig,
+MotorConfig firstMotorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
+MotorConfig secondMotorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
+Motor m1(firstMotorConfig,
          10,
          11,
          12,
          2,
          4);
-Motor m2(_25GA_370_MotorConfig,
+Motor m2(secondMotorConfig,
          14,
          15,
          16,
