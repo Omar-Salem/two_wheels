@@ -11,16 +11,14 @@
 #include <regex>
 #include <chrono>
 #include <thread>
+#include "MotorsOdom.h"
 
 #define SERIAL_PORT "/dev/ttyUSB0"
 #define BAUD 115200
 
 #define PING 0
 #define MOVE_MOTORS 1
-#define GET_MOTOR_1_VELOCITY 3
-#define GET_MOTOR_2_VELOCITY 4
-#define GET_MOTOR_1_POSITION 5
-#define GET_MOTOR_2_POSITION 6
+#define GET_MOTORS_ODOM 2
 
 using namespace std;
 
@@ -32,15 +30,9 @@ public:
 
     void ping() override;
 
-    double getFirstMotorPosition() override;
-
-    double getFirstMotorVelocity() override;
-
     void setMotorsVelocity(double m1, double m2) override;
 
-    double getSecondMotorPosition() override;
-
-    double getSecondMotorVelocity() override;
+    MotorsOdom getMotorsOdom() override;
 
 private:
     serialib serial;
@@ -49,10 +41,7 @@ private:
 
     void writeQueryCommand(int commandNumber);
 
-    double readDouble();
-
-    bool isNumber(const string &s);
-
+    vector<string> split(const string &str);
 
     const string QUERY_TEMPLATE = "#command\n";
     const string COMMAND_TEMPLATE = "#m1,#m2\n";

@@ -8,8 +8,5 @@
 #define PING 0
 #define NO_OP -1
 #define MOVE_MOTORS 1
-#define GET_MOTOR_1_VELOCITY 3
-#define GET_MOTOR_2_VELOCITY 4
-#define GET_MOTOR_1_POSITION 5
-#define GET_MOTOR_2_POSITION 6
+#define GET_MOTORS_ODOM 2
 #endif //TWO_WHEELS_COMMANDS_H

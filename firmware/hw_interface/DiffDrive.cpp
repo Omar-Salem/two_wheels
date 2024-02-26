@@ -86,12 +86,13 @@ namespace hw_interface {
     return_type DiffDrive::read(
             const Time & /*time*/, const Duration & /*period*/) {
         RCLCPP_INFO(get_logger("DiffDrive"), "Reading ...please wait...");
-        leftWheel->position_state = firmware->getFirstMotorPosition();
-        rightWheel->position_state = firmware->getSecondMotorPosition();
+        const MotorsOdom &odom = firmware->getMotorsOdom();
+        leftWheel->position_state = odom.p1;
+        leftWheel->velocity_state = odom.v1;
 
+        rightWheel->position_state = odom.p2;
+        rightWheel->velocity_state = odom.v2;
 
-        leftWheel->velocity_state = firmware->getFirstMotorVelocity();
-        rightWheel->velocity_state = firmware->getSecondMotorVelocity();
         RCLCPP_INFO(get_logger("DiffDrive"),
                     "leftWheel position:%f,rightWheel position:%f,leftWheel velocity:%f,rightWheel velocity:%f",
                     leftWheel->position_state, rightWheel->position_state,

@@ -32,14 +32,15 @@ void ArduinoFirmware::ping() {
     throw runtime_error("************************ SerialConnectionError");
 }
 
-double ArduinoFirmware::getFirstMotorPosition() {
-    writeQueryCommand(GET_MOTOR_1_POSITION);
-    return readDouble();
-}
-
-double ArduinoFirmware::getFirstMotorVelocity() {
-    writeQueryCommand(GET_MOTOR_1_VELOCITY);
-    return readDouble();
+MotorsOdom ArduinoFirmware::getMotorsOdom() {
+    writeQueryCommand(GET_MOTORS_ODOM);
+    const auto value = readOutput();
+    //v1,p1,v2,p2
+    vector<string> values = split(value);
+    return MotorsOdom(stod(values.at(0)),
+                      stod(values.at(1)),
+                      stod(values.at(2)),
+                      stod(values.at(3)));
 }
 
 void ArduinoFirmware::setMotorsVelocity(double m1, double m2) {
@@ -53,17 +54,6 @@ void ArduinoFirmware::setMotorsVelocity(double m1, double m2) {
     if (res != 1) {
         throw runtime_error("************************ Could not write command");
     }
-}
-
-
-double ArduinoFirmware::getSecondMotorPosition() {
-    writeQueryCommand(GET_MOTOR_2_POSITION);
-    return readDouble();
-}
-
-double ArduinoFirmware::getSecondMotorVelocity() {
-    writeQueryCommand(GET_MOTOR_2_VELOCITY);
-    return readDouble();
 }
 
 string ArduinoFirmware::readOutput() {
@@ -85,21 +75,21 @@ void ArduinoFirmware::writeQueryCommand(int commandNumber) {
     }
 }
 
-double ArduinoFirmware::readDouble() {
-    const auto value = readOutput();
-    if (!isNumber(value)) {
-        return 0; //probably still reading "PONG"
-//        throw invalid_argument("Wrong value:" + value);
-    }
-    return std::stod(value);
-}
+vector<string> ArduinoFirmware::split(const string &str) {
+    vector<string> strings;
+    char separator = ',';
+    int startIndex = 0, endIndex = 0;
+    for (int i = 0; i <= str.size(); i++) {
 
-bool ArduinoFirmware::isNumber(const string &s) {
-    try {
-        std::stod(s);
-        return true;
-    } catch (...) {
-        return false;
+        // If we reached the end of the word or the end of the input.
+        if (str[i] == separator || i == str.size()) {
+            endIndex = i;
+            string temp;
+            temp.append(str, startIndex, endIndex - startIndex);
+            strings.push_back(temp);
+            startIndex = endIndex + 1;
+        }
     }
+    return strings;
 }
 

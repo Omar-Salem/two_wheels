@@ -5,6 +5,8 @@
 #define TWO_WHEELS_FIRMWARE_H
 
 
+#include "MotorsOdom.h"
+
 class Firmware {
 public:
 
@@ -14,15 +16,9 @@ public:
 
     virtual void ping() = 0;
 
-    virtual double getFirstMotorPosition() = 0;
-
-    virtual double getFirstMotorVelocity() = 0;
-
     virtual void setMotorsVelocity(double m1, double m2) = 0;
 
-    virtual double getSecondMotorPosition() = 0;
-
-    virtual double getSecondMotorVelocity() = 0;
+    virtual MotorsOdom getMotorsOdom() = 0;
 };
 
 #endif //TWO_WHEELS_FIRMWARE_H

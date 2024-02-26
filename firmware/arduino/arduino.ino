@@ -73,6 +73,7 @@ void readCommand() {
 }
 
 void executeCommand() {
+    String result = "";
     switch (command) {
         case PING:
             Serial.println("PONG");
@@ -82,17 +83,16 @@ void executeCommand() {
             m1.move(v1);
             m2.move(v2);
             break;
-        case GET_MOTOR_1_VELOCITY:
-            Serial.println(m1.calculateAngularVelocity());
-            break;
-        case GET_MOTOR_2_VELOCITY:
-            Serial.println(m2.calculateAngularVelocity());
-            break;
-        case GET_MOTOR_1_POSITION:
-            Serial.println(m1.getPosition());
-            break;
-        case GET_MOTOR_2_POSITION:
-            Serial.println(m2.getPosition());
+        case GET_MOTORS_ODOM:
+            //v1,p1,v2,p2
+            result.concat(m1.calculateAngularVelocity());
+            result.concat(",");
+            result.concat(m1.getPosition());
+            result.concat(",");
+            result.concat(m2.calculateAngularVelocity());
+            result.concat(",");
+            result.concat(m2.getPosition());
+            Serial.println(result);
             break;
         default:
             break;
