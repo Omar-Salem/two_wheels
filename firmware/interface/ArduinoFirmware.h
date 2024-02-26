@@ -56,10 +56,6 @@ private:
 
     const string QUERY_TEMPLATE = "#command\n";
     const string COMMAND_TEMPLATE = "#m1,#m2\n";
-
-    const string MOVE_MOTORS_COMMANDS = std::regex_replace(COMMAND_TEMPLATE,
-                                                           std::regex("#command"),
-                                                           to_string(MOVE_MOTORS));
 };
 
 #endif //TWO_WHEELS_ARDUINOFIRMWARE_H

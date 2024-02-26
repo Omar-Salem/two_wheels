@@ -43,7 +43,7 @@ double ArduinoFirmware::getFirstMotorVelocity() {
 }
 
 void ArduinoFirmware::setMotorsVelocity(double m1, double m2) {
-    string command = std::regex_replace(MOVE_MOTORS_COMMANDS,
+    string command = std::regex_replace(COMMAND_TEMPLATE,
                                         std::regex("#m1"),
                                         to_string(m1));
     command = std::regex_replace(command,
