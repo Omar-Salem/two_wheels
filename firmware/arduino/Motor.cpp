@@ -69,7 +69,7 @@ void Motor::movePWM(int pwm) {
     setDirectionForward();
 }
 
-void Motor::interruptCallback() {
+void Motor::interruptCallback(bool isLeft) {
     lastUpdated = millis();
     long currT = micros();
     float deltaT = ((float) (currT - prevTime)) / 1.0e6;
@@ -77,7 +77,11 @@ void Motor::interruptCallback() {
     prevTime = currT;
 
     bool direction = digitalRead(directionPin);
-    direction > 0 ? posi++ : posi--;
+    if (isLeft) {
+        direction > 0 ? posi++ : posi--;
+    } else {
+        direction > 0 ? posi-- : posi++;
+    }
 }
 
 void Motor::setDirectionForward() {

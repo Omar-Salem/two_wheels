@@ -31,7 +31,7 @@ public:
 
     void movePWM(int pwm);
 
-    void interruptCallback();
+    void interruptCallback(bool isLeft);
 
     void tunePID(double p, double i, double d);
 

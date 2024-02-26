@@ -51,9 +51,9 @@ void loop() {
 //    m1.move(6.28);
 }
 
-void firstEncoderCallback() { m1.interruptCallback(); }
+void firstEncoderCallback() { m1.interruptCallback(true); }
 
-void secondEncoderCallback() { m2.interruptCallback(); }
+void secondEncoderCallback() { m2.interruptCallback(false); }
 
 void readCommand() {
     if (!Serial.available()) {
