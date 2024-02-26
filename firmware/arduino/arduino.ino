@@ -10,16 +10,15 @@
 
 #define ENC_COUNT_REV 105 // Motor encoder output pulses per 360 degree revolution (measured manually)
 
-MotorConfig firstMotorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
-MotorConfig secondMotorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
-Motor m1(firstMotorConfig,
-         10,
+MotorConfig motorConfig(ENC_COUNT_REV, .08, 0.0, 0.0);
+Motor m1(motorConfig,
+         6,
          11,
          12,
          2,
          4);
-Motor m2(secondMotorConfig,
-         14,
+Motor m2(motorConfig,
+         9,
          15,
          16,
          3,
@@ -103,9 +102,9 @@ void logOutput() {
     Serial.println(actual);
 }
 
-//void tune(double target) {
-//    m1.move(target);
-//    m1.tunePID(Kp, Ki, Kd);
+//void tune(Motor &m, double target) {
+//    m.move(target);
+//    m.tunePID(Kp, Ki, Kd);
 //    if (Serial.available() > 0) {
 //        // read the incoming byte:
 //        String input = Serial.readStringUntil('\n');
@@ -127,7 +126,7 @@ void logOutput() {
 //        Serial.print(Kd);
 //        Serial.println();
 //    } else {
-//        auto actual = m1.calculateAngularVelocity();
+//        auto actual = m.calculateAngularVelocity();
 //        Serial.print(actual);
 //        Serial.print(" ");
 //        Serial.print(target);

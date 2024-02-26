@@ -9,7 +9,7 @@ https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with
 |              |       |         | M1 White  - negative power supply (-)                   | A1        |
 |              |       | 2       | M1 Yellow                                               |           |
 |              |       | 4       | M1 Green                                                |           |
-|              |       | 10      |                                                         | PWMA      |
+|              |       | 6       |                                                         | PWMA      |
 |              |       | 11      |                                                         | AI1       |
 |              |       | 12      |                                                         | AI2       |
 |              | GND   |         | M2 Black  - negative of encoder power supply(-)(3.3-5V) |           |
@@ -18,7 +18,7 @@ https://mikroelectron.com/Product/25GA-370-12V-400RPM-DC-Reducer-Gear-Motor-with
 |              |       |         | M2 Red  - positive power supply (+)                     | B1        |
 |              |       | 3       | M2 Yellow  - M2                                         |           |
 |              |       | 5       | M2 Green  - M2                                          |           |
-|              |       | 14      |                                                         | PWMB      |
+|              |       | 9       |                                                         | PWMB      |
 |              |       | 15      |                                                         | BI1       |
 |              |       | 16      |                                                         | BI2       |
 
