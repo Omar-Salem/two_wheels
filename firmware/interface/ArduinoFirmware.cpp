@@ -21,22 +21,27 @@ void ArduinoFirmware::disconnect() {
 }
 
 void ArduinoFirmware::ping() {
+    string result;
     for (int i = 0; i < MAX_PING_RETRY; ++i) {
         writeQueryCommand(PING);
         const auto value = readOutput();
+        result += value + ";";
         if (value == "PONG") {
             return;
         }
         std::this_thread::sleep_for(500ms);
     }
-    throw runtime_error("************************ SerialConnectionError");
+    throw runtime_error("************************ SerialConnectionError:" + result);
 }
 
 MotorsOdom ArduinoFirmware::getMotorsOdom() {
     writeQueryCommand(GET_MOTORS_ODOM);
     const auto value = readOutput();
     //v1,p1,v2,p2
-    vector<string> values = split(value);
+    const vector<string> values = split(value);
+    if (values.size() != 4) {
+        throw runtime_error("************************ Error reading motor odom");
+    }
     return MotorsOdom(stod(values.at(0)),
                       stod(values.at(1)),
                       stod(values.at(2)),
