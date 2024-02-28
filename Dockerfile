@@ -41,7 +41,6 @@ RUN arduino-cli board list
 RUN arduino-cli core install arduino:avr
 RUN arduino-cli core install arduino:samd
 RUN arduino-cli config init
-RUN arduino-cli config init
 RUN arduino-cli core update-index
 #Install sketch dependencies
 RUN arduino-cli lib install StringSplitter
