@@ -13,9 +13,10 @@ else
   git clone https://github.com/Omar-Salem/two_wheels.git
   cd two_wheels
 fi
-docker rmi --force $(docker images -q 'humble' | uniq)
-docker build -t humble .
-docker run --device=/dev/ttyUSB0 -it -v ~/Volumes:/home/usr/ humble
+sudo docker rm -f $(sudo docker ps -a -q)
+sudo docker rm -f $(sudo docker images -a -q)
+sudo docker build -t humble .
+sudo docker run --device=/dev/ttyUSB0 -it -v ~/Volumes:/home/usr/ humble
 cd /home/usr/ros2_ws && rm -rf build/ install/ log/ && colcon build --packages-select two_wheels && source install/setup.bash && ros2 launch two_wheels two_wheels.launch.py
 ```
 
