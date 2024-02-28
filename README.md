@@ -7,12 +7,12 @@ ssh omar.salem@192.168.1.35
 mkdir -p ~/Volumes/ros2_ws/src
 cd $_
 if test -d two_wheels; then
+  cd two_wheels
   git pull
 else
   git clone https://github.com/Omar-Salem/two_wheels.git
+  cd two_wheels
 fi
-
-cd two_wheels
 docker rmi --force $(docker images -q 'humble' | uniq)
 docker build -t humble .
 docker run --device=/dev/ttyUSB0 -it -v ~/Volumes:/home/usr/ humble
