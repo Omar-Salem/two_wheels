@@ -24,7 +24,8 @@ RUN apt-get install -y ros-${ROS_DISTRO}-launch-xml
 RUN apt-get install -y ros-${ROS_DISTRO}-rmw-cyclonedds-cpp
 RUN apt-get install -y ros-${ROS_DISTRO}-tf2-ros
 RUN apt-get install -y ros-${ROS_DISTRO}-tf2-tools
-RUN apt-get install -y ros-${ROS_DISTRO}-rviz2
+RUN #apt-get install -y ros-${ROS_DISTRO}-rviz2
+RUN apt-get install -y ros-${ROS_DISTRO}-teleop-twist-keyboard
 RUN apt-get install -y ros-dev-tools
 RUN apt install -y python3-colcon-common-extensions
 RUN apt install -y vim
