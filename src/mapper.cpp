@@ -11,11 +11,13 @@
 #include <array>
 #include <filesystem>
 
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/range.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/point.hpp"
+#include "nav2_msgs/action/navigate_to_pose.hpp"
 #include "nav_msgs/msg/occupancy_grid.hpp"
 #include "map_msgs/msg/occupancy_grid_update.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
@@ -32,6 +34,7 @@ using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Point;
 using nav_msgs::msg::OccupancyGrid;
+using nav2_msgs::action::NavigateToPose;
 using map_msgs::msg::OccupancyGridUpdate;
 using visualization_msgs::msg::MarkerArray;
 using visualization_msgs::msg::Marker;
@@ -48,8 +51,11 @@ using std::chrono::milliseconds;
 using namespace std::chrono_literals;
 using namespace std;
 using namespace rclcpp;
+using namespace rclcpp_action;
 using std::chrono::steady_clock;
 
+using NavigateToPose = nav2_msgs::action::NavigateToPose;
+using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
 
 class Mapper : public Node {
 public:
@@ -64,16 +70,17 @@ public:
 
         poseSubscription_ = this->create_subscription<PoseWithCovarianceStamped>(
                 "/pose", 10, bind(&Mapper::poseTopicCallback, this, _1));
-        /*
-         * TODO
-         * rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr cancel_navto_client = rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(node,"/navigate_to_pose");
-         * */
-        goalPublisher_ = this->create_publisher<PoseStamped>("/goal_pose", 10);
+
         marker_array_publisher_ = this->create_publisher<MarkerArray>("/frontiers", 10);
 
         controlLoopTimer_ = this->create_wall_timer(
                 CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
+        this->poseNavigator_ = rclcpp_action::create_client<NavigateToPose>(
+                this,
+                "/navigate_to_pose");
         sleep(10);//Wait till bt_navigator is active //TODO
+
+        poseNavigator_->wait_for_action_server();
     }
 
 private:
@@ -87,8 +94,7 @@ private:
         Point middle;
         vector<Point> points;
     };
-    bool reachedGoal = false;
-    bool isDone = false;
+    rclcpp_action::Client<NavigateToPose>::SharedPtr poseNavigator_;
     TimerBase::SharedPtr controlLoopTimer_;
     static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
 
@@ -98,8 +104,6 @@ private:
 
     Subscription<PoseWithCovarianceStamped>::SharedPtr poseSubscription_;
     PoseWithCovarianceStamped::UniquePtr pose_;
-    Publisher<PoseStamped>::SharedPtr goalPublisher_;
-    PoseStamped goal;
 
 
     unsigned char *map_;
@@ -136,7 +140,7 @@ private:
         double origin_x = msg->info.origin.position.x;
         double origin_y = msg->info.origin.position.y;
 
-        RCLCPP_INFO(this->get_logger(), "received full new map, resizing to: %d, %d", size_in_cells_x,
+        RCLCPP_INFO(get_logger(), "received full new map, resizing to: %d, %d", size_in_cells_x,
                     size_in_cells_y);
         costmap_.resizeMap(size_in_cells_x,
                            size_in_cells_y,
@@ -151,7 +155,7 @@ private:
         // fill map with data
         unsigned char *costmap_data = costmap_.getCharMap();
         size_t costmap_size = costmap_.getSizeInCellsX() * costmap_.getSizeInCellsY();
-        RCLCPP_INFO(this->get_logger(), "full map update, %lu values", costmap_size);
+        RCLCPP_INFO(get_logger(), "full map update, %lu values", costmap_size);
         for (size_t i = 0; i < costmap_size && i < msg->data.size(); ++i) {
             unsigned char cell_cost = static_cast<unsigned char>(msg->data[i]);
             costmap_data[i] = cost_translation_table_[cell_cost];
@@ -159,9 +163,9 @@ private:
     }
 
     void updatePartialMap(OccupancyGridUpdate::UniquePtr msg) {
-        RCLCPP_DEBUG(this->get_logger(), "received partial map update");
+        RCLCPP_DEBUG(get_logger(), "received partial map update");
         if (msg->x < 0 || msg->y < 0) {
-            RCLCPP_ERROR(this->get_logger(), "negative coordinates, invalid update. x: %d, y: %d", msg->x,
+            RCLCPP_ERROR(get_logger(), "negative coordinates, invalid update. x: %d, y: %d", msg->x,
                          msg->y);
             return;
         }
@@ -180,9 +184,9 @@ private:
 
         if (xn > costmap_xn || x0 > costmap_xn || yn > costmap_yn ||
             y0 > costmap_yn) {
-            RCLCPP_WARN(this->get_logger(), "received update doesn't fully fit into existing map, "
-                                            "only part will be copied. received: [%lu, %lu], [%lu, %lu] "
-                                            "map is: [0, %lu], [0, %lu]",
+            RCLCPP_WARN(get_logger(), "received update doesn't fully fit into existing map, "
+                                      "only part will be copied. received: [%lu, %lu], [%lu, %lu] "
+                                      "map is: [0, %lu], [0, %lu]",
                         x0, xn, y0, yn, costmap_xn, costmap_yn);
         }
 
@@ -208,7 +212,7 @@ private:
 //                                        currentPosition.x,
 //                                        currentPosition.y) <= 2;
 //        if (reachedGoal) {//TODO use nav2
-//            RCLCPP_INFO(this->get_logger(), "********************* GOAL REACHED *******************");
+//            RCLCPP_INFO(get_logger(), "********************* GOAL REACHED *******************");
 //        }
     }
 
@@ -243,7 +247,7 @@ private:
         green.b = 0;
         green.a = 1.0;
 
-        RCLCPP_DEBUG(this->get_logger(), "visualising %lu frontiers", frontiers.size());
+        RCLCPP_DEBUG(get_logger(), "visualising %lu frontiers", frontiers.size());
         MarkerArray markers_msg;
         vector<Marker> &markers = markers_msg.markers;
         Marker m;
@@ -308,69 +312,82 @@ private:
         marker_array_publisher_->publish(markers_msg);
     }
 
+    void stop() {
+        RCLCPP_INFO(get_logger(), "Stopped...");
+        controlLoopTimer_->cancel();
+        poseNavigator_->async_cancel_all_goals();
+    }
+
     void controlLoop() {
         if (pose_ == nullptr) { return; }
         auto frontiers = searchFrom(pose_->pose.pose.position);
+        if (frontiers.empty()) {
+            stop();
+            return;
+        }
         visualizeFrontiers(frontiers);
-//        if (map.empty() || !reachedGoal || isDone) {
-//            return;
-//        }
-//        auto frontierResult = findFrontier();
-//        isDone = !frontierResult.first;
-//        if (isDone) {
-//            RCLCPP_INFO(this->get_logger(),
-//                        "********************* No Frontier FOUND!!**********************************");
-//            //TODO save and
-//            saveMap("map");
-//            return;
-//        }
-//        RCLCPP_INFO(this->get_logger(), "********************* MAP SIZE******************* : %zu", map.size());
-//        RCLCPP_INFO(this->get_logger(), "********************* MAP WIDTH ******************* : %u", width);
-//
-//        const auto coords = frontierResult.second;
-//        const auto x = coords.first;
-//        const auto y = coords.second;
-//        RCLCPP_INFO(this->get_logger(), "********************* Navigating to : %d,%d", x, y);
-//        goal.pose.position.x = x;
-//        goal.pose.position.y = y;
-//        goal.pose.orientation.z = .38;
-//        goal.pose.orientation.w = .92;
-//        goal.header.frame_id = "map";
-//        reachedGoal = false;
-//        goalPublisher_->publish(goal);
+        // find non blacklisted frontier
+        auto frontier =
+                std::find_if_not(frontiers.begin(), frontiers.end(),
+                                 [this](const Frontier &f) {
+                                     return goalOnBlacklist(f.centroid);
+                                 });
+        if (frontier == frontiers.end()) {
+            stop();
+            return;
+        }
+        Point target_position = frontier->centroid;
+        auto goal = NavigateToPose::Goal();
+        goal.pose.pose.position = target_position;
+        goal.pose.pose.orientation.w = 1.;
+        goal.pose.header.frame_id = costmap_.
+
+        RCLCPP_INFO(get_logger(), "Sending goal");
+
+        auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
+        send_goal_options.goal_response_callback = [this](const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
+            if (!goal_handle) {
+                RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
+            } else {
+                RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
+            }
+        };
+
+        send_goal_options.feedback_callback = [this](
+                GoalHandleNavigateToPose::SharedPtr,
+                const std::shared_ptr<const NavigateToPose::Feedback> feedback) {
+            std::stringstream ss;
+            ss << "Distance remaining: " << feedback->distance_remaining;
+            RCLCPP_INFO(get_logger(), ss.str().c_str());
+        };
+
+        send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
+            switch (result.code) {
+                case rclcpp_action::ResultCode::SUCCEEDED:
+                    break;
+                case rclcpp_action::ResultCode::ABORTED:
+                    RCLCPP_ERROR(get_logger(), "Goal was aborted");
+                    return;
+                case rclcpp_action::ResultCode::CANCELED:
+                    RCLCPP_ERROR(get_logger(), "Goal was canceled");
+                    return;
+                default:
+                    RCLCPP_ERROR(get_logger(), "Unknown result code");
+                    return;
+            }
+            RCLCPP_INFO(get_logger(), "Goal reached");
+            rclcpp::shutdown();
+        };
+        this->poseNavigator_->async_send_goal(goal, send_goal_options);
+
     }
 
     void saveMap(const string &mapName) {
-        auto packageName = "two_wheels";//TODO get package name
-        auto executionPath = filesystem::current_path().string();///home/${user}/ros2_ws
-        auto mapsDir = executionPath + "/install/" + packageName + "/share/" + packageName + "/maps";
-        RCLCPP_INFO(this->get_logger(), "********************* mapsDir %s *******************",
-                    mapsDir.c_str());
-        //TODO better to call
-        /*
-         *   auto map_saver = make_shared<nav2_map_server::MapSaver>();
-    map_saver->on_configure(rclcpp_lifecycle::State());
-    if (map_saver->saveMapTopicToFile(map_topic, save_parameters)) {
-      retcode = 0;
-    } else {
-      retcode = 1;
-    }
-         * */
-        auto command = "ros2 run nav2_map_server map_saver_cli -f " + mapsDir + "/" + mapName;
-        auto returnCode = system(command.c_str());
-//        auto returnCode = 0;
-        if (returnCode != 0) {
-            //TODO throw exception?
-//            RCLCPP_ERROR(logger, "Unexpected problem appear: %s", e.what());
-        }
-    }
-
-    static double calculateDistance(double x1, double y1, double x2, double y2) {
-        return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
+        costmap_.saveMap(mapName);
     }
 
     vector<unsigned int> nhood4(unsigned int idx,
-                                     const Costmap2D &costmap) {
+                                const Costmap2D &costmap) {
         // get 4-connected neighbourhood indexes, check for edge of map
         vector<unsigned int> out;
 
@@ -378,7 +395,7 @@ private:
                 size_y_ = costmap.getSizeInCellsY();
 
         if (idx > size_x_ * size_y_ - 1) {
-            RCLCPP_WARN(this->get_logger(), "Evaluating nhood for offmap point");
+            RCLCPP_WARN(get_logger(), "Evaluating nhood for offmap point");
             return out;
         }
 
@@ -501,7 +518,7 @@ private:
         // Sanity check that robot is inside costmap bounds before searching
         unsigned int mx, my;
         if (!costmap_.worldToMap(position.x, position.y, mx, my)) {
-            RCLCPP_ERROR(this->get_logger(), "Robot out of costmap bounds, cannot search for frontiers");
+            RCLCPP_ERROR(get_logger(), "Robot out of costmap bounds, cannot search for frontiers");
             return frontier_list;
         }
 
@@ -514,9 +531,9 @@ private:
 
         // initialize flag arrays to keep track of visited and frontier cells
         vector<bool> frontier_flag(size_x_ * size_y_,
-                                        false);
+                                   false);
         vector<bool> visited_flag(size_x_ * size_y_,
-                                       false);
+                                  false);
 
         // initialize breadth first search
         queue<unsigned int> bfs;
@@ -527,7 +544,7 @@ private:
             bfs.push(clear);
         } else {
             bfs.push(pos);
-            RCLCPP_WARN(this->get_logger(), "Could not find nearby clear cell to start search");
+            RCLCPP_WARN(get_logger(), "Could not find nearby clear cell to start search");
         }
         visited_flag[bfs.front()] = true;
 
@@ -608,7 +625,7 @@ private:
     }
 
     vector<unsigned int> nhood8(unsigned int idx,
-                                     const Costmap2D &costmap) {
+                                const Costmap2D &costmap) {
         // get 8-connected neighbourhood indexes, check for edge of map
         vector<unsigned int> out = nhood4(idx, costmap);
 

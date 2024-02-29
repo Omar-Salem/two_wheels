@@ -32,6 +32,7 @@ arduino-cli upload -p ${PORT} -b ${ARDUINO} ${SKETCH}
 ### Build and run simulation
 
 ```
+cd ros2_ws/
 rm -rf build/ install/ log/
 colcon build --packages-select two_wheels
 source install/setup.bash
@@ -41,6 +42,7 @@ ros2 launch two_wheels sim_two_wheels.launch.py
 ### Build and run
 
 ```
+cd ros2_ws/
 rm -rf build/ install/ log/
 colcon build --packages-select two_wheels
 source install/setup.bash
