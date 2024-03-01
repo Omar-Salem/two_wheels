@@ -73,8 +73,8 @@ public:
 
         marker_array_publisher_ = this->create_publisher<MarkerArray>("/frontiers", 10);
 
-        controlLoopTimer_ = this->create_wall_timer(
-                CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
+//        controlLoopTimer_ = this->create_wall_timer(
+//                CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
         this->poseNavigator_ = rclcpp_action::create_client<NavigateToPose>(
                 this,
                 "/navigate_to_pose");
@@ -95,8 +95,8 @@ private:
         vector<Point> points;
     };
     rclcpp_action::Client<NavigateToPose>::SharedPtr poseNavigator_;
-    TimerBase::SharedPtr controlLoopTimer_;
-    static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
+//    TimerBase::SharedPtr controlLoopTimer_;
+//    static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
 
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     Subscription<OccupancyGridUpdate>::SharedPtr mapUpdatesSubscription_;
@@ -112,6 +112,7 @@ private:
     double min_frontier_size_ = 0.5;
     size_t last_markers_count_ = 0;
     vector<Point> frontier_blacklist_;
+    Point currentPosition;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
@@ -204,16 +205,11 @@ private:
     }
 
     void poseTopicCallback(PoseWithCovarianceStamped::UniquePtr pose) {
-        pose_ = move(pose);
-//        const auto goalPosition = goal.pose.position;
-//        const auto currentPosition = pose->pose.pose.position;
-//        reachedGoal = calculateDistance(goalPosition.x,
-//                                        goalPosition.y,
-//                                        currentPosition.x,
-//                                        currentPosition.y) <= 2;
-//        if (reachedGoal) {//TODO use nav2
-//            RCLCPP_INFO(get_logger(), "********************* GOAL REACHED *******************");
-//        }
+        if (pose_ == nullptr) {
+            pose_ = move(pose);
+            currentPosition = pose_->pose.pose.position;
+            explore();
+        }
     }
 
     bool goalOnBlacklist(const Point &goal) {
@@ -247,7 +243,6 @@ private:
         green.b = 0;
         green.a = 1.0;
 
-        RCLCPP_DEBUG(get_logger(), "visualising %lu frontiers", frontiers.size());
         MarkerArray markers_msg;
         vector<Marker> &markers = markers_msg.markers;
         Marker m;
@@ -272,6 +267,7 @@ private:
         m.action = Marker::ADD;
         size_t id = 0;
         for (auto &frontier: frontiers) {
+            RCLCPP_INFO(get_logger(), "visualising %f,%f ", frontier.centroid.x, frontier.centroid.y);
             m.type = Marker::POINTS;
             m.id = int(id);
 //            m.pose.position = {};
@@ -314,13 +310,12 @@ private:
 
     void stop() {
         RCLCPP_INFO(get_logger(), "Stopped...");
-        controlLoopTimer_->cancel();
+//        controlLoopTimer_->cancel();
         poseNavigator_->async_cancel_all_goals();
     }
 
-    void controlLoop() {
-        if (pose_ == nullptr) { return; }
-        auto frontiers = searchFrom(pose_->pose.pose.position);
+    void explore() {
+        auto frontiers = searchFrom(currentPosition);
         if (frontiers.empty()) {
             stop();
             return;
@@ -337,12 +332,13 @@ private:
             return;
         }
         Point target_position = frontier->centroid;
+        frontier_blacklist_.push_back(target_position);
         auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = target_position;
         goal.pose.pose.orientation.w = 1.;
-        goal.pose.header.frame_id = costmap_.
+//        goal.pose.header.frame_id = costmap_. //TODO
 
-        RCLCPP_INFO(get_logger(), "Sending goal");
+        RCLCPP_INFO(get_logger(), "Sending goal %f,%f", target_position.x, target_position.y);
 
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback = [this](const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
@@ -356,9 +352,8 @@ private:
         send_goal_options.feedback_callback = [this](
                 GoalHandleNavigateToPose::SharedPtr,
                 const std::shared_ptr<const NavigateToPose::Feedback> feedback) {
-            std::stringstream ss;
-            ss << "Distance remaining: " << feedback->distance_remaining;
-            RCLCPP_INFO(get_logger(), ss.str().c_str());
+            currentPosition = feedback->current_pose.pose.position;
+            RCLCPP_INFO(get_logger(), "Distance remaining: %f", feedback->distance_remaining);
         };
 
         send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
@@ -377,6 +372,7 @@ private:
             }
             RCLCPP_INFO(get_logger(), "Goal reached");
             rclcpp::shutdown();
+            explore();
         };
         this->poseNavigator_->async_send_goal(goal, send_goal_options);
 
