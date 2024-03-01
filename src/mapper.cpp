@@ -208,6 +208,7 @@ private:
         if (pose_ == nullptr) {
             pose_ = move(pose);
             currentPosition = pose_->pose.pose.position;
+            RCLCPP_INFO(get_logger(), "********************* START EXPLORING *********************");
             explore();
         }
     }
