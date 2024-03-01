@@ -115,7 +115,7 @@ private:
     size_t last_markers_count_ = 0;
     vector<Point> frontier_blacklist_;
     Point currentPosition;
-    std::string global_frame_;      ///< @brief The global frame for the costmap
+    const std::string global_frame_ = "map";      ///< @brief The global frame for the costmap
     const std::string robot_base_frame_ = "base_link";  ///< @brief The frame_id of the robot base
 //    const tf::TransformListener *const tf_;//TODO
 
@@ -140,7 +140,6 @@ private:
     array<unsigned char, 256> cost_translation_table_ = init_translation_table();
 
     void updateFullMap(OccupancyGrid::UniquePtr msg) {
-        global_frame_ = msg->header.frame_id;
         unsigned int size_in_cells_x = msg->info.width;
         unsigned int size_in_cells_y = msg->info.height;
         double resolution = msg->info.resolution;
@@ -170,7 +169,6 @@ private:
     }
 
     void updatePartialMap(OccupancyGridUpdate::UniquePtr msg) {
-        global_frame_ = msg->header.frame_id;
         RCLCPP_DEBUG(get_logger(), "received partial map update");
         if (msg->x < 0 || msg->y < 0) {
             RCLCPP_ERROR(get_logger(), "negative coordinates, invalid update. x: %d, y: %d", msg->x,
@@ -343,9 +341,12 @@ private:
         Point target_position = frontier->centroid;
         frontier_blacklist_.push_back(target_position);
         auto goal = NavigateToPose::Goal();
-        goal.pose.pose.position = target_position;
-        goal.pose.pose.orientation.w = 1.;
-        goal.pose.header.frame_id = global_frame_; //TODO
+        Point target;
+        target.x = -5.62079;
+        target.y = -4.40925;
+        goal.pose.pose.position = target;
+//        goal.pose.pose.orientation.w = 1.;
+        goal.pose.header.frame_id = global_frame_;
 
         RCLCPP_INFO(get_logger(), "Sending goal %f,%f", target_position.x, target_position.y);
 
