@@ -318,6 +318,7 @@ private:
     void explore() {
         auto frontiers = searchFrom(currentPosition);
         if (frontiers.empty()) {
+            RCLCPP_INFO(get_logger(), "Empty frontiers...");
             stop();
             return;
         }
