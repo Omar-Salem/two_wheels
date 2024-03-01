@@ -350,8 +350,8 @@ private:
         };
 
         send_goal_options.feedback_callback = [this](
-                GoalHandleNavigateToPose::SharedPtr,
-                const std::shared_ptr<const NavigateToPose::Feedback> feedback) {
+                const GoalHandleNavigateToPose::SharedPtr &,
+                const std::shared_ptr<const NavigateToPose::Feedback> &feedback) {
             currentPosition = feedback->current_pose.pose.position;
             RCLCPP_INFO(get_logger(), "Distance remaining: %f", feedback->distance_remaining);
         };
