@@ -117,7 +117,7 @@ private:
     Point currentPosition;
     std::string global_frame_;      ///< @brief The global frame for the costmap
     const std::string robot_base_frame_ = "base_link";  ///< @brief The frame_id of the robot base
-    const tf::TransformListener *const tf_;
+//    const tf::TransformListener *const tf_;//TODO
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
