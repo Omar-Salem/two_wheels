@@ -18,6 +18,7 @@ set(deps
         geometry_msgs
         nav_msgs
         nav2_msgs
+        tf2
         rclcpp_action
         nav2_costmap_2d
         visualization_msgs

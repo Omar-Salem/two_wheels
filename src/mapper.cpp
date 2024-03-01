@@ -28,6 +28,8 @@
 #include "angles/angles.h"
 #include "std_msgs/std_msgs/msg/color_rgba.hpp"
 
+//#include <tf2/tf2/impl/
+
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
@@ -113,6 +115,9 @@ private:
     size_t last_markers_count_ = 0;
     vector<Point> frontier_blacklist_;
     Point currentPosition;
+    std::string global_frame_;      ///< @brief The global frame for the costmap
+    const std::string robot_base_frame_ = "base_link";  ///< @brief The frame_id of the robot base
+    const tf::TransformListener *const tf_;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table;
@@ -135,6 +140,7 @@ private:
     array<unsigned char, 256> cost_translation_table_ = init_translation_table();
 
     void updateFullMap(OccupancyGrid::UniquePtr msg) {
+        global_frame_ = msg->header.frame_id;
         unsigned int size_in_cells_x = msg->info.width;
         unsigned int size_in_cells_y = msg->info.height;
         double resolution = msg->info.resolution;
@@ -164,6 +170,7 @@ private:
     }
 
     void updatePartialMap(OccupancyGridUpdate::UniquePtr msg) {
+        global_frame_ = msg->header.frame_id;
         RCLCPP_DEBUG(get_logger(), "received partial map update");
         if (msg->x < 0 || msg->y < 0) {
             RCLCPP_ERROR(get_logger(), "negative coordinates, invalid update. x: %d, y: %d", msg->x,
@@ -338,7 +345,7 @@ private:
         auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = target_position;
         goal.pose.pose.orientation.w = 1.;
-//        goal.pose.header.frame_id = costmap_. //TODO
+        goal.pose.header.frame_id = global_frame_; //TODO
 
         RCLCPP_INFO(get_logger(), "Sending goal %f,%f", target_position.x, target_position.y);
 
