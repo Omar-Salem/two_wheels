@@ -545,9 +545,10 @@ private:
         queue<unsigned int> bfs;
 
         // find closest clear cell to start search
-        unsigned int clear, pos = costmap_.getIndex(mx, my);
-        if (nearestFreeCell(clear, pos, costmap_)) {
-            bfs.push(clear);
+        unsigned int pos = costmap_.getIndex(mx, my);
+        int nearestCell = findNearestFreeCell(pos, costmap_);
+        if (nearestCell != -1) {
+            bfs.push(nearestCell);
         } else {
             bfs.push(pos);
             RCLCPP_WARN(get_logger(), "Could not find nearby clear cell to start search");
@@ -589,13 +590,13 @@ private:
         return frontier_list;
     }
 
-    bool nearestFreeCell(unsigned int &result, unsigned int startIdx, const Costmap2D &costmap) {
+    int findNearestFreeCell(unsigned int startIdx, const Costmap2D &costmap) {
         const unsigned char *map = costmap.getCharMap();
         const unsigned int size_x = costmap.getSizeInCellsX(),
                 size_y = costmap.getSizeInCellsY();
 
         if (startIdx >= size_x * size_y) {
-            return false;
+            return -1;
         }
 
         // initialize breadth first search
@@ -613,8 +614,7 @@ private:
 
             // return if cell of correct value is found
             if (map[idx] == FREE_SPACE) {
-                result = idx;
-                return true;
+                return idx;
             }
 
             // iterate over all adjacent unvisited cells
@@ -626,7 +626,7 @@ private:
             }
         }
 
-        return false;
+        return -1;
     }
 
     vector<unsigned int> nhood8(unsigned int idx,
