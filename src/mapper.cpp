@@ -546,7 +546,7 @@ private:
 
         // find closest clear cell to start search
         unsigned int clear, pos = costmap_.getIndex(mx, my);
-        if (nearestCell(clear, pos, FREE_SPACE, costmap_)) {
+        if (nearestFreeCell(clear, pos, costmap_)) {
             bfs.push(clear);
         } else {
             bfs.push(pos);
@@ -589,13 +589,12 @@ private:
         return frontier_list;
     }
 
-    bool nearestCell(unsigned int &result, unsigned int start, unsigned char val,
-                     const Costmap2D &costmap) {
+    bool nearestFreeCell(unsigned int &result, unsigned int startIdx, const Costmap2D &costmap) {
         const unsigned char *map = costmap.getCharMap();
         const unsigned int size_x = costmap.getSizeInCellsX(),
                 size_y = costmap.getSizeInCellsY();
 
-        if (start >= size_x * size_y) {
+        if (startIdx >= size_x * size_y) {
             return false;
         }
 
@@ -604,8 +603,8 @@ private:
         vector<bool> visited_flag(size_x * size_y, false);
 
         // push initial cell
-        bfs.push(start);
-        visited_flag[start] = true;
+        bfs.push(startIdx);
+        visited_flag[startIdx] = true;
 
         // search for neighbouring cell matching value
         while (!bfs.empty()) {
@@ -613,7 +612,7 @@ private:
             bfs.pop();
 
             // return if cell of correct value is found
-            if (map[idx] == val) {
+            if (map[idx] == FREE_SPACE) {
                 result = idx;
                 return true;
             }
