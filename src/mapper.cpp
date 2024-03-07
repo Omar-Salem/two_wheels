@@ -327,7 +327,6 @@ private:
             stop();
             return;
         }
-        visualizeFrontiers(frontiers);
         // find non blacklisted frontier
         auto frontier =
                 std::find_if_not(frontiers.begin(), frontiers.end(),
@@ -338,13 +337,15 @@ private:
             stop();
             return;
         }
+        std::vector<Frontier> others;
+        others.push_back(*frontier);
+        visualizeFrontiers(others);
         Point target_position = frontier->centroid;
         frontier_blacklist_.push_back(target_position);
         auto goal = NavigateToPose::Goal();
-        Point target;
-        target.x = -5.62079;
-        target.y = -4.40925;
-        goal.pose.pose.position = target;
+        target_position.x = -5.62079;
+        target_position.y = -4.40925;
+        goal.pose.pose.position = target_position;
 //        goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = global_frame_;
 
