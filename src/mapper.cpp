@@ -544,15 +544,8 @@ private:
         // initialize breadth first search
         queue<unsigned int> bfs;
 
-        // find closest clear cell to start search
         unsigned int pos = costmap_.getIndex(mx, my);
-        int nearestCell = findNearestFreeCell(pos, costmap_);
-        if (nearestCell != -1) {
-            bfs.push(nearestCell);
-        } else {
-            bfs.push(pos);
-            RCLCPP_WARN(get_logger(), "Could not find nearby clear cell to start search");
-        }
+        bfs.push(pos);
         visited_flag[bfs.front()] = true;
 
         while (!bfs.empty()) {
@@ -563,14 +556,14 @@ private:
             for (unsigned nbr: nhood4(idx, costmap_)) {
                 // add to queue all free, unvisited cells, use descending search in case
                 // initialized on non-free cell
-                if (map_[nbr] <= map_[idx] && !visited_flag[nbr]) {
+                if (map_[nbr] == FREE_SPACE && !visited_flag[nbr]) {
                     visited_flag[nbr] = true;
                     bfs.push(nbr);
                     // check if cell is new frontier cell (unvisited, NO_INFORMATION, free
                     // neighbour)
-                } else if (isNewFrontierCell(nbr, frontier_flag)) {
-                    frontier_flag[nbr] = true;
-                    Frontier new_frontier = buildNewFrontier(nbr, pos, frontier_flag);
+                } else if (map_[nbr] == NO_INFORMATION) {
+                    frontier_flag[idx] = true;
+                    Frontier new_frontier = buildNewFrontier(idx, pos, frontier_flag);
                     if (new_frontier.size * costmap_.getResolution() >=
                         min_frontier_size_) {
                         frontier_list.push_back(new_frontier);
@@ -588,45 +581,6 @@ private:
                 [](const Frontier &f1, const Frontier &f2) { return f1.cost < f2.cost; });
 
         return frontier_list;
-    }
-
-    int findNearestFreeCell(unsigned int startIdx, const Costmap2D &costmap) {
-        const unsigned char *map = costmap.getCharMap();
-        const unsigned int size_x = costmap.getSizeInCellsX(),
-                size_y = costmap.getSizeInCellsY();
-
-        if (startIdx >= size_x * size_y) {
-            return -1;
-        }
-
-        // initialize breadth first search
-        queue<unsigned int> bfs;
-        vector<bool> visited_flag(size_x * size_y, false);
-
-        // push initial cell
-        bfs.push(startIdx);
-        visited_flag[startIdx] = true;
-
-        // search for neighbouring cell matching value
-        while (!bfs.empty()) {
-            unsigned int idx = bfs.front();
-            bfs.pop();
-
-            // return if cell of correct value is found
-            if (map[idx] == FREE_SPACE) {
-                return idx;
-            }
-
-            // iterate over all adjacent unvisited cells
-            for (unsigned nbr: nhood8(idx, costmap)) {
-                if (!visited_flag[nbr]) {
-                    bfs.push(nbr);
-                    visited_flag[nbr] = true;
-                }
-            }
-        }
-
-        return -1;
     }
 
     vector<unsigned int> nhood8(unsigned int idx,
