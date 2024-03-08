@@ -139,12 +139,13 @@ private:
 
     array<unsigned char, 256> cost_translation_table_ = init_translation_table();
 
-    void updateFullMap(OccupancyGrid::UniquePtr msg) {
-        unsigned int size_in_cells_x = msg->info.width;
-        unsigned int size_in_cells_y = msg->info.height;
-        double resolution = msg->info.resolution;
-        double origin_x = msg->info.origin.position.x;
-        double origin_y = msg->info.origin.position.y;
+    void updateFullMap(OccupancyGrid::UniquePtr occupancyGrid) {
+        const auto occupancyGridInfo = occupancyGrid->info;
+        unsigned int size_in_cells_x = occupancyGridInfo.width;
+        unsigned int size_in_cells_y = occupancyGridInfo.height;
+        double resolution = occupancyGridInfo.resolution;
+        double origin_x = occupancyGridInfo.origin.position.x;
+        double origin_y = occupancyGridInfo.origin.position.y;
 
         RCLCPP_INFO(get_logger(), "received full new map, resizing to: %d, %d", size_in_cells_x,
                     size_in_cells_y);
@@ -162,8 +163,8 @@ private:
         unsigned char *costmap_data = costmap_.getCharMap();
         size_t costmap_size = costmap_.getSizeInCellsX() * costmap_.getSizeInCellsY();
         RCLCPP_INFO(get_logger(), "full map update, %lu values", costmap_size);
-        for (size_t i = 0; i < costmap_size && i < msg->data.size(); ++i) {
-            unsigned char cell_cost = static_cast<unsigned char>(msg->data[i]);
+        for (size_t i = 0; i < costmap_size && i < occupancyGrid->data.size(); ++i) {
+            unsigned char cell_cost = static_cast<unsigned char>(occupancyGrid->data[i]);
             costmap_data[i] = cost_translation_table_[cell_cost];
         }
     }
