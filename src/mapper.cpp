@@ -120,7 +120,7 @@ private:
 //    const tf::TransformListener *const tf_;//TODO
 
     array<unsigned char, 256> init_translation_table() {
-        array<unsigned char, 256> cost_translation_table;
+        array<unsigned char, 256> cost_translation_table{};
 
         // lineary mapped from [0..100] to [0..255]
         for (size_t i = 0; i < 256; ++i) {
@@ -164,7 +164,7 @@ private:
         size_t costmap_size = costmap_.getSizeInCellsX() * costmap_.getSizeInCellsY();
         RCLCPP_INFO(get_logger(), "full map update, %lu values", costmap_size);
         for (size_t i = 0; i < costmap_size && i < occupancyGrid->data.size(); ++i) {
-            unsigned char cell_cost = static_cast<unsigned char>(occupancyGrid->data[i]);
+            auto cell_cost = static_cast<unsigned char>(occupancyGrid->data[i]);
             costmap_data[i] = cost_translation_table_[cell_cost];
         }
     }
