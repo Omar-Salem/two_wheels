@@ -186,18 +186,24 @@ private:
         RCLCPP_INFO(get_logger(), "Stopped...");
 //        controlLoopTimer_->cancel();
         poseNavigator_->async_cancel_all_goals();
+//        saveMap("apt");
     }
 
     void explore() {
         auto target_position = findBoundary();
+        if (target_position.x == -99999) {
+            RCLCPP_WARN(get_logger(), "NO BOUNDARIES FOUND!!");
+            stop();
+            return;
+        }
         auto goal = NavigateToPose::Goal();
-        target_position.x = -8;
-        target_position.y = 1;
+//        target_position.x = -8;
+//        target_position.y = 1;
         goal.pose.pose.position = target_position;
 //        goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
-        RCLCPP_INFO(get_logger(), "Sending goal %f,%f", target_position.x, target_position.y);
+        RCLCPP_INFO(get_logger(), "Sending goal %f,%f", goal.pose.pose.position.x, goal.pose.pose.position.y);
 
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback = [this](const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
@@ -230,7 +236,7 @@ private:
             }
             RCLCPP_INFO(get_logger(), "Goal reached");
             rclcpp::shutdown();
-//            explore();
+            explore();
         };
         this->poseNavigator_->async_send_goal(goal, send_goal_options);
 
@@ -241,49 +247,52 @@ private:
     }
 
     Point findBoundary() {
-        Point p;
+        Point boundary;
         unsigned char *costmap_data = costmap_.getCharMap();
         const auto width = costmap_.getSizeInCellsX();
         const auto height = costmap_.getSizeInCellsY();
 
         for (unsigned int x = 0; x < width; ++x) {
-//            string row = "";
             for (unsigned int y = 0; y < height; ++y) {
                 unsigned int pos = costmap_.getIndex(x, y);
                 const auto cost = costmap_data[pos];
-                if (cost == FREE_SPACE) {
-                    if ((x + 1 < width &&
-                         costmap_data[costmap_.getIndex(x + 1, y)] == NO_INFORMATION) ||
+                if (cost != FREE_SPACE) { continue; }
+                if (checkNeighbors(costmap_data, width, height, x, y)) {
+                    double ix, iy;
+                    costmap_.mapToWorld(x, y, ix, iy);
 
-                        (x > 0 && costmap_data[costmap_.getIndex(x - 1, y)] == NO_INFORMATION) ||
-
-                        (y + 1 < height &&
-                         costmap_data[costmap_.getIndex(x, y + 1)] == NO_INFORMATION) ||
-
-                        (y > 0 &&
-                         costmap_data[costmap_.getIndex(x, y - 1)] == NO_INFORMATION) ||
-                        (x > 0 && y > 0 && costmap_data[costmap_.getIndex(x - 1, y - 1)] == NO_INFORMATION) ||
-                        (x + 1 < width && y + 1 < height &&
-                         costmap_data[costmap_.getIndex(x + 1, y + 1)] == NO_INFORMATION) ||
-                        (x + 1 < width && y > 0 &&
-                         costmap_data[costmap_.getIndex(x + 1, y - 1)] == NO_INFORMATION) ||
-                        (x > 0 && y + 1 < height &&
-                         costmap_data[costmap_.getIndex(x - 1, y + 1)] == NO_INFORMATION)) {
-
-
-                        double ix, iy;
-                        costmap_.mapToWorld(x, y, ix, iy);
-
-                        p.x = ix;
-                        p.y = iy;
-                        return p;
-                    }
-//                    RCLCPP_INFO(get_logger(), row.c_str());
+                    boundary.x = ix;
+                    boundary.y = iy;
+                    return boundary;
                 }
             }
         }
-        RCLCPP_ERROR(get_logger(), "NO BOUNDARIES FOUND!!");
-        return p;
+        boundary.x = -99999;//TODO use optional
+        boundary.y = -99999;
+        return boundary;
+    }
+
+    bool
+    checkNeighbors(const unsigned char *costmap_data, const unsigned int width, const unsigned int height,
+                   unsigned int x,
+                   unsigned int y) const {
+        return (x + 1 < width &&
+                costmap_data[costmap_.getIndex(x + 1, y)] == NO_INFORMATION) ||
+
+               (x > 0 && costmap_data[costmap_.getIndex(x - 1, y)] == NO_INFORMATION) ||
+
+               (y + 1 < height &&
+                costmap_data[costmap_.getIndex(x, y + 1)] == NO_INFORMATION) ||
+
+               (y > 0 &&
+                costmap_data[costmap_.getIndex(x, y - 1)] == NO_INFORMATION) ||
+               (x > 0 && y > 0 && costmap_data[costmap_.getIndex(x - 1, y - 1)] == NO_INFORMATION) ||
+               (x + 1 < width && y + 1 < height &&
+                costmap_data[costmap_.getIndex(x + 1, y + 1)] == NO_INFORMATION) ||
+               (x + 1 < width && y > 0 &&
+                costmap_data[costmap_.getIndex(x + 1, y - 1)] == NO_INFORMATION) ||
+               (x > 0 && y + 1 < height &&
+                costmap_data[costmap_.getIndex(x - 1, y + 1)] == NO_INFORMATION);
     }
 
 };
