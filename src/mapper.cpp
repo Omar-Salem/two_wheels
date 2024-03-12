@@ -85,6 +85,7 @@ private:
 
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     Subscription<OccupancyGridUpdate>::SharedPtr mapUpdatesSubscription_;
+    bool isExploring;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -133,6 +134,10 @@ private:
         for (size_t i = 0; i < costmap_size && i < occupancyGrid->data.size(); ++i) {
             auto cell_cost = static_cast<unsigned char>(occupancyGrid->data[i]);
             costmap_data[i] = cost_translation_table_[cell_cost];
+        }
+        if (!isExploring) {
+            isExploring = true;
+            explore();
         }
     }
 
