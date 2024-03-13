@@ -66,15 +66,10 @@ public:
         mapSubscription_ = this->create_subscription<OccupancyGrid>(
                 "/map", 10, bind(&Mapper::updateFullMap, this, _1));
 
-        mapUpdatesSubscription_ = this->create_subscription<OccupancyGridUpdate>(
-                "/map_updates", 10, bind(&Mapper::updatePartialMap, this, _1));
-
-//        controlLoopTimer_ = this->create_wall_timer(
-//                CONTROL_LOOP_INTERVAL_MILLI_SEC, [this] { controlLoop(); });
+        marker_array_publisher_ = this->create_publisher<MarkerArray>("/frontiers", 10);
         this->poseNavigator_ = rclcpp_action::create_client<NavigateToPose>(
                 this,
                 "/navigate_to_pose");
-        sleep(10);//Wait till bt_navigator is active //TODO
 
         poseNavigator_->wait_for_action_server();
     }
@@ -82,10 +77,9 @@ public:
 private:
     Costmap2D costmap_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr poseNavigator_;
-
+    Publisher<MarkerArray>::SharedPtr marker_array_publisher_;
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
-    Subscription<OccupancyGridUpdate>::SharedPtr mapUpdatesSubscription_;
-    bool isExploring;
+    bool isExploring = false;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -135,51 +129,74 @@ private:
             auto cell_cost = static_cast<unsigned char>(occupancyGrid->data[i]);
             costmap_data[i] = cost_translation_table_[cell_cost];
         }
-        if (!isExploring) {
-            isExploring = true;
-            explore();
-        }
+
+        explore();
     }
 
-    void updatePartialMap(OccupancyGridUpdate::UniquePtr msg) {
-        RCLCPP_DEBUG(get_logger(), "received partial map update");
-        if (msg->x < 0 || msg->y < 0) {
-            RCLCPP_ERROR(get_logger(), "negative coordinates, invalid update. x: %d, y: %d", msg->x,
-                         msg->y);
-            return;
-        }
+    void visualizeFrontiers(const Point &point) {
+        ColorRGBA blue;
+        blue.r = 0;
+        blue.g = 0;
+        blue.b = 1.0;
+        blue.a = 1.0;
+        ColorRGBA red;
+        red.r = 1.0;
+        red.g = 0;
+        red.b = 0;
+        red.a = 1.0;
+        ColorRGBA green;
+        green.r = 0;
+        green.g = 1.0;
+        green.b = 0;
+        green.a = 1.0;
 
-        size_t x0 = static_cast<size_t>(msg->x);
-        size_t y0 = static_cast<size_t>(msg->y);
-        size_t xn = msg->width + x0;
-        size_t yn = msg->height + y0;
+        MarkerArray markers_msg;
+        vector<Marker> &markers = markers_msg.markers;
+        Marker m;
 
-        // lock as we are accessing raw underlying map
-        auto *mutex = costmap_.getMutex();
-        lock_guard<Costmap2D::mutex_t> lock(*mutex);
+        m.header.frame_id = "map";
+        m.header.stamp = now();
+        m.ns = "frontiers";
+        m.scale.x = 1.0;
+        m.scale.y = 1.0;
+        m.scale.z = 1.0;
+        m.color.r = 0;
+        m.color.g = 0;
+        m.color.b = 255;
+        m.color.a = 255;
+        // lives forever
+//        m.lifetime = rclcpp::Duration(0);
+        m.frame_locked = true;
 
-        size_t costmap_xn = costmap_.getSizeInCellsX();
-        size_t costmap_yn = costmap_.getSizeInCellsY();
+        // weighted frontiers are always sorted
 
-        if (xn > costmap_xn || x0 > costmap_xn || yn > costmap_yn ||
-            y0 > costmap_yn) {
-            RCLCPP_WARN(get_logger(), "received update doesn't fully fit into existing map, "
-                                      "only part will be copied. received: [%lu, %lu], [%lu, %lu] "
-                                      "map is: [0, %lu], [0, %lu]",
-                        x0, xn, y0, yn, costmap_xn, costmap_yn);
-        }
+        m.action = Marker::ADD;
+        size_t id = 0;
+        RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
+        m.type = Marker::POINTS;
+        m.id = int(id);
+//            m.pose.position = {};
+        m.scale.x = 0.1;
+        m.scale.y = 0.1;
+        m.scale.z = 0.1;
+//        m.points = frontier.points;
 
-        // update map with data
-        unsigned char *costmap_data = costmap_.getCharMap();
-        size_t i = 0;
-        for (size_t y = y0; y < yn && y < costmap_yn; ++y) {
-            for (size_t x = x0; x < xn && x < costmap_xn; ++x) {
-                size_t idx = costmap_.getIndex(x, y);
-                unsigned char cell_cost = static_cast<unsigned char>(msg->data[i]);
-                costmap_data[idx] = cost_translation_table_[cell_cost];
-                ++i;
-            }
-        }
+        m.color = blue;
+        markers.push_back(m);
+        ++id;
+        m.type = Marker::SPHERE;
+        m.id = int(id);
+        m.pose.position = point;
+        // scale frontier according to its cost (costier frontiers will be smaller)
+        double scale = 1.0;
+        m.scale.x = scale;
+        m.scale.y = scale;
+        m.scale.z = scale;
+        m.points = {};
+        m.color = green;
+        markers.push_back(m);
+        ++id;
+        marker_array_publisher_->publish(markers_msg);
     }
 
     void stop() {
@@ -190,17 +207,19 @@ private:
     }
 
     void explore() {
+        if (isExploring) { return; }
         auto target_position = findBoundary();
         if (!target_position.has_value()) {
             RCLCPP_WARN(get_logger(), "NO BOUNDARIES FOUND!!");
             stop();
             return;
         }
+        visualizeFrontiers(target_position.value());
         auto goal = NavigateToPose::Goal();
-//        target_position.x = -8.237480;
-//        target_position.y = 1.832342;
-        goal.pose.pose.position = target_position;
-//        goal.pose.pose.orientation.w = 1.;
+        goal.pose.pose.position = target_position.value();
+//        goal.pose.pose.position.x = -8;
+//        goal.pose.pose.position.y = 1;
+        goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
         RCLCPP_INFO(get_logger(), "Sending goal %f,%f", goal.pose.pose.position.x, goal.pose.pose.position.y);
@@ -208,6 +227,7 @@ private:
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback = [this](const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
             if (goal_handle) {
+                isExploring = true;
                 RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
             } else {
                 RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
@@ -221,6 +241,7 @@ private:
         };
 
         send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
+            isExploring = false;
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
                     break;
