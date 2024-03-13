@@ -186,19 +186,19 @@ private:
         RCLCPP_INFO(get_logger(), "Stopped...");
 //        controlLoopTimer_->cancel();
         poseNavigator_->async_cancel_all_goals();
-//        saveMap("apt");
+        saveMap("/home/omar/ros2_ws/src/two_wheels/maps/apt");
     }
 
     void explore() {
         auto target_position = findBoundary();
-        if (target_position.x == -99999) {
+        if (!target_position.has_value()) {
             RCLCPP_WARN(get_logger(), "NO BOUNDARIES FOUND!!");
             stop();
             return;
         }
         auto goal = NavigateToPose::Goal();
-//        target_position.x = -8;
-//        target_position.y = 1;
+//        target_position.x = -8.237480;
+//        target_position.y = 1.832342;
         goal.pose.pose.position = target_position;
 //        goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
@@ -246,8 +246,7 @@ private:
         costmap_.saveMap(mapName);
     }
 
-    Point findBoundary() {
-        Point boundary;
+    std::optional<Point> findBoundary() {
         unsigned char *costmap_data = costmap_.getCharMap();
         const auto width = costmap_.getSizeInCellsX();
         const auto height = costmap_.getSizeInCellsY();
@@ -261,15 +260,14 @@ private:
                     double ix, iy;
                     costmap_.mapToWorld(x, y, ix, iy);
 
-                    boundary.x = ix;
-                    boundary.y = iy;
+                    Point boundary;
+                    boundary.x = int(ix);
+                    boundary.y = int(iy);
                     return boundary;
                 }
             }
         }
-        boundary.x = -99999;//TODO use optional
-        boundary.y = -99999;
-        return boundary;
+        return std::nullopt;
     }
 
     bool
