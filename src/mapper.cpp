@@ -10,6 +10,7 @@
 #include <string>
 #include <array>
 #include <filesystem>
+#include <slam_toolbox/srv/detail/save_map__struct.hpp>
 
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -268,20 +269,18 @@ private:
     }
 
     void saveMap(const string &mapName) {
-
         auto mapSerializer = create_client<slam_toolbox::srv::SerializePoseGraph>(
                 "/slam_toolbox/serialize_map");
-        auto request =
+        auto serializePoseGraphRequest =
                 std::make_shared<slam_toolbox::srv::SerializePoseGraph::Request>();
-        request->filename = mapName;
-        auto result_future = mapSerializer->async_send_request(request);
+        serializePoseGraphRequest->filename = mapName;
+        auto serializePoseResult = mapSerializer->async_send_request(serializePoseGraphRequest);
 
-
-        auto map_saver = std::make_shared<MapSaver>();
-        map_saver->on_configure(rclcpp_lifecycle::State());
-        SaveParameters save_parameters;
-        save_parameters.map_file_name = mapName;
-        map_saver->saveMapTopicToFile("map", save_parameters);
+        auto map_saver = create_client<slam_toolbox::srv::SaveMap>(
+                "/slam_toolbox/save_map");
+        auto saveMapRequest = std::make_shared<slam_toolbox::srv::SaveMap::Request>();
+        saveMapRequest->name.data = mapName;
+        auto saveMapResult = map_saver->async_send_request(saveMapRequest);
     }
 
     std::optional<Point> findBoundary() {
