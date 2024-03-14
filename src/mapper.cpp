@@ -25,8 +25,9 @@
 #include "nav2_util/occ_grid_values.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "visualization_msgs/msg/marker.hpp"
-#include "angles/angles.h"
 #include "std_msgs/std_msgs/msg/color_rgba.hpp"
+#include "nav2_map_server/map_mode.hpp"
+#include "nav2_map_server/map_saver.hpp"
 
 //#include <tf2/tf2/impl/
 
@@ -45,8 +46,6 @@ using nav2_costmap_2d::Costmap2D;
 using nav2_costmap_2d::LETHAL_OBSTACLE;
 using nav2_costmap_2d::NO_INFORMATION;
 using nav2_costmap_2d::FREE_SPACE;
-using angles::to_degrees;
-using angles::from_degrees;
 using std::to_string;
 using std::abs;
 using std::chrono::milliseconds;
@@ -54,6 +53,7 @@ using namespace std::chrono_literals;
 using namespace std;
 using namespace rclcpp;
 using namespace rclcpp_action;
+using namespace nav2_map_server;
 using std::chrono::steady_clock;
 
 using NavigateToPose = nav2_msgs::action::NavigateToPose;
@@ -165,21 +165,16 @@ private:
         m.color.b = 255;
         m.color.a = 255;
         // lives forever
-//        m.lifetime = rclcpp::Duration(0);
         m.frame_locked = true;
-
-        // weighted frontiers are always sorted
 
         m.action = Marker::ADD;
         size_t id = 0;
         RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
         m.type = Marker::POINTS;
         m.id = int(id);
-//            m.pose.position = {};
         m.scale.x = 0.1;
         m.scale.y = 0.1;
         m.scale.z = 0.1;
-//        m.points = frontier.points;
 
         m.color = blue;
         markers.push_back(m);
@@ -199,9 +194,18 @@ private:
         marker_array_publisher_->publish(markers_msg);
     }
 
+    void clearFrontiers() {
+        auto marker_array_msg = MarkerArray();
+        auto marker = Marker();
+        marker.id = 0;
+        marker.ns = "frontiers";
+        marker.action = Marker::DELETEALL;
+        marker_array_msg.markers.push_back(marker);
+        marker_array_publisher_->publish(marker_array_msg);
+    }
+
     void stop() {
         RCLCPP_INFO(get_logger(), "Stopped...");
-//        controlLoopTimer_->cancel();
         poseNavigator_->async_cancel_all_goals();
         saveMap("/home/omar/ros2_ws/src/two_wheels/maps/apt");
     }
@@ -217,8 +221,6 @@ private:
         visualizeFrontiers(target_position.value());
         auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = target_position.value();
-//        goal.pose.pose.position.x = -8;
-//        goal.pose.pose.position.y = 1;
         goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
@@ -242,6 +244,7 @@ private:
 
         send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
             isExploring = false;
+            clearFrontiers();
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
                     break;
@@ -264,7 +267,12 @@ private:
     }
 
     void saveMap(const string &mapName) {
-        costmap_.saveMap(mapName);
+        auto map_saver = std::make_shared<MapSaver>();
+        map_saver->on_configure(rclcpp_lifecycle::State());
+        SaveParameters save_parameters;
+        save_parameters.map_file_name = mapName;
+        map_saver->saveMapTopicToFile("map", save_parameters);
+//        costmap_.saveMap(mapName);
     }
 
     std::optional<Point> findBoundary() {
