@@ -82,6 +82,7 @@ private:
     Publisher<MarkerArray>::SharedPtr marker_array_publisher_;
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     bool isExploring = false;
+    int goalId = 0;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -136,8 +137,7 @@ private:
     }
 
     void visualizeFrontiers(const Point &point) {
-        RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
-
+        RCLCPP_INFO(get_logger(), "visualising %f,%f goalId %d", point.x, point.y, goalId);
         ColorRGBA green;
         green.r = 0;
         green.g = 1.0;
@@ -154,7 +154,7 @@ private:
         m.frame_locked = true;
 
         m.action = Marker::ADD;
-        m.id = 1;
+        m.id = goalId;
         m.type = Marker::SPHERE;
         m.pose.position = point;
         m.scale.x = 0.5;
@@ -166,13 +166,21 @@ private:
     }
 
     void clearFrontiers() {
-        auto marker_array_msg = MarkerArray();
-        auto marker = Marker();
-        marker.id = 0;
-        marker.ns = "frontiers";
-        marker.action = Marker::DELETEALL;
-        marker_array_msg.markers.push_back(marker);
-        marker_array_publisher_->publish(marker_array_msg);
+        RCLCPP_INFO(get_logger(), "deleting goalId %d ", goalId);
+
+        MarkerArray markers_msg;
+        vector<Marker> &markers = markers_msg.markers;
+        Marker m;
+
+        m.header.frame_id = "map";
+        m.header.stamp = now();
+        m.ns = "frontiers";
+        m.frame_locked = true;
+
+        m.action = Marker::DELETE;
+        m.id = goalId;
+        markers.push_back(m);
+        marker_array_publisher_->publish(markers_msg);
     }
 
     void stop() {
@@ -183,25 +191,27 @@ private:
 
     void explore() {
         if (isExploring) { return; }
-        auto target_position = findBoundary();
-        if (!target_position.has_value()) {
+        auto boundary = findBoundary();
+        if (!boundary.has_value()) {
             RCLCPP_WARN(get_logger(), "NO BOUNDARIES FOUND!!");
             stop();
             return;
         }
-        visualizeFrontiers(target_position.value());
         auto goal = NavigateToPose::Goal();
-        goal.pose.pose.position = target_position.value();
+        goal.pose.pose.position = boundary.value();
         goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
         RCLCPP_INFO(get_logger(), "Sending goal %f,%f", goal.pose.pose.position.x, goal.pose.pose.position.y);
 
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
-        send_goal_options.goal_response_callback = [this](const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
+        send_goal_options.goal_response_callback = [this, &boundary](
+                const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
             if (goal_handle) {
-                isExploring = true;
                 RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
+                goalId++;
+                visualizeFrontiers(boundary.value());
+                isExploring = true;
             } else {
                 RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
             }
