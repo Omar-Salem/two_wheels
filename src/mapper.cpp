@@ -136,16 +136,8 @@ private:
     }
 
     void visualizeFrontiers(const Point &point) {
-        ColorRGBA blue;
-        blue.r = 0;
-        blue.g = 0;
-        blue.b = 1.0;
-        blue.a = 1.0;
-        ColorRGBA red;
-        red.r = 1.0;
-        red.g = 0;
-        red.b = 0;
-        red.a = 1.0;
+        RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
+
         ColorRGBA green;
         green.r = 0;
         green.g = 1.0;
@@ -159,40 +151,17 @@ private:
         m.header.frame_id = "map";
         m.header.stamp = now();
         m.ns = "frontiers";
-        m.scale.x = 1.0;
-        m.scale.y = 1.0;
-        m.scale.z = 1.0;
-        m.color.r = 0;
-        m.color.g = 0;
-        m.color.b = 255;
-        m.color.a = 255;
-        // lives forever
         m.frame_locked = true;
 
         m.action = Marker::ADD;
-        size_t id = 0;
-        RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
-        m.type = Marker::POINTS;
-        m.id = int(id);
-        m.scale.x = 0.1;
-        m.scale.y = 0.1;
-        m.scale.z = 0.1;
-
-        m.color = blue;
-        markers.push_back(m);
-        ++id;
+        m.id = 1;
         m.type = Marker::SPHERE;
-        m.id = int(id);
         m.pose.position = point;
-        // scale frontier according to its cost (costier frontiers will be smaller)
-        double scale = 1.0;
-        m.scale.x = scale;
-        m.scale.y = scale;
-        m.scale.z = scale;
-        m.points = {};
+        m.scale.x = 0.5;
+        m.scale.y = 0.5;
+        m.scale.z = 0.5;
         m.color = green;
         markers.push_back(m);
-        ++id;
         marker_array_publisher_->publish(markers_msg);
     }
 
