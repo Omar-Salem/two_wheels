@@ -65,11 +65,11 @@ class Mapper : public Node {
 public:
     Mapper()
             : Node("mapper") {
-        mapSubscription_ = this->create_subscription<OccupancyGrid>(
+        mapSubscription_ = create_subscription<OccupancyGrid>(
                 "/map", 10, bind(&Mapper::updateFullMap, this, _1));
 
-        marker_array_publisher_ = this->create_publisher<MarkerArray>("/frontiers", 10);
-        this->poseNavigator_ = rclcpp_action::create_client<NavigateToPose>(
+        marker_array_publisher_ = create_publisher<MarkerArray>("/frontiers", 10);
+        poseNavigator_ = rclcpp_action::create_client<NavigateToPose>(
                 this,
                 "/navigate_to_pose");
 
@@ -264,8 +264,7 @@ private:
             rclcpp::shutdown();
             explore();
         };
-        this->poseNavigator_->async_send_goal(goal, send_goal_options);
-
+        poseNavigator_->async_send_goal(goal, send_goal_options);
     }
 
     void saveMap(const string &mapName) {
