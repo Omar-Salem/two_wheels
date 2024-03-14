@@ -191,14 +191,15 @@ private:
 
     void explore() {
         if (isExploring) { return; }
-        auto boundary = findBoundary();
-        if (!boundary.has_value()) {
+        auto potentialBoundary = findBoundary();
+        if (!potentialBoundary.has_value()) {
             RCLCPP_WARN(get_logger(), "NO BOUNDARIES FOUND!!");
             stop();
             return;
         }
         auto goal = NavigateToPose::Goal();
-        goal.pose.pose.position = boundary.value();
+        const auto boundary = potentialBoundary.value();
+        goal.pose.pose.position = boundary;
         goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
@@ -210,7 +211,7 @@ private:
             if (goal_handle) {
                 RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
                 goalId++;
-                visualizeFrontiers(boundary.value());
+                visualizeFrontiers(boundary);
                 isExploring = true;
             } else {
                 RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
@@ -267,9 +268,11 @@ private:
         const auto height = costmap_.getSizeInCellsY();
 
         for (unsigned int x = 0; x < width; ++x) {
+            string row = "";
             for (unsigned int y = 0; y < height; ++y) {
                 unsigned int pos = costmap_.getIndex(x, y);
                 const auto cost = costmap_data[pos];
+                row += to_string(cost) + " ";
                 if (cost != FREE_SPACE) { continue; }
                 if (checkNeighbors(costmap_data, width, height, x, y)) {
                     double ix, iy;
@@ -281,6 +284,8 @@ private:
                     return boundary;
                 }
             }
+
+//            RCLCPP_INFO(get_logger(), "%s", row.c_str());
         }
         return std::nullopt;
     }
