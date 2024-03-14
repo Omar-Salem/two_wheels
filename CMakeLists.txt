@@ -23,6 +23,7 @@ set(deps
         rclcpp_action
         nav2_costmap_2d
         nav2_map_server
+        slam_toolbox
         visualization_msgs
         nav2_util
         std_msgs

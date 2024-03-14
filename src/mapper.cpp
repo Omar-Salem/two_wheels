@@ -28,8 +28,8 @@
 #include "std_msgs/std_msgs/msg/color_rgba.hpp"
 #include "nav2_map_server/map_mode.hpp"
 #include "nav2_map_server/map_saver.hpp"
+#include "slam_toolbox/srv/serialize_pose_graph.hpp"
 
-//#include <tf2/tf2/impl/
 
 using std::placeholders::_1;
 using sensor_msgs::msg::Range;
@@ -54,6 +54,7 @@ using namespace std;
 using namespace rclcpp;
 using namespace rclcpp_action;
 using namespace nav2_map_server;
+using namespace slam_toolbox;
 using std::chrono::steady_clock;
 
 using NavigateToPose = nav2_msgs::action::NavigateToPose;
@@ -267,12 +268,20 @@ private:
     }
 
     void saveMap(const string &mapName) {
+
+        auto mapSerializer = create_client<slam_toolbox::srv::SerializePoseGraph>(
+                "/slam_toolbox/serialize_map");
+        auto request =
+                std::make_shared<slam_toolbox::srv::SerializePoseGraph::Request>();
+        request->filename = mapName;
+        auto result_future = mapSerializer->async_send_request(request);
+
+
         auto map_saver = std::make_shared<MapSaver>();
         map_saver->on_configure(rclcpp_lifecycle::State());
         SaveParameters save_parameters;
         save_parameters.map_file_name = mapName;
         map_saver->saveMapTopicToFile("map", save_parameters);
-//        costmap_.saveMap(mapName);
     }
 
     std::optional<Point> findBoundary() {
