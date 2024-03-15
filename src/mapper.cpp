@@ -83,8 +83,9 @@ private:
     Publisher<MarkerArray>::SharedPtr marker_array_publisher_;
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     bool isExploring = false;
-    int goalId = 0;
     unordered_set<string> blackList;
+
+    MarkerArray markers_msg;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -140,14 +141,13 @@ private:
     }
 
     void visualizeFrontiers(const Point &point) {
-        RCLCPP_INFO(get_logger(), "visualising %f,%f goalId %d", point.x, point.y, goalId);
+        RCLCPP_INFO(get_logger(), "visualising %f,%f ", point.x, point.y);
         ColorRGBA green;
         green.r = 0;
         green.g = 1.0;
         green.b = 0;
         green.a = 1.0;
 
-        MarkerArray markers_msg;
         vector<Marker> &markers = markers_msg.markers;
         Marker m;
 
@@ -157,7 +157,7 @@ private:
         m.frame_locked = true;
 
         m.action = Marker::ADD;
-        m.id = goalId;
+        m.id = (int) std::time(nullptr);
         m.type = Marker::SPHERE;
         m.pose.position = point;
         m.scale.x = 0.5;
@@ -169,20 +169,9 @@ private:
     }
 
     void clearFrontiers() {
-        RCLCPP_INFO(get_logger(), "deleting goalId %d ", goalId);
-
-        MarkerArray markers_msg;
-        vector<Marker> &markers = markers_msg.markers;
-        Marker m;
-
-        m.header.frame_id = "map";
-        m.header.stamp = now();
-        m.ns = "frontiers";
-        m.frame_locked = true;
-
-        m.action = Marker::DELETE;
-        m.id = goalId;
-        markers.push_back(m);
+        for (auto &m: markers_msg.markers) {
+            m.action = Marker::DELETE;
+        }
         marker_array_publisher_->publish(markers_msg);
     }
 
@@ -201,7 +190,6 @@ private:
             return;
         }
         const auto boundary = potentialBoundary.value();
-        goalId++;
         visualizeFrontiers(boundary);
         auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = boundary;
@@ -230,7 +218,7 @@ private:
 
         send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
             isExploring = false;
-//            clearFrontiers();
+            clearFrontiers();
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
                     break;
