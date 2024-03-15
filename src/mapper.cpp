@@ -84,7 +84,7 @@ private:
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     bool isExploring = false;
     int goalId = 0;
-    set<Point> blackList;
+    unordered_set<string> blackList;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -218,6 +218,7 @@ private:
                 isExploring = true;
             } else {
                 RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
+                blackList.insert(to_string(boundary.x) + "," + to_string(boundary.y));
             }
         };
 
@@ -282,10 +283,11 @@ private:
                     Point boundary;
                     boundary.x = int(ix);
                     boundary.y = int(iy);
-//                    bool pointOnBlackList = blackList.find(boundary) != blackList.end();
-//                    if (pointOnBlackList) {
-//                        continue;
-//                    }
+                    bool pointOnBlackList =
+                            blackList.find(to_string(boundary.x) + "," + to_string(boundary.y)) != blackList.end();
+                    if (pointOnBlackList) {
+                        continue;
+                    }
                     return boundary;
                 }
             }
