@@ -4,5 +4,5 @@ cmake-build-debug
 install
 log
 venv
-maps/
-maps
+maps/*
+!maps/.gitkeep
