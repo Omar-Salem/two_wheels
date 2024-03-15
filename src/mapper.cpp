@@ -153,10 +153,10 @@ private:
 
         m.header.frame_id = "map";
         m.header.stamp = now();
-        m.ns = "frontiers";
         m.frame_locked = true;
 
         m.action = Marker::ADD;
+        m.ns = "frontiers";
         m.id = (int) std::time(nullptr);
         m.type = Marker::SPHERE;
         m.pose.position = point;
