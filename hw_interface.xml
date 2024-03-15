@@ -1,0 +1,9 @@
+<library path="hw_interface">
+    <class name="hw_interface/DiffDrive"
+           type="hw_interface::DiffDrive"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>
+            ros2_control hardware interface.
+        </description>
+    </class>
+</library>
