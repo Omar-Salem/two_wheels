@@ -221,20 +221,19 @@ private:
             clearFrontiers();
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
+                    RCLCPP_INFO(get_logger(), "Goal reached");
+                    explore();
                     break;
                 case rclcpp_action::ResultCode::ABORTED:
                     RCLCPP_ERROR(get_logger(), "Goal was aborted");
-                    return;
+                    break;
                 case rclcpp_action::ResultCode::CANCELED:
                     RCLCPP_ERROR(get_logger(), "Goal was canceled");
-                    return;
+                    break;
                 default:
                     RCLCPP_ERROR(get_logger(), "Unknown result code");
-                    return;
+                    break;
             }
-            RCLCPP_INFO(get_logger(), "Goal reached");
-            rclcpp::shutdown();
-            explore();
         };
         poseNavigator_->async_send_goal(goal, send_goal_options);
     }
