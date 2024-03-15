@@ -11,6 +11,7 @@
 #include <array>
 #include <filesystem>
 #include <slam_toolbox/srv/detail/save_map__struct.hpp>
+#include <fstream>
 
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "rclcpp/rclcpp.hpp"
@@ -83,6 +84,7 @@ private:
     Subscription<OccupancyGrid>::SharedPtr mapSubscription_;
     bool isExploring = false;
     int goalId = 0;
+    set<Point> blackList;
 
     array<unsigned char, 256> init_translation_table() {
         array<unsigned char, 256> cost_translation_table{};
@@ -134,6 +136,7 @@ private:
         }
 
         explore();
+//        visualizeMap();
     }
 
     void visualizeFrontiers(const Point &point) {
@@ -197,8 +200,8 @@ private:
             stop();
             return;
         }
-        auto goal = NavigateToPose::Goal();
         const auto boundary = potentialBoundary.value();
+        auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = boundary;
         goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
@@ -226,7 +229,7 @@ private:
 
         send_goal_options.result_callback = [this](const GoalHandleNavigateToPose::WrappedResult &result) {
             isExploring = false;
-            clearFrontiers();
+//            clearFrontiers();
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
                     break;
@@ -268,11 +271,9 @@ private:
         const auto height = costmap_.getSizeInCellsY();
 
         for (unsigned int x = 0; x < width; ++x) {
-            string row = "";
             for (unsigned int y = 0; y < height; ++y) {
                 unsigned int pos = costmap_.getIndex(x, y);
                 const auto cost = costmap_data[pos];
-                row += to_string(cost) + " ";
                 if (cost != FREE_SPACE) { continue; }
                 if (checkNeighbors(costmap_data, width, height, x, y)) {
                     double ix, iy;
@@ -281,13 +282,35 @@ private:
                     Point boundary;
                     boundary.x = int(ix);
                     boundary.y = int(iy);
+//                    bool pointOnBlackList = blackList.find(boundary) != blackList.end();
+//                    if (pointOnBlackList) {
+//                        continue;
+//                    }
                     return boundary;
                 }
             }
-
-//            RCLCPP_INFO(get_logger(), "%s", row.c_str());
         }
         return std::nullopt;
+    }
+
+    void visualizeMap() {
+        unsigned char *costmap_data = costmap_.getCharMap();
+        const auto width = costmap_.getSizeInCellsX();
+        const auto height = costmap_.getSizeInCellsY();
+
+        ofstream myfile;
+        myfile.open("/home/omar/ros2_ws/src/two_wheels/maps/map.txt");
+
+        for (unsigned int x = 0; x < width; ++x) {
+            string row = "";
+            for (unsigned int y = 0; y < height; ++y) {
+                unsigned int pos = costmap_.getIndex(x, y);
+                const auto cost = costmap_data[pos];
+                row += to_string(cost) + " ";
+            }
+            myfile << row << endl;
+        }
+        myfile.close();
     }
 
     bool
