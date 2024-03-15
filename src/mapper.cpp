@@ -201,20 +201,20 @@ private:
             return;
         }
         const auto boundary = potentialBoundary.value();
+        goalId++;
+        visualizeFrontiers(boundary);
         auto goal = NavigateToPose::Goal();
         goal.pose.pose.position = boundary;
         goal.pose.pose.orientation.w = 1.;
         goal.pose.header.frame_id = "map";
 
-        RCLCPP_INFO(get_logger(), "Sending goal %f,%f", goal.pose.pose.position.x, goal.pose.pose.position.y);
+        RCLCPP_INFO(get_logger(), "Sending goal %f,%f", boundary.x, boundary.y);
 
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback = [this, &boundary](
                 const GoalHandleNavigateToPose::SharedPtr &goal_handle) {
             if (goal_handle) {
                 RCLCPP_INFO(get_logger(), "Goal accepted by server, waiting for result");
-                goalId++;
-                visualizeFrontiers(boundary);
                 isExploring = true;
             } else {
                 RCLCPP_ERROR(get_logger(), "Goal was rejected by server");
