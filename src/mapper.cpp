@@ -222,6 +222,8 @@ private:
             switch (result.code) {
                 case rclcpp_action::ResultCode::SUCCEEDED:
                     RCLCPP_INFO(get_logger(), "Goal reached");
+                    saveMap("/home/omar/ros2_ws/src/two_wheels/maps/apt");
+                    visualizeMap();
                     explore();
                     break;
                 case rclcpp_action::ResultCode::ABORTED:
@@ -291,7 +293,7 @@ private:
         myfile.open("/home/omar/ros2_ws/src/two_wheels/maps/map.txt");
 
         for (unsigned int x = 0; x < width; ++x) {
-            string row = "";
+            string row;
             for (unsigned int y = 0; y < height; ++y) {
                 unsigned int pos = costmap_.getIndex(x, y);
                 const auto cost = costmap_data[pos];
@@ -306,23 +308,30 @@ private:
     checkNeighbors(const unsigned char *costmap_data, const unsigned int width, const unsigned int height,
                    unsigned int x,
                    unsigned int y) const {
-        return (x + 1 < width &&
-                costmap_data[costmap_.getIndex(x + 1, y)] == NO_INFORMATION) ||
-
-               (x > 0 && costmap_data[costmap_.getIndex(x - 1, y)] == NO_INFORMATION) ||
-
-               (y + 1 < height &&
-                costmap_data[costmap_.getIndex(x, y + 1)] == NO_INFORMATION) ||
-
-               (y > 0 &&
-                costmap_data[costmap_.getIndex(x, y - 1)] == NO_INFORMATION) ||
-               (x > 0 && y > 0 && costmap_data[costmap_.getIndex(x - 1, y - 1)] == NO_INFORMATION) ||
-               (x + 1 < width && y + 1 < height &&
-                costmap_data[costmap_.getIndex(x + 1, y + 1)] == NO_INFORMATION) ||
-               (x + 1 < width && y > 0 &&
-                costmap_data[costmap_.getIndex(x + 1, y - 1)] == NO_INFORMATION) ||
-               (x > 0 && y + 1 < height &&
-                costmap_data[costmap_.getIndex(x - 1, y + 1)] == NO_INFORMATION);
+        int boundaryCount = 0;
+        auto isBoundary = x + 1 < width &&
+                          costmap_data[costmap_.getIndex(x + 1, y)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = x > 0 && costmap_data[costmap_.getIndex(x - 1, y)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = y + 1 < height &&
+                     costmap_data[costmap_.getIndex(x, y + 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = y > 0 &&
+                     costmap_data[costmap_.getIndex(x, y - 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = x > 0 && y > 0 && costmap_data[costmap_.getIndex(x - 1, y - 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = x + 1 < width && y + 1 < height &&
+                     costmap_data[costmap_.getIndex(x + 1, y + 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = x + 1 < width && y > 0 &&
+                     costmap_data[costmap_.getIndex(x + 1, y - 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        isBoundary = x > 0 && y + 1 < height &&
+                     costmap_data[costmap_.getIndex(x - 1, y + 1)] == NO_INFORMATION;
+        if (isBoundary) { boundaryCount++; }
+        return boundaryCount > 4;
     }
 
 };
