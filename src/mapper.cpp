@@ -272,9 +272,9 @@ private:
                     Point boundary;
                     boundary.x = int(ix);
                     boundary.y = int(iy);
-                    bool pointOnBlackList =
+                    bool boundaryOnBlackList =
                             blackList.find(to_string(boundary.x) + "," + to_string(boundary.y)) != blackList.end();
-                    if (pointOnBlackList) {
+                    if (boundaryOnBlackList) {
                         continue;
                     }
                     return boundary;
