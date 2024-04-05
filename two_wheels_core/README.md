@@ -14,13 +14,13 @@ colcon build && source install/setup.bash && ros2 launch two_wheels sim_two_whee
 
 ```bash
 ssh omar.salem@192.168.1.35
+
 sudo rm -rf ~/Volumes
 mkdir -p ~/Volumes/ros2_ws/src
 cd ~/Volumes
 mkdir microros_ws
 cd $_
 git clone -b humble https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
-
 cd ~/Volumes/ros2_ws/src
 git clone https://github.com/Omar-Salem/two_wheels.git
 mv two_wheels/* ~/Volumes/ros2_ws/src/
@@ -60,6 +60,7 @@ pio run --target upload # Flash the firmware
 ssh omar.salem@192.168.1.35
 ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable
 docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
+
 ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable
 cd /home/usr/ros2_ws/
 rm -rf build/ install/ log/

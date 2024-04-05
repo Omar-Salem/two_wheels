@@ -8,6 +8,7 @@ RUN apt-get install -y ros-${ROS_DISTRO}-joint-state-publisher
 RUN apt-get install -y ros-${ROS_DISTRO}-robot-state-publisher
 RUN apt-get install -y ros-${ROS_DISTRO}-xacro
 RUN apt-get install -y ros-${ROS_DISTRO}-ros2-control
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-rviz2
 RUN apt-get install -y ros-${ROS_DISTRO}-ros2-controllers
 RUN apt-get install -y ros-${ROS_DISTRO}-controller-manager
 RUN apt-get install -y ros-${ROS_DISTRO}-tf-transformations
