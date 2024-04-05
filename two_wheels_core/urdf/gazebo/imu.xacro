@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot>
+    <gazebo reference="imu_link">
+        <material>Gazebo/Red</material>
+        <sensor name="imu" type="imu">
+            <visualize>true</visualize>
+            <always_on>true</always_on>
+            <imu>
+                <angular_velocity>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>2e-4</stddev>
+                        </noise>
+                    </z>
+                </angular_velocity>
+                <linear_acceleration>
+                    <x>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </x>
+                    <y>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </y>
+                    <z>
+                        <noise type="gaussian">
+                            <mean>0.0</mean>
+                            <stddev>1.7e-2</stddev>
+                        </noise>
+                    </z>
+                </linear_acceleration>
+            </imu>
+            <update_rate>30</update_rate>
+            <plugin name="imu" filename="libgazebo_ros_imu_sensor.so">
+                <ros>
+                    <namespace>/two_wheels</namespace>
+                    <remapping>~/out:=imu</remapping>
+                </ros>
+                <output_type>sensor_msgs/Imu</output_type>
+            </plugin>
+        </sensor>
+    </gazebo>
+</robot>

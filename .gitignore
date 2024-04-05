@@ -1,0 +1,11 @@
+.idea
+build
+cmake-build-debug
+install
+log
+venv
+.pio
+.vscode
+
+maps/*
+!maps/.gitkeep

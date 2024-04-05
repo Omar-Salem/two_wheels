@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="is_sim" default="true"/>
+
+    <xacro:include filename="gazebo/common_inertias.xacro"/>
+
+    <xacro:property name="disc_height" value="0.005"/>
+    <xacro:property name="disc_radius" value="0.07"/>
+    <xacro:property name="disc_mass" value="0.05"/>
+
+
+    <xacro:property name="wheel_width" value="0.025"/>
+    <xacro:property name="wheel_radius" value="0.033"/>
+    <xacro:property name="wheel_mass" value="0.01"/>
+
+    <xacro:property name="caster_wheel_radius" value="${wheel_radius/2}"/>
+    <xacro:property name="caster_wheel_mass" value="0.01"/>
+    <xacro:property name="caster_wheel_offset_x" value="0.06"/>
+    <xacro:property name="caster_wheel_offset_z" value="${caster_wheel_radius}"/>
+
+    <xacro:property name="sonar_size" value="0.01"/>
+    <xacro:property name="sonar_mass" value="0.01"/>
+
+    <xacro:property name="imu_size" value="0.01"/>
+    <xacro:property name="imu_mass" value="0.01"/>
+
+    <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0"/>
+    </material>
+
+    <material name="orange">
+        <color rgba="1 0.3 0.1 1"/>
+    </material>
+
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+
+    <material name="blue">
+        <color rgba="0 1 1 1"/>
+    </material>
+
+    <material name="red">
+        <color rgba="0.596078431372549 0.0 0.00784313725490196 1.0"/>
+    </material>
+
+    <xacro:macro name="wheel" params="prefix y_reflect">
+        <link name="${prefix}_wheel">
+            <visual>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+                </geometry>
+                <material name="black"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+                </geometry>
+            </collision>
+            <xacro:cylinder_inertial mass="${wheel_mass}" radius="${wheel_radius}" length="${wheel_width}"
+                                     rotation="${pi/2}"/>
+        </link>
+
+        <joint name="${prefix}_wheel_joint" type="continuous">
+            <parent link="base_link"/>
+            <child link="${prefix}_wheel"/>
+            <origin xyz="0 ${y_reflect*(disc_radius+(wheel_width/2))} 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+        </joint>
+    </xacro:macro>
+
+    <link name="base_footprint"/>
+    <link name="base_link">
+        <xacro:cylinder_inertial mass="${disc_mass}" radius="${disc_radius}" length="${disc_height}" rotation="0"/>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${disc_radius}" length="${disc_height}"/>
+            </geometry>
+
+            <material name="white"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${disc_radius}" length="${disc_height}"/>
+            </geometry>
+        </collision>
+    </link>
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_footprint"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <xacro:wheel prefix="left" y_reflect="1"/>
+    <xacro:wheel prefix="right" y_reflect="-1"/>
+
+    <link name="caster_wheel">
+        <visual>
+            <geometry>
+                <sphere radius="${caster_wheel_radius}"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <geometry>
+                <sphere radius="${caster_wheel_radius}"/>
+            </geometry>
+        </collision>
+        <xacro:sphere_inertial radius="${caster_wheel_radius}" mass="${caster_wheel_mass}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:sphere_inertial>
+    </link>
+
+    <joint name="caster_wheel_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="caster_wheel"/>
+        <origin xyz="${caster_wheel_offset_x} 0 -${caster_wheel_offset_z}"/>
+    </joint>
+
+    <link name="sonar_link">
+        <visual>
+            <!--            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>-->
+            <geometry>
+                <box size="${sonar_size} ${sonar_size} ${sonar_size}"/>
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <!--            <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>-->
+            <geometry>
+                <box size="${sonar_size} ${sonar_size} ${sonar_size}"/>
+            </geometry>
+        </collision>
+        <xacro:box_inertial x="${sonar_size}" y="${sonar_size}" z="${sonar_size}" mass="${sonar_mass}"/>
+    </link>
+
+    <joint name="sonar_link_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="sonar_link"/>
+        <origin xyz="${disc_radius} 0 0"/>
+    </joint>
+
+    <link name="imu_link">
+        <xacro:box_inertial mass="${imu_mass}" x="${imu_size}" y="${imu_size}" z="${imu_size}"/>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${imu_size} ${imu_size} ${imu_size}"/>
+            </geometry>
+            <material name="red"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <box size="${imu_size} ${imu_size} ${imu_size}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+    <link name="lidar_link">
+        <visual>
+            <geometry>
+                <cylinder radius="0.05" length="0.04"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <visual>
+            <origin xyz="0 0 -0.05"/>
+            <geometry>
+                <cylinder radius="0.01" length="0.1"/>
+            </geometry>
+            <material name="black"/>
+        </visual>
+        <collision>
+            <geometry>
+                <cylinder radius="0.05" length="0.04"/>
+            </geometry>
+        </collision>
+        <xacro:cylinder_inertial mass="0.1" radius="0.04" length="0.05" rotation="0"/>
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+        <axis xyz="0 0 0"/>
+    </joint>
+
+
+</robot>
