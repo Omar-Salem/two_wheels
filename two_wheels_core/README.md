@@ -70,6 +70,7 @@ colcon build && source install/setup.bash && ros2 launch two_wheels two_wheels.l
 #run microros from other terminal tab
 ssh omar.salem@192.168.1.35
 docker exec -it $(docker container ls  | grep 'humble' | awk '{print $1}') /bin/bash
+
 source /home/usr/microros_ws/install/local_setup.bash
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0
 
