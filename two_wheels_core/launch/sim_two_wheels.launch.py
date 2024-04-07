@@ -10,7 +10,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    package_name = 'two_wheels'
+    package_name = 'two_wheels_core'
 
     declared_arguments = [
         DeclareLaunchArgument(

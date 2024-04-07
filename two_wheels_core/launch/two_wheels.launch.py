@@ -10,7 +10,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    package_name = 'two_wheels'
+    package_name = 'two_wheels_core'
 
     declared_arguments = [
         DeclareLaunchArgument(
@@ -34,6 +34,16 @@ def generate_launch_description():
     )
 
     controller_nodes = create_controller_nodes(package_name, robot_description_config)
+
+
+
+    rp_lidar_c1_launch_file_path = PathJoinSubstitution(
+        [FindPackageShare(package_name), 'launch', 'view_sllidar_c1_launch.py'])
+    rp_lidar_c1 = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(rp_lidar_c1_launch_file_path),
+        launch_arguments={'serial_port': '/dev/ttyUSB1'}.items()
+    )
+
     core = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory(package_name), 'launch', 'core.launch.py'
@@ -43,7 +53,8 @@ def generate_launch_description():
     return LaunchDescription(declared_arguments +
                              [core,
                               robot_state_pub_node,
-                              create_rviz_node(package_name)
+                              create_rviz_node(package_name),
+                              rp_lidar_c1
                               ]
                              + controller_nodes
                              )

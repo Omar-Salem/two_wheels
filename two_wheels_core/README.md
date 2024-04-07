@@ -7,7 +7,7 @@
 ```bash
 cd ros2_ws/
 rm -rf build/ install/ log/
-colcon build && source install/setup.bash && ros2 launch two_wheels sim_two_wheels.launch.py
+colcon build && source install/setup.bash && ros2 launch two_wheels_core sim_two_wheels.launch.py
 ````
 
 ### Log into on Pi

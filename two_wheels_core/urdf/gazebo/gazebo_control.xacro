@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:include filename="$(find two_wheels)/urdf/joints.macro.xacro"/>
+    <xacro:include filename="$(find two_wheels_core)/urdf/joints.macro.xacro"/>
     <ros2_control name="GazeboSystem" type="system">
         <hardware>
             <plugin>gazebo_ros2_control/GazeboSystem</plugin>
@@ -10,8 +10,8 @@
 
     <gazebo>
         <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
-            <parameters>$(find two_wheels)/config/two_wheels_controllers.yaml</parameters>
-            <parameters>$(find two_wheels)/config/gaz_ros2_ctl_use_sim.yaml</parameters>
+            <parameters>$(find two_wheels_core)/config/two_wheels_controllers.yaml</parameters>
+            <parameters>$(find two_wheels_core)/config/gaz_ros2_ctl_use_sim.yaml</parameters>
         </plugin>
     </gazebo>
 

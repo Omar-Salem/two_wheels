@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>two_wheels</name>
+    <name>two_wheels_core</name>
     <version>0.0.0</version>
     <description>2</description>
     <maintainer email="omar.gamil.salem@gmail.com">omar salem</maintainer>
