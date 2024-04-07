@@ -10,11 +10,13 @@ rm -rf build/ install/ log/
 colcon build && source install/setup.bash && ros2 launch two_wheels sim_two_wheels.launch.py
 ````
 
-### Prepare docker on Pi
-
+### Log into on Pi
 ```bash
 ssh omar.salem@192.168.1.35
+```
 
+### Prepare docker on Pi
+```bash
 sudo rm -rf ~/Volumes
 mkdir -p ~/Volumes/ros2_ws/src
 cd ~/Volumes
