@@ -62,6 +62,8 @@ namespace hw_interface {
 
         void setMotorsVelocity(double m1, double m2);
 
+        void readOdom(const two_wheels_interfaces::msg::MotorsOdom::SharedPtr motorsOdom);
+
     };
 
 }
