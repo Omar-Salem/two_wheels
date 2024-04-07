@@ -32,32 +32,33 @@ scp prepare_docker.sh $HOST:/tmp/ && ssh -t $HOST "sudo -s bash /tmp/prepare_doc
 ssh omar.salem@192.168.1.35 docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
 ```
 
-[//]: # (```bash)
+### Test
+```bash
 
-[//]: # (ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable)
+#ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable
+#docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
+#ros2 topic list | grep motors #sanity check to see if topics exist
 
-[//]: # (docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble)
+source ~/microros_ws/install/local_setup.bash
+ros2 topic echo /two_wheels/motors_state #sanity check to see if topics exist
 
-[//]: # ()
-[//]: # (ros2 topic list | grep motors #sanity check to see if topics exist)
 
-[//]: # ()
-[//]: # (ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist ")
+ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "
 
-[//]: # (  linear:)
+  linear:
 
-[//]: # (    x: 1.0)
+    x: 1.0
 
-[//]: # (    y: 0.0)
+    y: 0.0
 
-[//]: # (    z: 0.0)
+    z: 0.0
 
-[//]: # (  angular:)
+  angular:
 
-[//]: # (    x: 0.0)
+    x: 0.0
 
-[//]: # (    y: 0.0)
+    y: 0.0
 
-[//]: # (    z: 0.0")
+    z: 0.0"
 
-[//]: # (````)
+````
