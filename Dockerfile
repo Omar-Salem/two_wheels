@@ -52,4 +52,4 @@ RUN apt-get install -y python3.10-venv
 RUN python3 get-platformio.py
 
 #Run commands on startup
-#CMD sh /home/usr/run_microros.sh & /home/usr/run_robot.sh
+CMD sh /home/usr/ros2_ws/src/run_microros.sh & /home/usr/ros2_ws/src/run_robot.sh
