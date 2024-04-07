@@ -23,6 +23,9 @@ cd $_
 git clone -b humble https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
 cd ~/Volumes/ros2_ws/src
 git clone https://github.com/Omar-Salem/two_wheels.git
+git clone https://github.com/Slamtec/sllidar_ros2.git
+pip install -U colcon-common-extensions
+source sllidar_ros2/scripts/create_udev_rules.sh
 mv two_wheels/* ~/Volumes/ros2_ws/src/
 mv two_wheels/Dockerfile ~/Volumes/ros2_ws/src/
 rm -rf two_wheels
@@ -64,8 +67,8 @@ docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
 ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable
 cd /home/usr/ros2_ws/
 rm -rf build/ install/ log/
-colcon build --packages-select two_wheels_interfaces
-colcon build && source install/setup.bash && ros2 launch two_wheels two_wheels.launch.py
+colcon build --symlink-install
+source install/setup.bash && ros2 launch two_wheels two_wheels.launch.py
 
 #run microros from other terminal tab
 ssh omar.salem@192.168.1.35
@@ -75,4 +78,14 @@ source /home/usr/microros_ws/install/local_setup.bash
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0
 
 ros2 topic list | grep motors #sanity check to see if topics exist
+
+ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "
+  linear:
+    x: 1.0
+    y: 0.0
+    z: 0.0
+  angular:
+    x: 0.0
+    y: 0.0
+    z: 0.0"
 ````
