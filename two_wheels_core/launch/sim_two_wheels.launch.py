@@ -24,8 +24,10 @@ def generate_launch_description():
     xacro_file = os.path.join(pkg_path, 'urdf', 'robot.urdf.xacro')
     robot_description_config = Command(['xacro ', xacro_file, ' is_sim:=', is_sim])
 
-    params = {'robot_description': robot_description_config,
-              'use_sim_time': True}
+    params = {
+        'robot_description': robot_description_config,
+        'use_sim_time': is_sim
+    }
     robot_state_pub_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -39,7 +41,10 @@ def generate_launch_description():
     core = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory(package_name), 'launch', 'core.launch.py'
-        )]), launch_arguments={'package_name': package_name}.items()
+        )]), launch_arguments={
+            'package_name': package_name,
+            'is_sim': is_sim
+        }.items()
     )
 
     return LaunchDescription(declared_arguments +

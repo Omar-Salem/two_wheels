@@ -47,7 +47,10 @@ def generate_launch_description():
     core = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory(package_name), 'launch', 'core.launch.py'
-        )]), launch_arguments={'package_name': package_name}.items()
+        )]), launch_arguments={
+            'package_name': package_name,
+            'is_sim': is_sim
+        }.items()
     )
 
     return LaunchDescription(declared_arguments +

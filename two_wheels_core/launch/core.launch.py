@@ -14,7 +14,6 @@ def generate_launch_description():
             description="Package name",
         ), DeclareLaunchArgument(
             "is_sim",
-            default_value="true",
         )]
 
     robot_nodes = create_robot_node()
