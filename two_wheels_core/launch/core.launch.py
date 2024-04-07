@@ -23,7 +23,24 @@ def generate_launch_description():
                              robot_nodes
                              )
 
+def create_nav2_node(package_name,is_sim):
+    map_yaml_file = PathJoinSubstitution([FindPackageShare(package_name), "maps", "apt.yaml"])
+    navigation_launch_file_path = PathJoinSubstitution(
+        [FindPackageShare(package_name), 'launch', 'bringup_launch.py'])
+    return IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(navigation_launch_file_path),
+        launch_arguments={'map': map_yaml_file, 'use_sim_time': is_sim, 'package_name': package_name}.items()
+    )
 
+def create_slam_toolbox_node(package_name,is_sim):
+    slam_toolbox_launch_file_path = PathJoinSubstitution(
+        [FindPackageShare(package_name), 'launch', 'online_async_launch.py'])
+    slam_params_file = PathJoinSubstitution(
+        [FindPackageShare(package_name), "config", "mapper_params_online_async.yaml"])
+    return IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(slam_toolbox_launch_file_path),
+        launch_arguments={'use_sim_time': is_sim, 'slam_params_file': slam_params_file}.items()
+    )
 def create_robot_node() -> list:
     """
 
@@ -47,30 +64,15 @@ def create_robot_node() -> list:
         executable="bump_go",
         name="bump_go",
     )
-
-    slam_toolbox_launch_file_path = PathJoinSubstitution(
-        [FindPackageShare(package_name), 'launch', 'online_async_launch.py'])
-    slam_params_file = PathJoinSubstitution(
-        [FindPackageShare(package_name), "config", "mapper_params_online_async.yaml"])
-    slam_toolbox = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(slam_toolbox_launch_file_path),
-        launch_arguments={'use_sim_time': is_sim, 'slam_params_file': slam_params_file}.items()
-    )
-
-    map_yaml_file = PathJoinSubstitution([FindPackageShare(package_name), "maps", "apt.yaml"])
-    navigation_launch_file_path = PathJoinSubstitution(
-        [FindPackageShare(package_name), 'launch', 'bringup_launch.py'])
-    nav2_bringup = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(navigation_launch_file_path),
-        launch_arguments={'map': map_yaml_file, 'use_sim_time': is_sim, 'package_name': package_name}.items()
-    )
+    slam_toolbox=create_slam_toolbox_node(package_name,is_sim)
+    nav2_bringup=create_nav2_node(package_name,is_sim)
     return [
         # robot_localization,
         GroupAction(
             actions=[
                 SetRemap(src='/cmd_vel', dst='/diff_drive_controller/cmd_vel_unstamped'),
-                # slam_toolbox,
-                # nav2_bringup,
+                slam_toolbox,
+                nav2_bringup,
                 # bump_go,
             ]
         )
