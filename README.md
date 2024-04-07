@@ -17,22 +17,8 @@ ssh omar.salem@192.168.1.35
 
 ### Prepare docker on Pi (first time/on repo change)
 ```bash
-sudo rm -rf ~/Volumes
-mkdir -p ~/Volumes/ros2_ws/src
-cd ~/Volumes
-mkdir microros_ws
-cd $_
-git clone -b humble https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
-cd ~/Volumes/ros2_ws/src
-git clone https://github.com/Omar-Salem/two_wheels.git
-git clone https://github.com/Slamtec/sllidar_ros2.git
-pip install -U colcon-common-extensions
-source sllidar_ros2/scripts/create_udev_rules.sh
-mv two_wheels/* ~/Volumes/ros2_ws/src/
-#mv two_wheels/Dockerfile ~/Volumes/ros2_ws/src/  # TODO needed?
-rm -rf two_wheels
-docker system prune --volumes --all -f
-docker build -t humble .
+HOST=omar.salem@192.168.1.35
+scp prepare_docker.sh $HOST:/tmp/ && ssh -t $HOST "sudo -s bash /tmp/prepare_docker.sh"
 ```
 
 ### Build and run real
