@@ -108,7 +108,7 @@ def create_gazebo_nodes(package_name) -> list:
     spawn_entity = Node(package='gazebo_ros',
                         executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'my_bot'],
+                                   '-entity', 'two_wheels'],
                         output='screen')
     # launch.logging.launch_config.level = logging.WARN
     return [gazebo, spawn_entity]
