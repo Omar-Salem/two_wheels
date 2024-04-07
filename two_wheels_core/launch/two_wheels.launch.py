@@ -41,7 +41,10 @@ def generate_launch_description():
         [FindPackageShare(package_name), 'launch', 'view_sllidar_c1_launch.py'])
     rp_lidar_c1 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(rp_lidar_c1_launch_file_path),
-        launch_arguments={'serial_port': '/dev/ttyUSB1'}.items()
+        launch_arguments={
+            'serial_port': '/dev/ttyUSB1',
+            'frame_id': 'base_link'
+        }.items()
     )
 
     core = IncludeLaunchDescription(
