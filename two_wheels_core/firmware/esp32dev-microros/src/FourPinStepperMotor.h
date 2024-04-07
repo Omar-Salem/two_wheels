@@ -11,7 +11,8 @@ class FourPinStepperMotor {
 private:
     AccelStepper *accelStepper;
     const int FULLSTEP = 4;
-    const int MAX_STEPS_PER_SECOND = 512;
+    const int STEPS_PER_REVOLUTION = 2048;
+    const int MAX_STEPS_PER_SECOND = STEPS_PER_REVOLUTION / FULLSTEP;
     const double ANGLES_PER_STEP = 0.17578125;
     const double CONVERT_DEG_TO_RAD = 0.0174533;
     const double MAX_ANGULAR_VELOCITY = MAX_STEPS_PER_SECOND*ANGLES_PER_STEP * CONVERT_DEG_TO_RAD;//1.570797 r/s
