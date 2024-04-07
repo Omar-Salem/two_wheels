@@ -35,6 +35,7 @@ RUN apt install -y python3-colcon-common-extensions
 RUN apt install -y vim
 RUN echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "source /home/usr/microros_ws/install/local_setup.bash" >> ~/.bashrc
 RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
 RUN apt-get install -y usbutils
@@ -45,7 +46,10 @@ RUN apt-get install -y udev
 RUN sudo apt install -y python3-rosdep2
 RUN sudo apt-get install -y python3-pip
 
-# install platformio
+#Install platformio
 RUN curl -fsSL -o get-platformio.py https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py
 RUN apt-get install -y python3.10-venv
 RUN python3 get-platformio.py
+
+#Run commands on startup
+CMD sh /home/usr/run_microros.sh & /home/usr/run_robot.sh
