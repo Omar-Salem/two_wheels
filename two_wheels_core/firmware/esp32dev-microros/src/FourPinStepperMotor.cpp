@@ -21,7 +21,7 @@ double FourPinStepperMotor::getAngularVelocity() {
 }
 
 double FourPinStepperMotor::getPosition() const {
-    int currentPosition = accelStepper->currentPosition() % STEPS_PER_REVOLUTION;
+    int currentPosition = accelStepper->currentPosition();
     currentPosition *= ANGLES_PER_STEP;
     return currentPosition * CONVERT_DEG_TO_RAD * directionMultiplier_;
 }
