@@ -29,7 +29,7 @@ void DCMotor::initialize(void (*interruptCallback)()) {
     pinMode(secondBridgePin_, OUTPUT);
     pinMode(velocityEncoder_, INPUT_PULLUP);
     pinMode(directionEncoder_, INPUT);
-    attachInterrupt(digitalPinToInterrupt(getVelocityEncoder()), interruptCallback, RISING);
+    attachInterrupt(digitalPinToInterrupt(getVelocityEncoderPin()), interruptCallback, RISING);
 }
 
 double DCMotor::getAngularVelocity() {
@@ -102,7 +102,7 @@ void DCMotor::setDirectionBackward() {
     digitalWrite(secondBridgePin_, HIGH);
 }
 
-byte DCMotor::getVelocityEncoder() const {
+byte DCMotor::getVelocityEncoderPin() const {
     return velocityEncoder_;
 }
 

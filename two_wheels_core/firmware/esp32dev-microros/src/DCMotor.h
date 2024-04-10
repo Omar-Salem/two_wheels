@@ -20,19 +20,19 @@ public:
           byte directionEncoder,
           bool isLeft);
 
-    void initialize(void (*interruptCallback)());
-
     double getAngularVelocity();
 
     double getPosition() const;
 
-    byte getVelocityEncoder() const;
-
     void move(double velocity);
+
+    void initialize(void (*interruptCallback)());
+
+    void interruptCallback();
 
     void movePWM(int pwm);
 
-    void interruptCallback();
+    byte getVelocityEncoderPin() const;
 
     void tunePID(double p, double i, double d);
 
