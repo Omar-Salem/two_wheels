@@ -147,9 +147,9 @@ void setup() {
             "moveMotorsTask",     /* name of task. */
             10000,       /* Stack size of task */
             NULL,        /* parameter of the task */
-            1,           /* priority of the task */
+            0,           /* priority of the task */
             &moveMotorsTask,      /* Task handle to keep track of created task */
-            1);          /* pin task to core 1 */
+            0);          /* pin task to core 1 */
 
 }
 
