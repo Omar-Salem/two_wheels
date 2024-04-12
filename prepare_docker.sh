@@ -10,7 +10,7 @@ cd ~/Volumes/ros2_ws/src
 git clone https://github.com/Omar-Salem/two_wheels.git
 git clone https://github.com/Slamtec/sllidar_ros2.git
 
-# grant read and write permissions of the serial device
+# grant read and write permissions to serial devices
 sudo chmod 777 /dev/ttyUSB0
 sudo chmod 777 /dev/ttyUSB1
 mv two_wheels/* ~/Volumes/ros2_ws/src/

@@ -29,7 +29,11 @@ scp prepare_docker.sh $HOST:/tmp/ && ssh -t $HOST "sudo -s bash /tmp/prepare_doc
 ### Docker run
 
 ```bash
-ssh omar.salem@192.168.1.35 docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
+ssh omar.salem@192.168.1.35
+```
+
+```bash
+docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
 ```
 
 ### Test
