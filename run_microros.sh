@@ -1,6 +1,10 @@
 #! /bin/bash
 
-cd /home/usr/microros_ws
+
+mkdir microros_ws
+cd $_
+git clone -b humble https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup
+
 sudo apt update && rosdep update
 rosdep install --from-paths src --ignore-src -y
 source /opt/ros/$ROS_DISTRO/setup.bash
