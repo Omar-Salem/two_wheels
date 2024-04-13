@@ -12,14 +12,14 @@
 #include <random>
 
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/range.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "angles/angles.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.hpp"
 
 using std::placeholders::_1;
-using sensor_msgs::msg::Range;
+using sensor_msgs::msg::LaserScan;
 using geometry_msgs::msg::Twist;
 using nav_msgs::msg::Odometry;
 using angles::to_degrees;
@@ -37,8 +37,8 @@ public:
             : Node("bump_go") {
         twistPublisher_ = this->create_publisher<Twist>(
                 "/cmd_vel", 10);
-        rangeTopicSubscription_ = this->create_subscription<Range>(
-                "/two_wheels/range", 10, std::bind(&BumpAndGo::rangeTopicCallback, this, _1));
+        lidarTopicSubscription_ = this->create_subscription<LaserScan>(
+                "/scan", 10, std::bind(&BumpAndGo::lidarTopicCallback, this, _1));
         odomTopicSubscription_ = this->create_subscription<Odometry>(
                 "/diff_drive_controller/odom", 10, std::bind(&BumpAndGo::odomTopicCallback, this, _1));
         controlLoopTimer_ = this->create_wall_timer(
@@ -51,15 +51,15 @@ private:
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
     static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
     static constexpr double LINEAR_VELOCITY = 0.1;
-    Range::UniquePtr range_;
+    LaserScan::UniquePtr laserScan_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<Twist>::SharedPtr twistPublisher_;
-    rclcpp::Subscription<Range>::SharedPtr rangeTopicSubscription_;
+    rclcpp::Subscription<LaserScan>::SharedPtr lidarTopicSubscription_;
     rclcpp::Subscription<Odometry>::SharedPtr odomTopicSubscription_;
     Twist twistMsg;
 
-    void rangeTopicCallback(Range::UniquePtr range) {
-        range_ = std::move(range);
+    void lidarTopicCallback(LaserScan::UniquePtr laserScan) {
+        laserScan_ = std::move(laserScan);
     }
 
     void odomTopicCallback(Odometry::UniquePtr odometry) {
@@ -85,30 +85,32 @@ private:
     }
 
     void controlLoop() {
-        if (range_ == nullptr || odometry_ == nullptr) {
+        if (laserScan_ == nullptr || odometry_ == nullptr) {
             return;
         }
+        RCLCPP_INFO(this->get_logger(), "range 0: '%s'", to_string(laserScan_->ranges[0]).c_str());
+        RCLCPP_INFO(this->get_logger(), "range 179: '%s'", to_string(laserScan_->ranges[179]).c_str());
+        RCLCPP_INFO(this->get_logger(), "range 269: '%s'", to_string(laserScan_->ranges[269]).c_str());
 
-        if (turning_) {
-            double yaw = getYaw();
-            bool reachedAngle = abs(yaw - startingYaw) > 1.5708; //90 degree turn
-            if (reachedAngle) {
-                turning_ = false;
-            }
-        } else {
-            RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range_->range).c_str());
-            //Clear, keep going
-            if (range_->range > 0.5) {
-                twistMsg.linear.x = LINEAR_VELOCITY;
-                twistMsg.angular.z = 0.0;
-            } else {
-                turning_ = true;
-                startingYaw = getYaw();
-                twistMsg.linear.x = 0.0;
-                twistMsg.angular.z = 1.57 * getRandomDirection();
-            }
-        }
-        twistPublisher_->publish(twistMsg);
+//        if (turning_) {
+//            double yaw = getYaw();
+//            bool reachedAngle = abs(yaw - startingYaw) >= 1.5708; //90 degree turn
+//            if (reachedAngle) {
+//                turning_ = false;
+//            }
+//        } else {
+//            //Clear, keep going
+//            if (laserScan_->range > 0.5) {
+//                twistMsg.linear.x = LINEAR_VELOCITY;
+//                twistMsg.angular.z = 0.0;
+//            } else {
+//                turning_ = true;
+//                startingYaw = getYaw();
+//                twistMsg.linear.x = 0.0;
+//                twistMsg.angular.z = 1.57 * getRandomDirection();
+//            }
+//        }
+//        twistPublisher_->publish(twistMsg);
     }
 };
 
