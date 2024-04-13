@@ -91,23 +91,12 @@ namespace hw_interface {
 
     return_type DiffDrive::read(
             const Time & /*time*/, const Duration & /*period*/) {
-//        RCLCPP_INFO(get_logger("DiffDrive"), "Reading ...please wait...");
-
-//        RCLCPP_INFO(get_logger("DiffDrive"),
-//                    "leftWheel position:%f,rightWheel position:%f,leftWheel velocity:%f,rightWheel velocity:%f",
-//                    leftWheel->position_state, rightWheel->position_state,
-//                    leftWheel->velocity_state, rightWheel->velocity_state);
         rclcpp::spin_some(node_);
         return return_type::OK;
     }
 
     return_type DiffDrive::write(
             const Time & /*time*/, const Duration & /*period*/) {
-//        RCLCPP_INFO(get_logger("DiffDrive"), "write ...please wait!!!!!!!...");
-//        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->velocity_command: %f'",
-//                    leftWheel->velocity_command);
-//        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->velocity_command: %f'",
-//                    rightWheel->velocity_command);
         setMotorsVelocity(leftWheel->velocity_command, rightWheel->velocity_command);
         return return_type::OK;
     }
@@ -126,10 +115,10 @@ namespace hw_interface {
         rightWheel->position_state = motorsOdom->m2.position;
         rightWheel->velocity_state = motorsOdom->m2.velocity;
 
-        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->position_state: %f'",
-                    leftWheel->position_state);
-        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->position_state: %f'",
-                    rightWheel->position_state);
+//        RCLCPP_INFO(get_logger("DiffDrive"), "leftWheel->position_state: %f'",
+//                    leftWheel->position_state);
+//        RCLCPP_INFO(get_logger("DiffDrive"), "rightWheel->position_state: %f'",
+//                    rightWheel->position_state);
     }
 
 }
