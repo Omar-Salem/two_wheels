@@ -35,7 +35,6 @@ RUN apt install -y python3-colcon-common-extensions
 RUN apt install -y vim
 RUN echo "export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp" >> ~/.bashrc
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-RUN echo "source /home/usr/microros_ws/install/local_setup.bash" >> ~/.bashrc
 RUN echo "export ROS_DOMAIN_ID=0" >> ~/.bashrc
 RUN apt-get install -y git
 RUN apt-get install -y usbutils
