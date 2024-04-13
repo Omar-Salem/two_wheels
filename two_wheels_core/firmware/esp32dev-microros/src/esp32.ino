@@ -52,6 +52,7 @@ FourPinStepperMotor m2(19, 18, 5, 17, false);
 
 // https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
 TaskHandle_t moveMotorsTask;
+const int ledPin = 4;
 
 
 // #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
@@ -130,6 +131,7 @@ void createCommandSubscriber() {
 
 void setup() {
     Serial.begin(115200);
+    pinMode(ledPin, OUTPUT);
     set_microros_serial_transports(Serial);
 
     allocator = rcl_get_default_allocator();
@@ -156,6 +158,7 @@ void setup() {
 void loop() {
     RCSOFTCHECK(rclc_executor_spin_some(&publisherExecutor, RCL_MS_TO_NS(50)));
     RCSOFTCHECK(rclc_executor_spin_some(&subscriberExecutor, RCL_MS_TO_NS(50)));
+    digitalWrite(ledPin, HIGH);
 }
 
 void moveMotors(void *pvParameters) {
