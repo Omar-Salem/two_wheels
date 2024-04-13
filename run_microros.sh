@@ -12,5 +12,5 @@ colcon build
 source install/local_setup.bash
 ros2 run micro_ros_setup create_agent_ws.sh
 ros2 run micro_ros_setup build_agent.sh
-source /home/usr/microros_ws/install/local_setup.bash
+source install/local_setup.bash
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0

@@ -48,21 +48,7 @@ ros2 topic echo /two_wheels/motors_state #sanity check to see if topics exist
 
 
 ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "
-
   linear:
-
-    x: 1.0
-
-    y: 0.0
-
-    z: 0.0
-
-  angular:
-
-    x: 0.0
-
-    y: 0.0
-
-    z: 0.0"
+    x: 0.5"
 
 ````
