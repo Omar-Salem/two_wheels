@@ -45,7 +45,7 @@ docker exec -it $(docker container ls  | grep 'humble' | awk '{print $1}') bash
 ### Test
 ```bash
 ssh omar.salem@192.168.1.35
-docker run --rm --privileged -it -v ~/Volumes:/home/usr/ humble
+docker exec -it $(docker container ls  | grep 'humble' | awk '{print $1}') bash
 ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "
   linear:
     x: 0.5"
@@ -54,6 +54,8 @@ ros2 topic pub -r 10 /diff_drive_controller/cmd_vel_unstamped geometry_msgs/msg/
 
 ### Debug
 
+- Is Esp32 LED on?
+- Do Motors Have power ?
 ```bash
 
 ls /dev/tty* | grep USB #sanity check to see if usb devices are reachable
