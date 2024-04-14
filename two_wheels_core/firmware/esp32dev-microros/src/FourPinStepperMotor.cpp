@@ -34,8 +34,8 @@ void FourPinStepperMotor::setVelocity(double angularVelocity) {
 }
 
 void FourPinStepperMotor::move() {
-    if (millis() - commandLastPing_ >= DEAD_MAN_SWITCH_TIMEOUT_MILLI_SEC) {
-        accelStepper->setSpeed(0);
-    }
+    // if (millis() - commandLastPing_ >= DEAD_MAN_SWITCH_TIMEOUT_MILLI_SEC) {
+    //     accelStepper->setSpeed(0);
+    // }
     accelStepper->runSpeed();
 }
