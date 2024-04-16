@@ -43,20 +43,26 @@ public:
                 "/diff_drive_controller/odom", 10, std::bind(&BumpAndGo::odomTopicCallback, this, _1));
         controlLoopTimer_ = this->create_wall_timer(
                 CONTROL_LOOP_INTERVAL_MILLI_SEC, std::bind(&BumpAndGo::controlLoop, this));
+
+        straight.linear.x = LINEAR_VELOCITY;
     }
 
 private:
     bool turning_ = false;
     double startingYaw = 0;
     rclcpp::TimerBase::SharedPtr controlLoopTimer_;
-    static constexpr milliseconds CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
-    static constexpr double LINEAR_VELOCITY = 0.1;
+    static constexpr milliseconds
+    CONTROL_LOOP_INTERVAL_MILLI_SEC = 500ms;
+    static constexpr double LINEAR_VELOCITY = 0.5;
+    static constexpr double ANGULAR_VELOCITY = 0.1;
     LaserScan::UniquePtr laserScan_;
     Odometry::UniquePtr odometry_;
     rclcpp::Publisher<Twist>::SharedPtr twistPublisher_;
     rclcpp::Subscription<LaserScan>::SharedPtr lidarTopicSubscription_;
     rclcpp::Subscription<Odometry>::SharedPtr odomTopicSubscription_;
     Twist twistMsg;
+    Twist straight;
+    Twist turn;
 
     void lidarTopicCallback(LaserScan::UniquePtr laserScan) {
         laserScan_ = std::move(laserScan);
@@ -66,14 +72,14 @@ private:
         odometry_ = std::move(odometry);
     }
 
-    double getYaw() {
+    double getYawDegrees() {
         tf2::Quaternion quat_tf;
         geometry_msgs::msg::Quaternion quat_msg = odometry_->pose.pose.orientation;
         tf2::fromMsg(quat_msg, quat_tf);
         tf2::Matrix3x3 m(quat_tf);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
-        return yaw;
+        return yaw * 57.29;
     }
 
     static int getRandomDirection() {
@@ -88,29 +94,31 @@ private:
         if (laserScan_ == nullptr || odometry_ == nullptr) {
             return;
         }
-        RCLCPP_INFO(this->get_logger(), "range 0: '%s'", to_string(laserScan_->ranges[0]).c_str());
-        RCLCPP_INFO(this->get_logger(), "range 179: '%s'", to_string(laserScan_->ranges[179]).c_str());
-        RCLCPP_INFO(this->get_logger(), "range 269: '%s'", to_string(laserScan_->ranges[269]).c_str());
+        const auto range = laserScan_->ranges[179];
+        RCLCPP_INFO(this->get_logger(), "range: '%s'", to_string(range).c_str());
 
-//        if (turning_) {
-//            double yaw = getYaw();
-//            bool reachedAngle = abs(yaw - startingYaw) >= 1.5708; //90 degree turn
-//            if (reachedAngle) {
-//                turning_ = false;
-//            }
-//        } else {
-//            //Clear, keep going
-//            if (laserScan_->range > 0.5) {
-//                twistMsg.linear.x = LINEAR_VELOCITY;
-//                twistMsg.angular.z = 0.0;
-//            } else {
-//                turning_ = true;
-//                startingYaw = getYaw();
-//                twistMsg.linear.x = 0.0;
-//                twistMsg.angular.z = 1.57 * getRandomDirection();
-//            }
-//        }
-//        twistPublisher_->publish(twistMsg);
+
+        RCLCPP_INFO(this->get_logger(), "yaw: '%s'", to_string(getYawDegrees()).c_str());
+        RCLCPP_INFO(this->get_logger(), "delta yaw: '%s'", to_string(abs(getYawDegrees() - startingYaw)).c_str());
+        if (turning_) {
+            double yaw = getYawDegrees();
+            bool reachedAngle = abs(yaw - startingYaw) >= 90; //90 degree turn
+            if (reachedAngle) {
+                turning_ = false;
+                twistMsg = straight;
+            }
+        } else {
+            //Clear, keep going
+            if (range > 1.0) {
+                twistMsg = straight;
+            } else {
+                turning_ = true;
+                startingYaw = getYawDegrees();
+                turn.angular.z = ANGULAR_VELOCITY * getRandomDirection();
+                twistMsg = turn;
+            }
+        }
+        twistPublisher_->publish(twistMsg);
     }
 };
 

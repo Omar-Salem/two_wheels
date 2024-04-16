@@ -7,7 +7,6 @@
     <xacro:if value="$(arg is_sim)">
         <xacro:include filename="gazebo/gazebo.xacro"/>
         <xacro:include filename="gazebo/gazebo_control.xacro"/>
-        <xacro:include filename="gazebo/sonar.xacro"/>
         <xacro:include filename="gazebo/imu.xacro"/>
         <xacro:include filename="gazebo/lidar.xacro"/>
     </xacro:if>
