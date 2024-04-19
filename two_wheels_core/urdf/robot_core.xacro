@@ -116,58 +116,5 @@
         <origin xyz="${caster_wheel_offset_x} 0 -${caster_wheel_offset_z}"/>
     </joint>
 
-    <link name="imu_link">
-        <xacro:box_inertial mass="${imu_mass}" x="${imu_size}" y="${imu_size}" z="${imu_size}"/>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <box size="${imu_size} ${imu_size} ${imu_size}"/>
-            </geometry>
-            <material name="red"/>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <box size="${imu_size} ${imu_size} ${imu_size}"/>
-            </geometry>
-        </collision>
-    </link>
-
-    <joint name="imu_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <parent link="base_link"/>
-        <child link="imu_link"/>
-        <axis xyz="0 0 0"/>
-    </joint>
-
-    <link name="lidar_link">
-        <visual>
-            <geometry>
-                <cylinder radius="0.05" length="0.04"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <visual>
-            <origin xyz="0 0 -0.05"/>
-            <geometry>
-                <cylinder radius="0.01" length="0.1"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <cylinder radius="0.05" length="0.04"/>
-            </geometry>
-        </collision>
-        <xacro:cylinder_inertial mass="0.1" radius="0.04" length="0.05" rotation="0"/>
-    </link>
-
-    <joint name="lidar_joint" type="fixed">
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <parent link="base_link"/>
-        <child link="lidar_link"/>
-        <axis xyz="0 0 0"/>
-    </joint>
-
 
 </robot>
