@@ -39,6 +39,24 @@
         <color rgba="0.596078431372549 0.0 0.00784313725490196 1.0"/>
     </material>
 
+    <link name="base_link">
+        <xacro:cylinder_inertial mass="${disc_mass}" radius="${disc_radius}" length="${disc_height}" rotation="0"/>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${disc_radius}" length="${disc_height}"/>
+            </geometry>
+
+            <material name="white"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <cylinder radius="${disc_radius}" length="${disc_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
     <xacro:macro name="wheel" params="prefix y_reflect">
         <link name="${prefix}_wheel">
             <visual>
@@ -66,55 +84,15 @@
         </joint>
     </xacro:macro>
 
-    <link name="base_footprint"/>
-    <link name="base_link">
-        <xacro:cylinder_inertial mass="${disc_mass}" radius="${disc_radius}" length="${disc_height}" rotation="0"/>
-        <visual>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <cylinder radius="${disc_radius}" length="${disc_height}"/>
-            </geometry>
+    <xacro:wheel prefix="front_left" y_reflect="1"/>
+    <xacro:wheel prefix="front_right" y_reflect="-1"/>
 
-            <material name="white"/>
-        </visual>
-        <collision>
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-            <geometry>
-                <cylinder radius="${disc_radius}" length="${disc_height}"/>
-            </geometry>
-        </collision>
-    </link>
+
+    <link name="base_footprint"/>
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_link"/>
         <child link="base_footprint"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
-
-    <xacro:wheel prefix="front_left" y_reflect="1"/>
-    <xacro:wheel prefix="front_right" y_reflect="-1"/>
-
-    <link name="caster_wheel">
-        <visual>
-            <geometry>
-                <sphere radius="${caster_wheel_radius}"/>
-            </geometry>
-            <material name="black"/>
-        </visual>
-        <collision>
-            <geometry>
-                <sphere radius="${caster_wheel_radius}"/>
-            </geometry>
-        </collision>
-        <xacro:sphere_inertial radius="${caster_wheel_radius}" mass="${caster_wheel_mass}">
-            <origin xyz="0 0 0" rpy="0 0 0"/>
-        </xacro:sphere_inertial>
-    </link>
-
-    <joint name="caster_wheel_joint" type="fixed">
-        <parent link="base_link"/>
-        <child link="caster_wheel"/>
-        <origin xyz="${caster_wheel_offset_x} 0 -${caster_wheel_offset_z}"/>
-    </joint>
-
 
 </robot>
