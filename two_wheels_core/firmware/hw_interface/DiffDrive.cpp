@@ -33,8 +33,8 @@ namespace hw_interface {
         if (SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
             return CallbackReturn::ERROR;
         }
-        leftWheel = make_unique<Wheel>("left_wheel_joint");
-        rightWheel = make_unique<Wheel>("right_wheel_joint");
+        leftWheel = make_unique<Wheel>("front_left_wheel_joint");
+        rightWheel = make_unique<Wheel>("front_right_wheel_joint");
         return CallbackReturn::SUCCESS;
     }
 
