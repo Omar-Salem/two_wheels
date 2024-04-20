@@ -142,7 +142,37 @@
         <axis xyz="0.0 1.0 0.0"/>
     </joint>
 
+    <link name="lidar_link">
+        <inertial>
+            <origin xyz="-0.00011530732368342234 3.558559248059221e-06 0.017945212221916012" rpy="0 0 0"/>
+            <mass value="0.7886321015037847"/>
+            <inertia ixx="0.000269" iyy="0.000272" izz="0.000333" ixy="0.0" iyz="0.0" ixz="-1e-06"/>
+        </inertial>
+        <visual>
+            <origin xyz="-0.11007 -3.2e-05 -0.028463" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="file://$(find two_wheels_core_description)/meshes/lidar_link.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="silver"/>
+        </visual>
+        <collision>
+            <origin xyz="-0.11007 -3.2e-05 -0.028463" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="file://$(find two_wheels_core_description)/meshes/lidar_link.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="lidar_link_joint" type="fixed">
+        <origin xyz="0.11007 3.2e-05 0.028463" rpy="0 0 0"/>
+        <parent link="base_link"/>
+        <child link="lidar_link"/>
+    </joint>
+
     <link name="base_footprint"/>
+
     <joint name="base_footprint_joint" type="fixed">
         <parent link="base_link"/>
         <child link="base_footprint"/>

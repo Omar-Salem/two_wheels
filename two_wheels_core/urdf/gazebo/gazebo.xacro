@@ -10,28 +10,35 @@
         <gravity>true</gravity>
     </gazebo>
 
-    <gazebo reference="front_left_wheel_1">
+    <gazebo reference="front_left_wheel">
         <material>${body_color}</material>
         <mu1>0.2</mu1>
         <mu2>0.2</mu2>
         <self_collide>true</self_collide>
     </gazebo>
 
-    <gazebo reference="rear_left_wheel_1">
+    <gazebo reference="rear_left_wheel">
         <material>${body_color}</material>
         <mu1>0.2</mu1>
         <mu2>0.2</mu2>
         <self_collide>true</self_collide>
     </gazebo>
 
-    <gazebo reference="rear_right_wheel_1">
+    <gazebo reference="rear_right_wheel">
         <material>${body_color}</material>
         <mu1>0.2</mu1>
         <mu2>0.2</mu2>
         <self_collide>true</self_collide>
     </gazebo>
 
-    <gazebo reference="front_right_wheel_1">
+    <gazebo reference="front_right_wheel">
+        <material>${body_color}</material>
+        <mu1>0.2</mu1>
+        <mu2>0.2</mu2>
+        <self_collide>true</self_collide>
+    </gazebo>
+
+    <gazebo reference="lidar_link">
         <material>${body_color}</material>
         <mu1>0.2</mu1>
         <mu2>0.2</mu2>
