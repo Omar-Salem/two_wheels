@@ -47,11 +47,33 @@ const unsigned int PUBLISHER_TIMER_TIMEOUT_MILL = 100;
 //          36,
 //          39,
 //          false);
-FourPinStepperMotor front_left(23, 22, 1, 3, true);
-FourPinStepperMotor front_right(17, 5, 18, 19, true);
 
-FourPinStepperMotor rear_left(33, 25, 26, 27, false);
-FourPinStepperMotor rear_right(33, 25, 26, 27, false);
+const int front_left_1 = 15;
+const int front_left_2 = 2;
+const int front_left_3 = 0;
+const int front_left_4 = 4;
+
+const int rear_left_1 = 19;
+const int rear_left_2 = 18;
+const int rear_left_3 = 5;
+const int rear_left_4 = 17;
+
+
+const int front_right_1 = 13;
+const int front_right_2 = 12;
+const int front_right_3 = 14;
+const int front_right_4 = 27;
+
+const int rear_right_1 = 26;
+const int rear_right_2 = 25;
+const int rear_right_3 = 33;
+const int rear_right_4 = 32;
+
+FourPinStepperMotor front_left(front_left_1, front_left_3, front_left_2, front_left_4, true);
+FourPinStepperMotor rear_left(rear_left_1, rear_left_3, rear_left_2, rear_left_4, true);
+
+FourPinStepperMotor front_right(front_right_1, front_right_3, front_right_2, front_right_4, false);
+FourPinStepperMotor rear_right(rear_right_1, rear_right_3, rear_right_2, rear_right_4, false);
 
 // https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
 TaskHandle_t moveMotorsTask;
@@ -72,17 +94,28 @@ void velocityCommandCallback(const void *msgin) {
     const two_wheels_interfaces__msg__MotorsOdom *command = (const two_wheels_interfaces__msg__MotorsOdom *) msgin;
     front_left.setVelocity(command->front_left.velocity);
     front_right.setVelocity(command->front_right.velocity);
+
+    rear_left.setVelocity(command->rear_left.velocity);
+    rear_right.setVelocity(command->rear_right.velocity);
 }
 
 void odomStateTimerCallback(rcl_timer_t *timer, int64_t last_call_time) {
     RCLC_UNUSED(last_call_time);
     if (timer != NULL) {
         two_wheels_interfaces__msg__MotorsOdom msg;
+
         msg.front_left.position = front_left.getPosition();
         msg.front_left.velocity = front_left.getAngularVelocity();
 
+        msg.rear_left.position = rear_left.getPosition();
+        msg.rear_left.velocity = rear_left.getAngularVelocity();
+
         msg.front_right.position = front_right.getPosition();
         msg.front_right.velocity = front_right.getAngularVelocity();
+
+        msg.rear_right.position = rear_right.getPosition();
+        msg.rear_right.velocity = rear_right.getAngularVelocity();
+
         RCSOFTCHECK(rcl_publish(&odomStatePublisher, &msg, NULL));
     }
 }
@@ -168,5 +201,7 @@ void moveMotors(void *pvParameters) {
     for (;;) {
         front_left.move();
         front_right.move();
+        rear_left.move();
+        rear_right.move();
     }
 }
