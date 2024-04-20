@@ -47,8 +47,11 @@ const unsigned int PUBLISHER_TIMER_TIMEOUT_MILL = 100;
 //          36,
 //          39,
 //          false);
-FourPinStepperMotor front_left(33, 25, 26, 27, true);
-FourPinStepperMotor front_right(19, 18, 5, 17, false);
+FourPinStepperMotor front_left(23, 22, 1, 3, true);
+FourPinStepperMotor front_right(17, 5, 18, 19, true);
+
+FourPinStepperMotor rear_left(33, 25, 26, 27, false);
+FourPinStepperMotor rear_right(33, 25, 26, 27, false);
 
 // https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
 TaskHandle_t moveMotorsTask;
@@ -123,10 +126,10 @@ void createCommandSubscriber() {
     RCSOFTCHECK(rclc_executor_init(&subscriberExecutor, &support.context, 1, &allocator));
 
     RCSOFTCHECK(rclc_executor_add_subscription(&subscriberExecutor,
-                                           &velocityCommandSubscriber,
-                                           &velocityCommandCallbackMessage,
-                                           &velocityCommandCallback,
-                                           ON_NEW_DATA));
+                                               &velocityCommandSubscriber,
+                                               &velocityCommandCallbackMessage,
+                                               &velocityCommandCallback,
+                                               ON_NEW_DATA));
 }
 
 void setup() {
