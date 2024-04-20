@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-    <xacro:property name="black" value="Gazebo/Silver"/>
+    <xacro:property name="silver" value="Gazebo/Silver"/>
     <xacro:property name="black" value="Gazebo/Black"/>
 
     <gazebo reference="base_link">
