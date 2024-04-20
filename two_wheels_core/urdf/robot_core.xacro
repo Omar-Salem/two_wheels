@@ -34,7 +34,7 @@
                 <mesh filename="file://$(find two_wheels_core)/urdf/meshes/front_left_wheel.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="silver"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="0.077933 0.059968 -0.023743" rpy="0 0 0"/>
@@ -57,7 +57,7 @@
                 <mesh filename="file://$(find two_wheels_core)/urdf/meshes/rear_left_wheel.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="silver"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="-0.077933 0.059968 -0.023743" rpy="0 0 0"/>
@@ -80,7 +80,7 @@
                 <mesh filename="file://$(find two_wheels_core)/urdf/meshes/rear_right_wheel.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="silver"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="-0.077931 -0.060032 -0.023742" rpy="0 0 0"/>
@@ -103,7 +103,7 @@
                 <mesh filename="file://$(find two_wheels_core)/urdf/meshes/front_right_wheel.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="silver"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="0.077931 -0.060032 -0.023742" rpy="0 0 0"/>
@@ -154,7 +154,7 @@
                 <mesh filename="file://$(find two_wheels_core)/urdf/meshes/lidar_link.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="silver"/>
+            <material name="black"/>
         </visual>
         <collision>
             <origin xyz="-0.11007 -3.2e-05 -0.028463" rpy="0 0 0"/>
