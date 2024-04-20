@@ -11,11 +11,12 @@ controller_manager:
 
 diff_drive_controller:
   ros__parameters:
+    wheels_per_side: 2
     left_wheel_names: [ "front_left_wheel_joint" ,"rear_left_wheel_joint" ]
     right_wheel_names: [ "front_right_wheel_joint","rear_right_wheel_joint" ]
 
-    wheel_separation: 0.19 # read from the URDF if this parameter is not specified.
-    wheel_radius: 0.024 # read from the URDF if this parameter is not specified.
+    wheel_separation: 0.164
+    wheel_radius: 0.024
 
     use_stamped_vel: false
     #    wheel_separation_multiplier: 1.0
