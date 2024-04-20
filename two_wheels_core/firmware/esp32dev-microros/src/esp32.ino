@@ -47,8 +47,8 @@ const unsigned int PUBLISHER_TIMER_TIMEOUT_MILL = 100;
 //          36,
 //          39,
 //          false);
-FourPinStepperMotor m1(33, 25, 26, 27, true);
-FourPinStepperMotor m2(19, 18, 5, 17, false);
+FourPinStepperMotor front_left(33, 25, 26, 27, true);
+FourPinStepperMotor front_right(19, 18, 5, 17, false);
 
 // https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
 TaskHandle_t moveMotorsTask;
@@ -67,19 +67,19 @@ const int ledPin = 4;
 
 void velocityCommandCallback(const void *msgin) {
     const two_wheels_interfaces__msg__MotorsOdom *command = (const two_wheels_interfaces__msg__MotorsOdom *) msgin;
-    m1.setVelocity(command->m1.velocity);
-    m2.setVelocity(command->m2.velocity);
+    front_left.setVelocity(command->front_left.velocity);
+    front_right.setVelocity(command->front_right.velocity);
 }
 
 void odomStateTimerCallback(rcl_timer_t *timer, int64_t last_call_time) {
     RCLC_UNUSED(last_call_time);
     if (timer != NULL) {
         two_wheels_interfaces__msg__MotorsOdom msg;
-        msg.m1.position = m1.getPosition();
-        msg.m1.velocity = m1.getAngularVelocity();
+        msg.front_left.position = front_left.getPosition();
+        msg.front_left.velocity = front_left.getAngularVelocity();
 
-        msg.m2.position = m2.getPosition();
-        msg.m2.velocity = m2.getAngularVelocity();
+        msg.front_right.position = front_right.getPosition();
+        msg.front_right.velocity = front_right.getAngularVelocity();
         RCSOFTCHECK(rcl_publish(&odomStatePublisher, &msg, NULL));
     }
 }
@@ -163,7 +163,7 @@ void loop() {
 
 void moveMotors(void *pvParameters) {
     for (;;) {
-        m1.move();
-        m2.move();
+        front_left.move();
+        front_right.move();
     }
 }

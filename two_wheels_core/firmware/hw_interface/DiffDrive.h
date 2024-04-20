@@ -32,10 +32,10 @@ namespace hw_interface {
                 const State &previous_state) override;
 
 
-        vector<StateInterface> export_state_interfaces() override;
+        vector <StateInterface> export_state_interfaces() override;
 
 
-        vector<CommandInterface> export_command_interfaces() override;
+        vector <CommandInterface> export_command_interfaces() override;
 
 
         CallbackReturn on_activate(
@@ -54,13 +54,15 @@ namespace hw_interface {
                 const Time &time, const Duration &period) override;
 
     private:
-        unique_ptr<Wheel> leftWheel;
-        unique_ptr<Wheel> rightWheel;
-        std::shared_ptr<rclcpp::Node> node_;
+        unique_ptr <Wheel> frontLeftWheel;
+        unique_ptr <Wheel> frontRightWheel;
+        unique_ptr <Wheel> rearLeftWheel;
+        unique_ptr <Wheel> rearRightWheel;
+        std::shared_ptr <rclcpp::Node> node_;
         rclcpp::Subscription<two_wheels_interfaces::msg::MotorsOdom>::SharedPtr odomSubscription;
         rclcpp::Publisher<two_wheels_interfaces::msg::MotorsOdom>::SharedPtr velocityPublisher;
 
-        void setMotorsVelocity(double m1, double m2);
+        void setMotorsVelocity(double frontLeft, double frontRight, double rearLeft, double rearRight);
 
         void readOdom(const two_wheels_interfaces::msg::MotorsOdom::SharedPtr motorsOdom);
 
