@@ -1,6 +1,8 @@
 ### Validate URDF file
 
-```check_urdf /PATH/TO/URDF```
+``` bash 
+check_urdf two_wheels_core/urdf/robot_core.xacro
+```
 
 ## Build and run simulation
 
