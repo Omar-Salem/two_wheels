@@ -151,7 +151,7 @@
         <visual>
             <origin xyz="-0.11007 -3.2e-05 -0.028463" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="file://$(find two_wheels_core_description)/meshes/lidar_link.stl"
+                <mesh filename="file://$(find two_wheels_core)/urdf/meshes/lidar_link.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="silver"/>
@@ -159,7 +159,7 @@
         <collision>
             <origin xyz="-0.11007 -3.2e-05 -0.028463" rpy="0 0 0"/>
             <geometry>
-                <mesh filename="file://$(find two_wheels_core_description)/meshes/lidar_link.stl"
+                <mesh filename="file://$(find two_wheels_core)/urdf/meshes/lidar_link.stl"
                       scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
