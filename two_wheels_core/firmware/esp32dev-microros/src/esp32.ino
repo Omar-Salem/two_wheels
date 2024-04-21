@@ -69,11 +69,11 @@ const int rear_right_2 = 25;
 const int rear_right_3 = 33;
 const int rear_right_4 = 32;
 
-FourPinStepperMotor front_left(front_left_1, front_left_3, front_left_2, front_left_4, true);
-FourPinStepperMotor rear_left(rear_left_1, rear_left_3, rear_left_2, rear_left_4, true);
+FourPinStepperMotor front_left(front_left_1, front_left_2, front_left_3, front_left_4, true);
+FourPinStepperMotor rear_left(rear_left_1, rear_left_2, rear_left_3, rear_left_4, true);
 
-FourPinStepperMotor front_right(front_right_1, front_right_3, front_right_2, front_right_4, false);
-FourPinStepperMotor rear_right(rear_right_1, rear_right_3, rear_right_2, rear_right_4, false);
+FourPinStepperMotor front_right(front_right_1, front_right_2, front_right_3, front_right_4, false);
+FourPinStepperMotor rear_right(rear_right_1, rear_right_2, rear_right_3, rear_right_4, false);
 
 // https://randomnerdtutorials.com/esp32-dual-core-arduino-ide/
 TaskHandle_t moveMotorsTask;
